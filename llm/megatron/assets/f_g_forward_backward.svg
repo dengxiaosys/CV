@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#4b5563"/>
+    </marker>
+  </defs>
+  <rect width="1200" height="680" fill="#ffffff"/>
+  <style>
+    text { font-family: "DejaVu Sans", Arial, sans-serif; fill: #17212b; }
+    .title { font-size: 24px; font-weight: 700; }
+    .subtitle { font-size: 13px; fill: #52606d; }
+    .phase { font-size: 18px; font-weight: 700; }
+    .label { font-size: 14px; font-weight: 700; text-anchor: middle; }
+    .small { font-size: 12px; fill: #52606d; text-anchor: middle; }
+    .note { font-size: 13px; fill: #374151; text-anchor: middle; }
+  </style>
+
+  <text x="40" y="38" class="title">Megatron-LM f/g as parameter-free communication layers</text>
+  <text x="40" y="62" class="subtitle">They are autograd nodes: forward moves left to right, backward moves right to left, and red boxes execute collectives.</text>
+
+  <rect x="30" y="90" width="1140" height="235" rx="8" fill="#f5faf7" stroke="#86aa96" stroke-width="2"/>
+  <text x="52" y="122" class="phase">Forward</text>
+
+  <rect x="45" y="158" width="135" height="72" rx="6" fill="#e8edf1" stroke="#7d8992"/>
+  <text x="112" y="187" class="label">X</text>
+  <text x="112" y="210" class="small">replicated input</text>
+
+  <rect x="220" y="158" width="170" height="72" rx="6" fill="#edf1f4" stroke="#7d8992"/>
+  <text x="305" y="185" class="label">f forward</text>
+  <text x="305" y="208" class="small">identity, no communication</text>
+
+  <rect x="430" y="135" width="340" height="118" rx="6" fill="#dceef7" stroke="#3f7fa3"/>
+  <text x="600" y="163" class="label">rank i: local MLP shard</text>
+  <text x="600" y="188" class="small">U_i = X A_i</text>
+  <text x="600" y="209" class="small">Z_i = GeLU(U_i)</text>
+  <text x="600" y="230" class="small">P_i = Z_i B_i</text>
+
+  <rect x="810" y="158" width="190" height="72" rx="6" fill="#f8d7da" stroke="#b84a54" stroke-width="2"/>
+  <text x="905" y="185" class="label">g forward</text>
+  <text x="905" y="208" class="small">all-reduce SUM(P_i)</text>
+
+  <rect x="1040" y="158" width="120" height="72" rx="6" fill="#e5f1e8" stroke="#4f8a62"/>
+  <text x="1100" y="187" class="label">Y</text>
+  <text x="1100" y="210" class="small">replicated output</text>
+
+  <line x1="180" y1="194" x2="214" y2="194" stroke="#4b5563" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="390" y1="194" x2="424" y2="194" stroke="#4b5563" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="770" y1="194" x2="804" y2="194" stroke="#4b5563" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="1000" y1="194" x2="1034" y2="194" stroke="#4b5563" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <text x="600" y="292" class="note">Only g communicates in forward: partial outputs become one complete Y on every TP rank.</text>
+
+  <rect x="30" y="350" width="1140" height="235" rx="8" fill="#f5f8fc" stroke="#809fbd" stroke-width="2"/>
+  <text x="52" y="382" class="phase">Backward</text>
+
+  <rect x="45" y="418" width="135" height="72" rx="6" fill="#e5f1e8" stroke="#4f8a62"/>
+  <text x="112" y="447" class="label">dX</text>
+  <text x="112" y="470" class="small">replicated gradient</text>
+
+  <rect x="220" y="418" width="170" height="72" rx="6" fill="#f8d7da" stroke="#b84a54" stroke-width="2"/>
+  <text x="305" y="445" class="label">f backward</text>
+  <text x="305" y="468" class="small">all-reduce SUM(dX_i)</text>
+
+  <rect x="430" y="395" width="340" height="118" rx="6" fill="#dceef7" stroke="#3f7fa3"/>
+  <text x="600" y="423" class="label">rank i: local backward</text>
+  <text x="600" y="448" class="small">dB_i, dZ_i, dA_i stay local</text>
+  <text x="600" y="469" class="small">dX_i = dU_i A_i^T</text>
+  <text x="600" y="490" class="small">dX_i is one contribution to dX</text>
+
+  <rect x="810" y="418" width="190" height="72" rx="6" fill="#edf1f4" stroke="#7d8992"/>
+  <text x="905" y="445" class="label">g backward</text>
+  <text x="905" y="468" class="small">identity, no communication</text>
+
+  <rect x="1040" y="418" width="120" height="72" rx="6" fill="#e8edf1" stroke="#7d8992"/>
+  <text x="1100" y="447" class="label">dY</text>
+  <text x="1100" y="470" class="small">replicated gradient</text>
+
+  <line x1="1040" y1="454" x2="1006" y2="454" stroke="#4b5563" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="810" y1="454" x2="776" y2="454" stroke="#4b5563" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="430" y1="454" x2="396" y2="454" stroke="#4b5563" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="220" y1="454" x2="186" y2="454" stroke="#4b5563" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <text x="600" y="552" class="note">Only f communicates in backward: rank-local dX_i contributions become one complete dX.</text>
+
+  <rect x="170" y="615" width="860" height="42" rx="6" fill="#f2f4f6" stroke="#c6cdd2"/>
+  <text x="600" y="641" class="note">The two all-reduces occur at opposite ends of the block and carry different tensors.</text>
+</svg>
