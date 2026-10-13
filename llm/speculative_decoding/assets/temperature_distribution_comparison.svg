@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760" role="img" aria-labelledby="title desc">
+  <title id="title">不同 temperature 下的 token 概率分布</title>
+  <desc id="desc">同一组 logits 二一零负一在 temperature 0.5、1 和 2 下产生不同尖锐程度的概率分布。Temperature 越低分布越集中，越高分布越平坦。</desc>
+
+  <rect width="1400" height="760" fill="#f8fafc"/>
+  <g font-family="Arial, 'Noto Sans CJK SC', sans-serif">
+    <text x="52" y="56" font-size="30" font-weight="700" fill="#0f172a">Temperature 改变概率分布的尖锐程度</text>
+    <text x="52" y="90" font-size="17" fill="#475569">固定 logits z = (2, 1, 0, -1)。Token 排名不变，但概率间隔随 τ 改变。</text>
+
+    <rect x="52" y="132" width="408" height="528" rx="8" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="256" y="174" text-anchor="middle" font-size="23" font-weight="700" fill="#1e3a8a">τ = 0.5</text>
+    <text x="256" y="203" text-anchor="middle" font-size="16" fill="#475569">低温：分布更尖锐</text>
+
+    <text x="82" y="269" font-size="18" font-weight="700" fill="#0f172a">A</text>
+    <rect x="116" y="244" width="277" height="32" rx="5" fill="#2563eb"/>
+    <text x="406" y="268" font-size="16" fill="#0f172a">0.865</text>
+    <text x="82" y="349" font-size="18" font-weight="700" fill="#0f172a">B</text>
+    <rect x="116" y="324" width="37" height="32" rx="5" fill="#16a34a"/>
+    <text x="166" y="348" font-size="16" fill="#0f172a">0.117</text>
+    <text x="82" y="429" font-size="18" font-weight="700" fill="#0f172a">C</text>
+    <rect x="116" y="404" width="5" height="32" rx="2" fill="#d97706"/>
+    <text x="134" y="428" font-size="16" fill="#0f172a">0.016</text>
+    <text x="82" y="509" font-size="18" font-weight="700" fill="#0f172a">D</text>
+    <rect x="116" y="484" width="2" height="32" fill="#dc2626"/>
+    <text x="131" y="508" font-size="16" fill="#0f172a">0.002</text>
+    <rect x="82" y="572" width="348" height="56" rx="6" fill="#dbeafe"/>
+    <text x="256" y="607" text-anchor="middle" font-size="16" fill="#1e3a8a">Top-1 占据约 86.5% 概率质量</text>
+
+    <rect x="496" y="132" width="408" height="528" rx="8" fill="#ffffff" stroke="#64748b" stroke-width="2"/>
+    <text x="700" y="174" text-anchor="middle" font-size="23" font-weight="700" fill="#0f172a">τ = 1</text>
+    <text x="700" y="203" text-anchor="middle" font-size="16" fill="#475569">原始 softmax</text>
+
+    <text x="526" y="269" font-size="18" font-weight="700" fill="#0f172a">A</text>
+    <rect x="560" y="244" width="206" height="32" rx="5" fill="#2563eb"/>
+    <text x="779" y="268" font-size="16" fill="#0f172a">0.644</text>
+    <text x="526" y="349" font-size="18" font-weight="700" fill="#0f172a">B</text>
+    <rect x="560" y="324" width="76" height="32" rx="5" fill="#16a34a"/>
+    <text x="649" y="348" font-size="16" fill="#0f172a">0.237</text>
+    <text x="526" y="429" font-size="18" font-weight="700" fill="#0f172a">C</text>
+    <rect x="560" y="404" width="28" height="32" rx="5" fill="#d97706"/>
+    <text x="601" y="428" font-size="16" fill="#0f172a">0.087</text>
+    <text x="526" y="509" font-size="18" font-weight="700" fill="#0f172a">D</text>
+    <rect x="560" y="484" width="10" height="32" rx="4" fill="#dc2626"/>
+    <text x="583" y="508" font-size="16" fill="#0f172a">0.032</text>
+    <rect x="526" y="572" width="348" height="56" rx="6" fill="#e2e8f0"/>
+    <text x="700" y="607" text-anchor="middle" font-size="16" fill="#334155">Top-1 占据约 64.4% 概率质量</text>
+
+    <rect x="940" y="132" width="408" height="528" rx="8" fill="#ffffff" stroke="#d97706" stroke-width="2"/>
+    <text x="1144" y="174" text-anchor="middle" font-size="23" font-weight="700" fill="#92400e">τ = 2</text>
+    <text x="1144" y="203" text-anchor="middle" font-size="16" fill="#475569">高温：分布更平坦</text>
+
+    <text x="970" y="269" font-size="18" font-weight="700" fill="#0f172a">A</text>
+    <rect x="1004" y="244" width="146" height="32" rx="5" fill="#2563eb"/>
+    <text x="1163" y="268" font-size="16" fill="#0f172a">0.455</text>
+    <text x="970" y="349" font-size="18" font-weight="700" fill="#0f172a">B</text>
+    <rect x="1004" y="324" width="88" height="32" rx="5" fill="#16a34a"/>
+    <text x="1105" y="348" font-size="16" fill="#0f172a">0.276</text>
+    <text x="970" y="429" font-size="18" font-weight="700" fill="#0f172a">C</text>
+    <rect x="1004" y="404" width="53" height="32" rx="5" fill="#d97706"/>
+    <text x="1070" y="428" font-size="16" fill="#0f172a">0.167</text>
+    <text x="970" y="509" font-size="18" font-weight="700" fill="#0f172a">D</text>
+    <rect x="1004" y="484" width="33" height="32" rx="5" fill="#dc2626"/>
+    <text x="1050" y="508" font-size="16" fill="#0f172a">0.102</text>
+    <rect x="970" y="572" width="348" height="56" rx="6" fill="#fef3c7"/>
+    <text x="1144" y="607" text-anchor="middle" font-size="16" fill="#92400e">Top-1 只占约 45.5% 概率质量</text>
+
+    <g font-size="15" fill="#475569">
+      <rect x="422" y="698" width="18" height="18" rx="3" fill="#2563eb"/>
+      <text x="448" y="712">A</text>
+      <rect x="502" y="698" width="18" height="18" rx="3" fill="#16a34a"/>
+      <text x="528" y="712">B</text>
+      <rect x="582" y="698" width="18" height="18" rx="3" fill="#d97706"/>
+      <text x="608" y="712">C</text>
+      <rect x="662" y="698" width="18" height="18" rx="3" fill="#dc2626"/>
+      <text x="688" y="712">D</text>
+      <text x="738" y="712">τ 越低越集中；τ 越高越平坦</text>
+    </g>
+  </g>
+</svg>

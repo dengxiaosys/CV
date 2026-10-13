@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760" role="img" aria-labelledby="title desc">
+  <title id="title">Top-p 截断前后的概率分布</title>
+  <desc id="desc">原始分布零点四、零点二五、零点二、零点一、零点零五在 top-p 阈值零点七下保留前三个 token，保留质量为零点八五，随后重新归一化。</desc>
+
+  <rect width="1400" height="760" fill="#f8fafc"/>
+  <g font-family="Arial, 'Noto Sans CJK SC', sans-serif">
+    <text x="52" y="56" font-size="30" font-weight="700" fill="#0f172a">Top-p 删除低概率尾部，再重新归一化</text>
+    <text x="52" y="90" font-size="17" fill="#475569">示例阈值 ρ = 0.70。按概率从高到低累加，保留首次达到阈值的 crossing token。</text>
+
+    <rect x="52" y="132" width="594" height="544" rx="8" fill="#ffffff" stroke="#64748b" stroke-width="2"/>
+    <text x="349" y="174" text-anchor="middle" font-size="23" font-weight="700" fill="#0f172a">截断前</text>
+    <text x="349" y="203" text-anchor="middle" font-size="16" fill="#475569">p = (0.40, 0.25, 0.20, 0.10, 0.05)</text>
+
+    <text x="82" y="269" font-size="18" font-weight="700" fill="#0f172a">A</text>
+    <rect x="116" y="244" width="200" height="30" rx="5" fill="#2563eb"/>
+    <text x="328" y="267" font-size="16" fill="#0f172a">0.40</text>
+    <text x="474" y="267" font-size="15" fill="#166534">累计 0.40</text>
+
+    <text x="82" y="341" font-size="18" font-weight="700" fill="#0f172a">B</text>
+    <rect x="116" y="316" width="125" height="30" rx="5" fill="#16a34a"/>
+    <text x="253" y="339" font-size="16" fill="#0f172a">0.25</text>
+    <text x="474" y="339" font-size="15" fill="#166534">累计 0.65</text>
+
+    <text x="82" y="413" font-size="18" font-weight="700" fill="#0f172a">C</text>
+    <rect x="116" y="388" width="100" height="30" rx="5" fill="#d97706"/>
+    <text x="228" y="411" font-size="16" fill="#0f172a">0.20</text>
+    <text x="474" y="411" font-size="15" font-weight="700" fill="#92400e">累计 0.85 ≥ ρ</text>
+
+    <text x="82" y="485" font-size="18" font-weight="700" fill="#64748b">D</text>
+    <rect x="116" y="460" width="50" height="30" rx="5" fill="#cbd5e1"/>
+    <text x="178" y="483" font-size="16" fill="#64748b">0.10</text>
+    <text x="474" y="483" font-size="15" fill="#991b1b">删除</text>
+
+    <text x="82" y="557" font-size="18" font-weight="700" fill="#64748b">E</text>
+    <rect x="116" y="532" width="25" height="30" rx="5" fill="#cbd5e1"/>
+    <text x="153" y="555" font-size="16" fill="#64748b">0.05</text>
+    <text x="474" y="555" font-size="15" fill="#991b1b">删除</text>
+
+    <rect x="82" y="602" width="534" height="46" rx="6" fill="#fef3c7"/>
+    <text x="349" y="631" text-anchor="middle" font-size="16" fill="#92400e">Nucleus = {A, B, C}，保留质量 Zρ = 0.85</text>
+
+    <path d="M666 404H734" stroke="#475569" stroke-width="3"/>
+    <path d="M720 392L738 404L720 416Z" fill="#475569"/>
+    <text x="702" y="374" text-anchor="middle" font-size="15" fill="#475569">÷ 0.85</text>
+
+    <rect x="754" y="132" width="594" height="544" rx="8" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="1051" y="174" text-anchor="middle" font-size="23" font-weight="700" fill="#1e3a8a">截断并重新归一化后</text>
+    <text x="1051" y="203" text-anchor="middle" font-size="16" fill="#475569">TopPρ[p] ≈ (0.471, 0.294, 0.235, 0, 0)</text>
+
+    <text x="784" y="269" font-size="18" font-weight="700" fill="#0f172a">A</text>
+    <rect x="818" y="244" width="235" height="30" rx="5" fill="#2563eb"/>
+    <text x="1065" y="267" font-size="16" fill="#0f172a">0.471</text>
+
+    <text x="784" y="341" font-size="18" font-weight="700" fill="#0f172a">B</text>
+    <rect x="818" y="316" width="147" height="30" rx="5" fill="#16a34a"/>
+    <text x="977" y="339" font-size="16" fill="#0f172a">0.294</text>
+
+    <text x="784" y="413" font-size="18" font-weight="700" fill="#0f172a">C</text>
+    <rect x="818" y="388" width="118" height="30" rx="5" fill="#d97706"/>
+    <text x="948" y="411" font-size="16" fill="#0f172a">0.235</text>
+
+    <text x="784" y="485" font-size="18" font-weight="700" fill="#64748b">D</text>
+    <rect x="818" y="460" width="2" height="30" fill="#cbd5e1"/>
+    <text x="832" y="483" font-size="16" fill="#64748b">0</text>
+
+    <text x="784" y="557" font-size="18" font-weight="700" fill="#64748b">E</text>
+    <rect x="818" y="532" width="2" height="30" fill="#cbd5e1"/>
+    <text x="832" y="555" font-size="16" fill="#64748b">0</text>
+
+    <rect x="784" y="602" width="534" height="46" rx="6" fill="#dbeafe"/>
+    <text x="1051" y="631" text-anchor="middle" font-size="16" fill="#1e3a8a">保留 token 的相对比例不变；总概率重新变为 1</text>
+
+    <text x="52" y="716" font-size="16" fill="#475569">关键：top-p 阈值是“至少保留多少累计质量”，不是最终一定保留恰好 ρ，也不是在 nucleus 内均匀采样。</text>
+  </g>
+</svg>

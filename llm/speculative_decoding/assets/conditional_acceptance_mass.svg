@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="700" viewBox="0 0 1280 700" role="img" aria-labelledby="title desc">
+  <title id="title">条件接受概率与联合概率质量</title>
+  <desc id="desc">Draft 以 q(x) 的概率提出 token x。给定已经提出 x，验证器以 a(x) 的条件概率接受。因此接受分支的联合概率质量为 q(x)a(x)，拒绝分支为 q(x)(1-a(x))。</desc>
+  <defs>
+    <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0 0L0 6L9 3Z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0 0L0 6L9 3Z" fill="#15803d"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0 0L0 6L9 3Z" fill="#b91c1c"/>
+    </marker>
+  </defs>
+
+  <rect width="1280" height="700" fill="#f8fafc"/>
+  <g font-family="Arial, 'Noto Sans CJK SC', sans-serif">
+    <text x="52" y="58" font-size="30" font-weight="700" fill="#0f172a">条件接受概率与联合概率质量</text>
+    <text x="52" y="92" font-size="17" fill="#475569">先提出 token x，再在“已经提出 x”的条件下决定接受或拒绝。</text>
+
+    <rect x="52" y="154" width="280" height="150" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="192" y="195" text-anchor="middle" font-size="21" font-weight="700" fill="#1e3a8a">Draft 提出 x</text>
+    <text x="192" y="238" text-anchor="middle" font-size="22" fill="#1e3a8a">P(X̃ = x) = q(x)</text>
+    <text x="192" y="270" text-anchor="middle" font-size="15" fill="#475569">这是到达判定节点的概率质量</text>
+
+    <path d="M332 229H477" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow-blue)"/>
+
+    <rect x="492" y="154" width="296" height="150" rx="8" fill="#ffffff" stroke="#64748b" stroke-width="2"/>
+    <text x="640" y="195" text-anchor="middle" font-size="21" font-weight="700" fill="#0f172a">Verifier 随机判定</text>
+    <text x="640" y="238" text-anchor="middle" font-size="22" fill="#334155">P(接受 | X̃ = x) = a(x)</text>
+    <text x="640" y="270" text-anchor="middle" font-size="15" fill="#475569">a(x) 是条件概率，不是最终分支质量</text>
+
+    <path d="M788 205C850 205 850 155 914 155" stroke="#15803d" stroke-width="3" fill="none" marker-end="url(#arrow-green)"/>
+    <text x="840" y="180" text-anchor="middle" font-size="16" font-weight="700" fill="#166534">接受：a(x)</text>
+
+    <path d="M788 255C850 255 850 395 914 395" stroke="#b91c1c" stroke-width="3" fill="none" marker-end="url(#arrow-red)"/>
+    <text x="840" y="327" text-anchor="middle" font-size="16" font-weight="700" fill="#991b1b">拒绝：1 - a(x)</text>
+
+    <rect x="930" y="106" width="298" height="132" rx="8" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+    <text x="1079" y="146" text-anchor="middle" font-size="21" font-weight="700" fill="#166534">接受分支</text>
+    <text x="1079" y="184" text-anchor="middle" font-size="20" fill="#166534">q(x) a(x)</text>
+    <text x="1079" y="214" text-anchor="middle" font-size="15" fill="#475569">提出 x 且接受 x 的联合概率</text>
+
+    <rect x="930" y="346" width="298" height="132" rx="8" fill="#fee2e2" stroke="#b91c1c" stroke-width="2"/>
+    <text x="1079" y="386" text-anchor="middle" font-size="21" font-weight="700" fill="#991b1b">拒绝分支</text>
+    <text x="1079" y="424" text-anchor="middle" font-size="20" fill="#991b1b">q(x) [1 - a(x)]</text>
+    <text x="1079" y="454" text-anchor="middle" font-size="15" fill="#475569">提出 x 且拒绝 x 的联合概率</text>
+
+    <rect x="214" y="542" width="852" height="102" rx="8" fill="#ffffff" stroke="#64748b" stroke-width="2"/>
+    <text x="640" y="582" text-anchor="middle" font-size="22" font-weight="700" fill="#0f172a">两条互斥分支重新合并</text>
+    <text x="640" y="618" text-anchor="middle" font-size="21" fill="#334155">q(x)a(x) + q(x)[1 - a(x)] = q(x)</text>
+
+    <text x="52" y="674" font-size="16" fill="#475569">关键区别：a(x) 回答“已提出 x 后，接受的概率”；q(x)a(x) 才是接受分支在总体实验中占据的概率质量。</text>
+  </g>
+</svg>

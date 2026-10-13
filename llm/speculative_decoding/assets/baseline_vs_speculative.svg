@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="700" viewBox="0 0 1280 700" role="img" aria-labelledby="title desc">
+  <title id="title">Autoregressive decoding versus speculative decoding</title>
+  <desc id="desc">Baseline decoding uses one expensive target-model round per output token. Speculative decoding lets a cheaper draft model propose several tokens and verifies them together with one target-model forward pass.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0 0L0 6L9 3Z" fill="#334155"/>
+    </marker>
+  </defs>
+  <rect width="1280" height="700" fill="#f8fafc"/>
+  <g font-family="Arial, sans-serif">
+    <text x="48" y="52" font-size="30" font-weight="700" fill="#0f172a">From one target round per token to draft-then-verify</text>
+    <text x="48" y="84" font-size="17" fill="#475569">The target still judges every committed token; speculation reduces sequential target-model rounds.</text>
+
+    <rect x="48" y="120" width="1184" height="202" rx="8" fill="#ffffff" stroke="#64748b" stroke-width="2"/>
+    <text x="76" y="158" font-size="21" font-weight="700" fill="#991b1b">Baseline autoregressive decoding</text>
+    <text x="76" y="186" font-size="15" fill="#475569">Each next token is needed before the following target forward can begin.</text>
+
+    <g text-anchor="middle">
+      <rect x="90" y="218" width="190" height="68" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+      <text x="185" y="247" font-size="16" font-weight="700" fill="#991b1b">Target forward 1</text>
+      <text x="185" y="271" font-size="15" fill="#334155">emit A</text>
+
+      <rect x="382" y="218" width="190" height="68" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+      <text x="477" y="247" font-size="16" font-weight="700" fill="#991b1b">Target forward 2</text>
+      <text x="477" y="271" font-size="15" fill="#334155">emit B</text>
+
+      <rect x="674" y="218" width="190" height="68" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+      <text x="769" y="247" font-size="16" font-weight="700" fill="#991b1b">Target forward 3</text>
+      <text x="769" y="271" font-size="15" fill="#334155">emit C</text>
+
+      <rect x="966" y="218" width="190" height="68" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+      <text x="1061" y="247" font-size="16" font-weight="700" fill="#991b1b">Target forward 4</text>
+      <text x="1061" y="271" font-size="15" fill="#334155">emit D</text>
+    </g>
+    <g stroke="#334155" stroke-width="3" marker-end="url(#arrow)">
+      <path d="M280 252H368"/>
+      <path d="M572 252H660"/>
+      <path d="M864 252H952"/>
+    </g>
+
+    <rect x="48" y="354" width="1184" height="286" rx="8" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="76" y="392" font-size="21" font-weight="700" fill="#1e40af">One speculative iteration with draft length 4</text>
+    <text x="76" y="420" font-size="15" fill="#475569">Drafting is still autoregressive, but it uses a cheaper model. Verification exposes a token dimension to the target GPU.</text>
+
+    <g text-anchor="middle">
+      <rect x="88" y="456" width="128" height="58" rx="5" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+      <text x="152" y="480" font-size="15" font-weight="700" fill="#166534">Draft 1</text>
+      <text x="152" y="502" font-size="14" fill="#334155">propose A</text>
+
+      <rect x="238" y="456" width="128" height="58" rx="5" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+      <text x="302" y="480" font-size="15" font-weight="700" fill="#166534">Draft 2</text>
+      <text x="302" y="502" font-size="14" fill="#334155">propose B</text>
+
+      <rect x="388" y="456" width="128" height="58" rx="5" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+      <text x="452" y="480" font-size="15" font-weight="700" fill="#166534">Draft 3</text>
+      <text x="452" y="502" font-size="14" fill="#334155">propose X</text>
+
+      <rect x="538" y="456" width="128" height="58" rx="5" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+      <text x="602" y="480" font-size="15" font-weight="700" fill="#166534">Draft 4</text>
+      <text x="602" y="502" font-size="14" fill="#334155">propose Y</text>
+    </g>
+    <g stroke="#334155" stroke-width="2.5" marker-end="url(#arrow)">
+      <path d="M216 485H226"/>
+      <path d="M366 485H376"/>
+      <path d="M516 485H526"/>
+      <path d="M666 485H720"/>
+    </g>
+
+    <rect x="734" y="446" width="274" height="80" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="871" y="475" text-anchor="middle" font-size="17" font-weight="700" fill="#1e40af">One target verification</text>
+    <text x="871" y="500" text-anchor="middle" font-size="14" fill="#334155">score all proposed positions</text>
+
+    <path d="M1008 486H1050" stroke="#334155" stroke-width="3" marker-end="url(#arrow)"/>
+    <rect x="1062" y="446" width="134" height="80" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+    <text x="1129" y="475" text-anchor="middle" font-size="15" font-weight="700" fill="#92400e">Commit</text>
+    <text x="1129" y="499" text-anchor="middle" font-size="14" fill="#334155">A, B, then C</text>
+
+    <path d="M88 570H1008" stroke="#cbd5e1" stroke-width="2"/>
+    <circle cx="152" cy="570" r="8" fill="#16a34a"/>
+    <circle cx="302" cy="570" r="8" fill="#16a34a"/>
+    <circle cx="452" cy="570" r="8" fill="#dc2626"/>
+    <circle cx="602" cy="570" r="8" fill="#94a3b8"/>
+    <text x="152" y="600" text-anchor="middle" font-size="14" fill="#166534">accepted</text>
+    <text x="302" y="600" text-anchor="middle" font-size="14" fill="#166534">accepted</text>
+    <text x="452" y="600" text-anchor="middle" font-size="14" fill="#991b1b">rejected</text>
+    <text x="602" y="600" text-anchor="middle" font-size="14" fill="#475569">discarded</text>
+    <text x="1062" y="579" font-size="14" font-weight="700" fill="#92400e">C is sampled by the</text>
+    <text x="1062" y="601" font-size="14" font-weight="700" fill="#92400e">target correction rule</text>
+
+    <text x="48" y="678" font-size="15" font-weight="700" fill="#0f172a">Latency falls only when saved target rounds are worth more than drafting, verification, sampling, and cache-management overhead.</text>
+  </g>
+</svg>

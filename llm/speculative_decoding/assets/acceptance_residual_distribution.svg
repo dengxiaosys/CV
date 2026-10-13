@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760" role="img" aria-labelledby="title desc">
+  <title id="title">Exact speculative sampling by overlap and residual correction</title>
+  <desc id="desc">A toy three-token vocabulary shows how accepted draft probability contributes the overlap min of target and draft distributions, while rejected proposals are replaced from the normalized positive residual of target minus draft, reproducing the target distribution exactly.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0 0L0 6L9 3Z" fill="#334155"/>
+    </marker>
+  </defs>
+  <rect width="1280" height="760" fill="#f8fafc"/>
+  <g font-family="Arial, sans-serif">
+    <text x="48" y="52" font-size="30" font-weight="700" fill="#0f172a">Exact sampling = shared mass + corrected residual mass</text>
+    <text x="48" y="84" font-size="17" fill="#475569">Toy vocabulary {A, B, C}: target p = (0.3, 0.4, 0.3), draft q = (0.5, 0.3, 0.2).</text>
+
+    <rect x="48" y="118" width="350" height="530" rx="8" fill="#ffffff" stroke="#64748b" stroke-width="2"/>
+    <text x="74" y="155" font-size="21" font-weight="700" fill="#334155">1. Compare p and q</text>
+    <text x="74" y="184" font-size="15" fill="#475569">Bar width represents probability mass.</text>
+
+    <g font-size="17" font-weight="700" fill="#0f172a">
+      <text x="76" y="240">A</text>
+      <text x="76" y="340">B</text>
+      <text x="76" y="440">C</text>
+    </g>
+    <g>
+      <text x="108" y="220" font-size="14" fill="#1e40af">target p(A) = 0.3</text>
+      <rect x="108" y="230" width="156" height="22" fill="#2563eb"/>
+      <text x="108" y="275" font-size="14" fill="#166534">draft q(A) = 0.5</text>
+      <rect x="108" y="285" width="260" height="22" fill="#16a34a"/>
+
+      <text x="108" y="320" font-size="14" fill="#1e40af">target p(B) = 0.4</text>
+      <rect x="108" y="330" width="208" height="22" fill="#2563eb"/>
+      <text x="108" y="375" font-size="14" fill="#166534">draft q(B) = 0.3</text>
+      <rect x="108" y="385" width="156" height="22" fill="#16a34a"/>
+
+      <text x="108" y="420" font-size="14" fill="#1e40af">target p(C) = 0.3</text>
+      <rect x="108" y="430" width="156" height="22" fill="#2563eb"/>
+      <text x="108" y="475" font-size="14" fill="#166534">draft q(C) = 0.2</text>
+      <rect x="108" y="485" width="104" height="22" fill="#16a34a"/>
+    </g>
+    <rect x="74" y="544" width="298" height="76" rx="5" fill="#e2e8f0"/>
+    <text x="94" y="570" font-size="15" font-weight="700" fill="#334155">Acceptance mass</text>
+    <text x="94" y="596" font-size="15" fill="#334155">sum min(p, q) = 0.3 + 0.3 + 0.2 = 0.8</text>
+
+    <path d="M398 384H450" stroke="#334155" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <rect x="464" y="118" width="350" height="530" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+    <text x="490" y="155" font-size="21" font-weight="700" fill="#166534">2. Accept or correct</text>
+    <text x="490" y="184" font-size="15" fill="#475569">For proposed token x, accept with min(1, p(x)/q(x)).</text>
+
+    <rect x="494" y="222" width="290" height="116" rx="6" fill="#dcfce7" stroke="#16a34a"/>
+    <text x="514" y="252" font-size="17" font-weight="700" fill="#166534">Accepted path: probability 0.8</text>
+    <text x="514" y="281" font-size="15" fill="#334155">A contributes min(0.3, 0.5) = 0.3</text>
+    <text x="514" y="306" font-size="15" fill="#334155">B contributes min(0.4, 0.3) = 0.3</text>
+    <text x="514" y="331" font-size="15" fill="#334155">C contributes min(0.3, 0.2) = 0.2</text>
+
+    <rect x="494" y="374" width="290" height="168" rx="6" fill="#fef3c7" stroke="#d97706"/>
+    <text x="514" y="404" font-size="17" font-weight="700" fill="#92400e">Rejected path: probability 0.2</text>
+    <text x="514" y="433" font-size="15" fill="#334155">Positive residual (p - q)+:</text>
+    <text x="514" y="460" font-size="15" fill="#334155">A: 0, B: 0.1, C: 0.1</text>
+    <text x="514" y="487" font-size="15" fill="#334155">Normalize by residual mass 0.2.</text>
+    <text x="514" y="518" font-size="15" font-weight="700" fill="#92400e">Replacement: B or C, each with p = 0.5.</text>
+
+    <text x="494" y="588" font-size="15" fill="#475569">The draft chooses where to look.</text>
+    <text x="494" y="613" font-size="15" fill="#475569">The correction restores missing target mass.</text>
+
+    <path d="M814 384H866" stroke="#334155" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <rect x="880" y="118" width="352" height="530" rx="8" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <text x="906" y="155" font-size="21" font-weight="700" fill="#1e40af">3. Final output law</text>
+    <text x="906" y="184" font-size="15" fill="#475569">Accepted mass plus replacement mass equals p.</text>
+
+    <g font-size="16" fill="#334155">
+      <text x="912" y="248">Output A</text>
+      <rect x="1000" y="226" width="132" height="32" fill="#16a34a"/>
+      <text x="1188" y="248" text-anchor="end" font-weight="700">0.3</text>
+
+      <text x="912" y="328">Output B</text>
+      <rect x="1000" y="306" width="132" height="32" fill="#16a34a"/>
+      <rect x="1132" y="306" width="44" height="32" fill="#d97706"/>
+      <text x="1188" y="328" text-anchor="end" font-weight="700">0.3 + 0.1 = 0.4</text>
+
+      <text x="912" y="408">Output C</text>
+      <rect x="1000" y="386" width="88" height="32" fill="#16a34a"/>
+      <rect x="1088" y="386" width="44" height="32" fill="#d97706"/>
+      <text x="1188" y="408" text-anchor="end" font-weight="700">0.2 + 0.1 = 0.3</text>
+    </g>
+
+    <rect x="906" y="470" width="300" height="112" rx="5" fill="#dbeafe"/>
+    <text x="926" y="500" font-size="16" font-weight="700" fill="#1e40af">Result</text>
+    <text x="926" y="529" font-size="15" fill="#334155">P(output) = (0.3, 0.4, 0.3)</text>
+    <text x="926" y="555" font-size="15" fill="#334155">Exactly the target distribution p.</text>
+
+    <g font-size="14">
+      <rect x="908" y="603" width="18" height="18" fill="#16a34a"/>
+      <text x="936" y="617" fill="#334155">accepted draft mass</text>
+      <rect x="1082" y="603" width="18" height="18" fill="#d97706"/>
+      <text x="1110" y="617" fill="#334155">residual correction</text>
+    </g>
+
+    <text x="48" y="700" font-size="15" font-weight="700" fill="#0f172a">This is maximal coupling at one position: acceptance probability is sum min(p, q) = 1 - TV(p, q).</text>
+    <text x="48" y="727" font-size="15" fill="#475569">The same argument is applied conditionally at each drafted position, so the committed sequence follows the target model distribution.</text>
+  </g>
+</svg>

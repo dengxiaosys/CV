@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="720" viewBox="0 0 1400 720" role="img" aria-labelledby="title desc">
+  <title id="title">Temperature 与 top-p 的采样流程</title>
+  <desc id="desc">原始 logits 先除以 temperature 并经过 softmax，再按概率排序，选择累计概率达到 top-p 阈值的最小 token 集合，重新归一化后采样。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0 0L0 6L9 3Z" fill="#475569"/>
+    </marker>
+  </defs>
+
+  <rect width="1400" height="720" fill="#f8fafc"/>
+  <g font-family="Arial, 'Noto Sans CJK SC', sans-serif">
+    <text x="52" y="58" font-size="30" font-weight="700" fill="#0f172a">Temperature 与 top-p 作用在不同阶段</text>
+    <text x="52" y="92" font-size="17" fill="#475569">先改变概率形状，再截断支持集，最后从重新归一化的分布采样。</text>
+
+    <rect x="46" y="156" width="210" height="146" rx="8" fill="#ffffff" stroke="#64748b" stroke-width="2"/>
+    <text x="151" y="197" text-anchor="middle" font-size="20" font-weight="700" fill="#0f172a">1. 原始 logits</text>
+    <text x="151" y="240" text-anchor="middle" font-size="23" fill="#334155">z(v)</text>
+    <text x="151" y="272" text-anchor="middle" font-size="15" fill="#64748b">未归一化分数</text>
+
+    <path d="M256 229H306" stroke="#475569" stroke-width="3" marker-end="url(#arrow)"/>
+    <text x="281" y="207" text-anchor="middle" font-size="14" fill="#475569">÷ τ</text>
+
+    <rect x="320" y="156" width="250" height="146" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="445" y="197" text-anchor="middle" font-size="20" font-weight="700" fill="#1e3a8a">2. Temperature</text>
+    <text x="445" y="237" text-anchor="middle" font-size="19" fill="#1e3a8a">softmax(z(v) / τ)</text>
+    <text x="445" y="272" text-anchor="middle" font-size="15" fill="#475569">改变全部 token 的相对概率</text>
+
+    <path d="M570 229H620" stroke="#475569" stroke-width="3" marker-end="url(#arrow)"/>
+    <text x="595" y="207" text-anchor="middle" font-size="14" fill="#475569">排序</text>
+
+    <rect x="634" y="156" width="236" height="146" rx="8" fill="#ffffff" stroke="#64748b" stroke-width="2"/>
+    <text x="752" y="197" text-anchor="middle" font-size="20" font-weight="700" fill="#0f172a">3. 概率降序</text>
+    <text x="752" y="237" text-anchor="middle" font-size="18" fill="#334155">π(1) ≥ π(2) ≥ ...</text>
+    <text x="752" y="272" text-anchor="middle" font-size="15" fill="#64748b">计算累计概率</text>
+
+    <path d="M870 229H920" stroke="#475569" stroke-width="3" marker-end="url(#arrow)"/>
+    <text x="895" y="207" text-anchor="middle" font-size="14" fill="#475569">阈值 ρ</text>
+
+    <rect x="934" y="156" width="202" height="146" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+    <text x="1035" y="197" text-anchor="middle" font-size="20" font-weight="700" fill="#92400e">4. Top-p 集合</text>
+    <text x="1035" y="237" text-anchor="middle" font-size="18" fill="#92400e">最小前缀 Sρ</text>
+    <text x="1035" y="272" text-anchor="middle" font-size="15" fill="#64748b">累计概率至少为 ρ</text>
+
+    <path d="M1136 229H1186" stroke="#475569" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <rect x="1200" y="156" width="154" height="146" rx="8" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+    <text x="1277" y="197" text-anchor="middle" font-size="20" font-weight="700" fill="#166534">5. 采样</text>
+    <text x="1277" y="237" text-anchor="middle" font-size="18" fill="#166534">重新归一化</text>
+    <text x="1277" y="272" text-anchor="middle" font-size="15" fill="#64748b">得到最终 token</text>
+
+    <rect x="86" y="386" width="570" height="212" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+    <text x="116" y="427" font-size="22" font-weight="700" fill="#1e3a8a">Temperature τ：改变分布形状</text>
+    <text x="116" y="472" font-size="20" fill="#334155">πτ(a) / πτ(b) = exp((z(a) - z(b)) / τ)</text>
+    <text x="116" y="515" font-size="17" fill="#475569">τ &lt; 1：放大 logit 差异，分布更尖锐</text>
+    <text x="116" y="550" font-size="17" fill="#475569">τ &gt; 1：缩小 logit 差异，分布更平坦</text>
+    <text x="116" y="580" font-size="17" fill="#475569">τ = 0：通常作为 greedy 的特殊分支处理</text>
+
+    <rect x="744" y="386" width="570" height="212" rx="8" fill="#fffbeb" stroke="#d97706" stroke-width="2"/>
+    <text x="774" y="427" font-size="22" font-weight="700" fill="#92400e">Top-p 阈值 ρ：改变支持集</text>
+    <text x="774" y="472" font-size="20" fill="#334155">K = min{k : Σ(j=1..k) π(j) ≥ ρ}</text>
+    <text x="774" y="515" font-size="17" fill="#475569">保留 Sρ = {v(1), ..., v(K)}</text>
+    <text x="774" y="550" font-size="17" fill="#475569">集合外概率置零，集合内重新归一化</text>
+    <text x="774" y="580" font-size="17" fill="#475569">API 名称 top_p；数学上用 ρ 避免与分布 p 混淆</text>
+
+    <text x="52" y="666" font-size="17" font-weight="700" fill="#0f172a">关键顺序：logits → temperature → softmax → top-p 截断 → 重新归一化 → categorical sampling</text>
+  </g>
+</svg>
