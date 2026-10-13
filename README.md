@@ -44,12 +44,3 @@
 | [`llm/`](./llm/) | LLM 训练、推理与基础算法专题 |
 | [`publications/`](./publications/) | ICDCS 2024 论文及演示材料 |
 | [`coursework/`](./coursework/) | 编译器、CPU、操作系统与分布式系统项目 |
-
-## 公开说明
-
-本仓库用于公开展示简历、代表性工程设计、技术专题和学术成果。涉及生产系统的文档已做抽象化与脱敏处理，不包含用户数据、访问凭证、内部源码或不可公开的生产配置；保留的规模与效果数据用于说明问题边界和工程结果。
-
-## 联系方式
-
-- Email: [dengxiao@smail.nju.edu.cn](mailto:dengxiao@smail.nju.edu.cn)
-- GitHub: [dengxiaosys](https://github.com/dengxiaosys)
