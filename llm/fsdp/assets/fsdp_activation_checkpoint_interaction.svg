@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="880" viewBox="0 0 1600 880" role="img" aria-labelledby="title desc">
+  <title id="title">Activation checkpointing 与 FSDP 参数生命周期的交互</title>
+  <desc id="desc">对比普通 FSDP 保存中间 activation 的时序，以及 activation checkpointing 只保存边界输入并在 backward 中重计算 forward 的时序；说明边界对齐时重计算可复用 backward 参数物化窗口。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="880" fill="#ffffff"/>
+  <g font-family="'Source Han Sans SC', Arial, sans-serif" fill="#0f172a">
+    <text x="64" y="62" font-size="32" font-weight="700">Activation checkpointing：少保存 activation，backward 中重算 forward</text>
+    <text x="64" y="100" font-size="18" fill="#475569">FSDP 管理参数物化；activation checkpointing 管理中间激活。两者节省的是不同内存，组合效果取决于边界是否对齐。</text>
+
+    <g transform="translate(64 146)">
+      <rect x="0" y="0" width="1472" height="272" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+      <text x="28" y="42" font-size="25" font-weight="700">普通 FSDP：forward 保存 backward 需要的中间 activation</text>
+      <text x="28" y="72" font-size="16" fill="#64748b">示例为单个 FSDP unit；完整参数在 forward 后 reshard，但 activation 一直存活到对应 backward。</text>
+
+      <text x="28" y="132" font-size="17" font-weight="700">参数</text>
+      <line x1="130" y1="124" x2="1406" y2="124" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+      <rect x="180" y="96" width="220" height="58" rx="6" fill="#fef3c7" stroke="#d97706"/>
+      <text x="290" y="121" text-anchor="middle" font-size="17" font-weight="700">AG(P[i]) → full P[i]</text>
+      <text x="290" y="143" text-anchor="middle" font-size="13" fill="#92400e">供 forward 使用</text>
+      <rect x="400" y="96" width="180" height="58" rx="6" fill="#f1f5f9" stroke="#64748b"/>
+      <text x="490" y="132" text-anchor="middle" font-size="16" font-weight="700">reshard</text>
+      <rect x="820" y="96" width="220" height="58" rx="6" fill="#fef3c7" stroke="#d97706"/>
+      <text x="930" y="121" text-anchor="middle" font-size="17" font-weight="700">AG(P[i]) → full P[i]</text>
+      <text x="930" y="143" text-anchor="middle" font-size="13" fill="#92400e">供 backward 使用</text>
+      <rect x="1040" y="96" width="220" height="58" rx="6" fill="#dcfce7" stroke="#16a34a"/>
+      <text x="1150" y="121" text-anchor="middle" font-size="17" font-weight="700">B[i] → RS(G[i])</text>
+      <text x="1150" y="143" text-anchor="middle" font-size="13" fill="#166534">保留 gradient shard</text>
+
+      <text x="28" y="218" font-size="17" font-weight="700">Activation</text>
+      <rect x="180" y="184" width="400" height="58" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+      <text x="380" y="209" text-anchor="middle" font-size="17" font-weight="700">F[i] 产生 A[i,1], A[i,2], ...</text>
+      <text x="380" y="231" text-anchor="middle" font-size="13" fill="#5b21b6">保存所有 backward 所需中间量</text>
+      <rect x="580" y="184" width="460" height="58" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-dasharray="7 5"/>
+      <text x="810" y="219" text-anchor="middle" font-size="15" fill="#5b21b6">中间 activation 持续占用 HBM</text>
+      <rect x="1040" y="184" width="220" height="58" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+      <text x="1150" y="209" text-anchor="middle" font-size="16" font-weight="700">B[i] 消费 activation</text>
+      <text x="1150" y="231" text-anchor="middle" font-size="13" fill="#5b21b6">随后释放</text>
+    </g>
+
+    <g transform="translate(64 450)">
+      <rect x="0" y="0" width="1472" height="300" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+      <text x="28" y="42" font-size="25" font-weight="700">Activation checkpointing：只保存 segment 边界，backward 时重计算</text>
+      <text x="28" y="72" font-size="16" fill="#64748b">边界与 FSDP unit 对齐时，backward 的参数物化窗口可同时服务重计算与梯度计算。</text>
+
+      <text x="28" y="132" font-size="17" font-weight="700">Forward</text>
+      <line x1="130" y1="124" x2="1406" y2="124" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+      <rect x="180" y="96" width="220" height="58" rx="6" fill="#fef3c7" stroke="#d97706"/>
+      <text x="290" y="121" text-anchor="middle" font-size="17" font-weight="700">AG(P[i]) → full P[i]</text>
+      <text x="290" y="143" text-anchor="middle" font-size="13" fill="#92400e">参数物化</text>
+      <rect x="400" y="96" width="220" height="58" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+      <text x="510" y="121" text-anchor="middle" font-size="17" font-weight="700">F[i]</text>
+      <text x="510" y="143" text-anchor="middle" font-size="13" fill="#5b21b6">不保存内部 activation</text>
+      <rect x="620" y="96" width="180" height="58" rx="6" fill="#f1f5f9" stroke="#64748b"/>
+      <text x="710" y="132" text-anchor="middle" font-size="16" font-weight="700">reshard</text>
+      <rect x="820" y="96" width="236" height="58" rx="6" fill="#dbeafe" stroke="#2563eb"/>
+      <text x="938" y="121" text-anchor="middle" font-size="17" font-weight="700">只保留 segment input</text>
+      <text x="938" y="143" text-anchor="middle" font-size="13" fill="#1e40af">以及必要的 RNG 状态</text>
+
+      <text x="28" y="226" font-size="17" font-weight="700">Backward</text>
+      <line x1="130" y1="218" x2="1406" y2="218" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+      <rect x="180" y="190" width="220" height="58" rx="6" fill="#fef3c7" stroke="#d97706"/>
+      <text x="290" y="215" text-anchor="middle" font-size="17" font-weight="700">AG(P[i]) → full P[i]</text>
+      <text x="290" y="237" text-anchor="middle" font-size="13" fill="#92400e">标准 pre-backward 物化</text>
+      <rect x="400" y="190" width="220" height="58" rx="6" fill="#fff7ed" stroke="#fb923c"/>
+      <text x="510" y="215" text-anchor="middle" font-size="17" font-weight="700">recompute F[i]</text>
+      <text x="510" y="237" text-anchor="middle" font-size="13" fill="#9a3412">重建所需 activation</text>
+      <rect x="620" y="190" width="220" height="58" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+      <text x="730" y="215" text-anchor="middle" font-size="17" font-weight="700">B[i]</text>
+      <text x="730" y="237" text-anchor="middle" font-size="13" fill="#5b21b6">消费重建 activation</text>
+      <rect x="840" y="190" width="220" height="58" rx="6" fill="#dcfce7" stroke="#16a34a"/>
+      <text x="950" y="215" text-anchor="middle" font-size="17" font-weight="700">RS(G[i])</text>
+      <text x="950" y="237" text-anchor="middle" font-size="13" fill="#166534">留下 gradient shard</text>
+      <rect x="1060" y="190" width="200" height="58" rx="6" fill="#f1f5f9" stroke="#64748b"/>
+      <text x="1160" y="226" text-anchor="middle" font-size="16" font-weight="700">reshard P[i]</text>
+    </g>
+
+    <g transform="translate(64 782)">
+      <rect x="0" y="0" width="1472" height="66" rx="8" fill="#fff7ed" stroke="#fb923c"/>
+      <text x="736" y="28" text-anchor="middle" font-size="18" font-weight="700" fill="#9a3412">Activation checkpointing 不必然增加一次参数 All-Gather。</text>
+      <text x="736" y="51" text-anchor="middle" font-size="15" fill="#9a3412">是否增加通信或延长完整参数生命周期取决于 checkpoint segment 与 FSDP unit 的嵌套关系、包装顺序和运行时实现；边界错位必须通过 timeline 验证。</text>
+    </g>
+  </g>
+</svg>

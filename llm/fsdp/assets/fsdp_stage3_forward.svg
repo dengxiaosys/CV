@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="720" viewBox="0 0 1600 720" role="img" aria-labelledby="title desc">
+  <title id="title">Stage 3 无 prefetch 时的逐 unit forward 时序</title>
+  <desc id="desc">每个 unit 先通过 All-Gather 从参数分片恢复完整参数，执行 forward，再释放非本地分片并恢复分片形态。图中展示无 prefetch 的串行基线。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+    </marker>
+    <marker id="small-arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L7,3 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="720" fill="#ffffff"/>
+  <g font-family="'Source Han Sans SC', Arial, sans-serif" fill="#0f172a">
+    <text x="64" y="62" font-size="32" font-weight="700">Stage 3 Forward：按 unit 恢复完整参数，计算后立即 reshard</text>
+    <text x="64" y="100" font-size="18" fill="#475569">无 prefetch 的串行基线；稳定状态始终只保留每个 rank 自己的参数 shard。</text>
+
+    <g transform="translate(846 88)" font-size="15">
+      <rect x="0" y="0" width="26" height="18" rx="4" fill="#dbeafe" stroke="#2563eb"/>
+      <text x="36" y="15">常驻参数 shard</text>
+      <rect x="164" y="0" width="26" height="18" rx="4" fill="#fef3c7" stroke="#d97706"/>
+      <text x="200" y="15">All-Gather / 完整参数</text>
+      <rect x="398" y="0" width="26" height="18" rx="4" fill="#ede9fe" stroke="#7c3aed"/>
+      <text x="434" y="15">Forward</text>
+      <rect x="530" y="0" width="26" height="18" rx="4" fill="#f1f5f9" stroke="#64748b"/>
+      <text x="566" y="15">Reshard</text>
+    </g>
+
+    <g transform="translate(64 142)">
+      <rect x="0" y="0" width="1472" height="408" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+      <text x="28" y="42" font-size="24" font-weight="700">串行执行顺序：U1 → U2 → U3 → U4</text>
+      <text x="28" y="72" font-size="16" fill="#64748b">下一个 unit 的 All-Gather 要等当前 unit 完成；6.3 节会把它提前形成通信计算重叠。</text>
+      <line x1="158" y1="112" x2="1418" y2="112" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+
+      <g transform="translate(104 136)">
+        <rect x="0" y="0" width="292" height="232" rx="8" fill="#ffffff" stroke="#cbd5e1"/>
+        <text x="146" y="32" text-anchor="middle" font-size="19" font-weight="700">U1</text>
+        <rect x="16" y="50" width="78" height="52" rx="6" fill="#fef3c7" stroke="#d97706"/>
+        <text x="55" y="81" text-anchor="middle" font-size="16" font-weight="700">AG(P1)</text>
+        <rect x="104" y="50" width="64" height="52" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="136" y="81" text-anchor="middle" font-size="17" font-weight="700">F1</text>
+        <rect x="178" y="50" width="98" height="52" rx="6" fill="#f1f5f9" stroke="#64748b"/>
+        <text x="227" y="81" text-anchor="middle" font-size="14" font-weight="700">reshard</text>
+        <rect x="18" y="134" width="72" height="42" rx="6" fill="#dbeafe" stroke="#2563eb"/>
+        <text x="54" y="160" text-anchor="middle" font-size="13" font-weight="700">P1 shard</text>
+        <line x1="94" y1="155" x2="111" y2="155" stroke="#94a3b8" stroke-width="2" marker-end="url(#small-arrow)"/>
+        <rect x="116" y="134" width="72" height="42" rx="6" fill="#fef3c7" stroke="#d97706"/>
+        <text x="152" y="160" text-anchor="middle" font-size="13" font-weight="700">full P1</text>
+        <line x1="192" y1="155" x2="209" y2="155" stroke="#94a3b8" stroke-width="2" marker-end="url(#small-arrow)"/>
+        <rect x="214" y="134" width="60" height="42" rx="6" fill="#dbeafe" stroke="#2563eb"/>
+        <text x="244" y="160" text-anchor="middle" font-size="13" font-weight="700">shard</text>
+        <text x="146" y="208" text-anchor="middle" font-size="14" fill="#64748b">full P1 只存在于 F1 窗口</text>
+      </g>
+
+      <g transform="translate(428 136)">
+        <rect x="0" y="0" width="292" height="232" rx="8" fill="#ffffff" stroke="#cbd5e1"/>
+        <text x="146" y="32" text-anchor="middle" font-size="19" font-weight="700">U2</text>
+        <rect x="16" y="50" width="78" height="52" rx="6" fill="#fef3c7" stroke="#d97706"/>
+        <text x="55" y="81" text-anchor="middle" font-size="16" font-weight="700">AG(P2)</text>
+        <rect x="104" y="50" width="64" height="52" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="136" y="81" text-anchor="middle" font-size="17" font-weight="700">F2</text>
+        <rect x="178" y="50" width="98" height="52" rx="6" fill="#f1f5f9" stroke="#64748b"/>
+        <text x="227" y="81" text-anchor="middle" font-size="14" font-weight="700">reshard</text>
+        <rect x="18" y="134" width="72" height="42" rx="6" fill="#dbeafe" stroke="#2563eb"/>
+        <text x="54" y="160" text-anchor="middle" font-size="13" font-weight="700">P2 shard</text>
+        <line x1="94" y1="155" x2="111" y2="155" stroke="#94a3b8" stroke-width="2" marker-end="url(#small-arrow)"/>
+        <rect x="116" y="134" width="72" height="42" rx="6" fill="#fef3c7" stroke="#d97706"/>
+        <text x="152" y="160" text-anchor="middle" font-size="13" font-weight="700">full P2</text>
+        <line x1="192" y1="155" x2="209" y2="155" stroke="#94a3b8" stroke-width="2" marker-end="url(#small-arrow)"/>
+        <rect x="214" y="134" width="60" height="42" rx="6" fill="#dbeafe" stroke="#2563eb"/>
+        <text x="244" y="160" text-anchor="middle" font-size="13" font-weight="700">shard</text>
+        <text x="146" y="208" text-anchor="middle" font-size="14" fill="#64748b">full P2 只存在于 F2 窗口</text>
+      </g>
+
+      <g transform="translate(752 136)">
+        <rect x="0" y="0" width="292" height="232" rx="8" fill="#ffffff" stroke="#cbd5e1"/>
+        <text x="146" y="32" text-anchor="middle" font-size="19" font-weight="700">U3</text>
+        <rect x="16" y="50" width="78" height="52" rx="6" fill="#fef3c7" stroke="#d97706"/>
+        <text x="55" y="81" text-anchor="middle" font-size="16" font-weight="700">AG(P3)</text>
+        <rect x="104" y="50" width="64" height="52" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="136" y="81" text-anchor="middle" font-size="17" font-weight="700">F3</text>
+        <rect x="178" y="50" width="98" height="52" rx="6" fill="#f1f5f9" stroke="#64748b"/>
+        <text x="227" y="81" text-anchor="middle" font-size="14" font-weight="700">reshard</text>
+        <rect x="18" y="134" width="72" height="42" rx="6" fill="#dbeafe" stroke="#2563eb"/>
+        <text x="54" y="160" text-anchor="middle" font-size="13" font-weight="700">P3 shard</text>
+        <line x1="94" y1="155" x2="111" y2="155" stroke="#94a3b8" stroke-width="2" marker-end="url(#small-arrow)"/>
+        <rect x="116" y="134" width="72" height="42" rx="6" fill="#fef3c7" stroke="#d97706"/>
+        <text x="152" y="160" text-anchor="middle" font-size="13" font-weight="700">full P3</text>
+        <line x1="192" y1="155" x2="209" y2="155" stroke="#94a3b8" stroke-width="2" marker-end="url(#small-arrow)"/>
+        <rect x="214" y="134" width="60" height="42" rx="6" fill="#dbeafe" stroke="#2563eb"/>
+        <text x="244" y="160" text-anchor="middle" font-size="13" font-weight="700">shard</text>
+        <text x="146" y="208" text-anchor="middle" font-size="14" fill="#64748b">full P3 只存在于 F3 窗口</text>
+      </g>
+
+      <g transform="translate(1076 136)">
+        <rect x="0" y="0" width="292" height="232" rx="8" fill="#ffffff" stroke="#cbd5e1"/>
+        <text x="146" y="32" text-anchor="middle" font-size="19" font-weight="700">U4</text>
+        <rect x="16" y="50" width="78" height="52" rx="6" fill="#fef3c7" stroke="#d97706"/>
+        <text x="55" y="81" text-anchor="middle" font-size="16" font-weight="700">AG(P4)</text>
+        <rect x="104" y="50" width="64" height="52" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="136" y="81" text-anchor="middle" font-size="17" font-weight="700">F4</text>
+        <rect x="178" y="50" width="98" height="52" rx="6" fill="#f1f5f9" stroke="#64748b"/>
+        <text x="227" y="81" text-anchor="middle" font-size="14" font-weight="700">reshard</text>
+        <rect x="18" y="134" width="72" height="42" rx="6" fill="#dbeafe" stroke="#2563eb"/>
+        <text x="54" y="160" text-anchor="middle" font-size="13" font-weight="700">P4 shard</text>
+        <line x1="94" y1="155" x2="111" y2="155" stroke="#94a3b8" stroke-width="2" marker-end="url(#small-arrow)"/>
+        <rect x="116" y="134" width="72" height="42" rx="6" fill="#fef3c7" stroke="#d97706"/>
+        <text x="152" y="160" text-anchor="middle" font-size="13" font-weight="700">full P4</text>
+        <line x1="192" y1="155" x2="209" y2="155" stroke="#94a3b8" stroke-width="2" marker-end="url(#small-arrow)"/>
+        <rect x="214" y="134" width="60" height="42" rx="6" fill="#dbeafe" stroke="#2563eb"/>
+        <text x="244" y="160" text-anchor="middle" font-size="13" font-weight="700">shard</text>
+        <text x="146" y="208" text-anchor="middle" font-size="14" fill="#64748b">full P4 只存在于 F4 窗口</text>
+      </g>
+    </g>
+
+    <g transform="translate(64 580)">
+      <rect x="0" y="0" width="1472" height="94" rx="8" fill="#eff6ff" stroke="#60a5fa"/>
+      <text x="28" y="34" font-size="18" font-weight="700" fill="#1e40af">同一 unit 的硬依赖：AG(P<tspan baseline-shift="sub" font-size="12">i</tspan>) 完成 → F<tspan baseline-shift="sub" font-size="12">i</tspan> 才能开始 → F<tspan baseline-shift="sub" font-size="12">i</tspan> 完成后才能释放非本地 shards。</text>
+      <text x="28" y="65" font-size="17" fill="#1e40af">AG(P<tspan baseline-shift="sub" font-size="12">i+1</tspan>) 不依赖 F<tspan baseline-shift="sub" font-size="12">i</tspan> 的计算结果；forward prefetch 正是把下一次 All-Gather 提前到 F<tspan baseline-shift="sub" font-size="12">i</tspan> 的计算窗口内。</text>
+    </g>
+  </g>
+</svg>

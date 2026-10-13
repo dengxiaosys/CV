@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">FSDP Stage 3 的逐 unit forward 与 backward 通信时序</title>
+  <desc id="desc">Forward 按 U1 到 U4 执行参数 All-Gather、计算和 reshard；Backward 按 U4 到 U1 执行参数 All-Gather、反向计算和梯度 Reduce-Scatter。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="900" fill="#ffffff"/>
+  <g font-family="'Source Han Sans SC', Arial, sans-serif" fill="#0f172a">
+    <text x="64" y="62" font-size="32" font-weight="700">ZeRO Stage 3 / FSDP：逐 unit 的完整训练时序</text>
+    <text x="64" y="100" font-size="18" fill="#475569">稳定状态只保存 shards；每个 unit 的完整参数只在自己的 forward / backward 计算窗口内出现。</text>
+
+    <g transform="translate(930 44)" font-size="15">
+      <rect x="0" y="0" width="26" height="18" rx="4" fill="#fef3c7" stroke="#d97706"/>
+      <text x="36" y="15">Parameter All-Gather</text>
+      <rect x="220" y="0" width="26" height="18" rx="4" fill="#ede9fe" stroke="#7c3aed"/>
+      <text x="256" y="15">计算</text>
+      <rect x="332" y="0" width="26" height="18" rx="4" fill="#dcfce7" stroke="#16a34a"/>
+      <text x="368" y="15">Gradient Reduce-Scatter</text>
+    </g>
+
+    <g transform="translate(64 142)">
+      <rect x="0" y="0" width="1472" height="72" rx="8" fill="#eff6ff" stroke="#60a5fa"/>
+      <text x="28" y="31" font-size="19" font-weight="700" fill="#1e40af">Step 开始：所有 rank 只常驻 P / G / O shards</text>
+      <text x="28" y="56" font-size="15" fill="#1e40af">没有任何 rank 长期持有完整模型参数；下方的 AG(P<tspan baseline-shift="sub" font-size="10">i</tspan>) 只恢复当前即将计算的 unit。</text>
+      <g transform="translate(1030 14)" font-size="14" font-weight="700">
+        <rect x="0" y="0" width="94" height="44" rx="6" fill="#dbeafe" stroke="#2563eb"/>
+        <text x="47" y="27" text-anchor="middle">P shard</text>
+        <rect x="108" y="0" width="94" height="44" rx="6" fill="#dbeafe" stroke="#2563eb"/>
+        <text x="155" y="27" text-anchor="middle">G shard</text>
+        <rect x="216" y="0" width="94" height="44" rx="6" fill="#dbeafe" stroke="#2563eb"/>
+        <text x="263" y="27" text-anchor="middle">O shard</text>
+      </g>
+    </g>
+
+    <g transform="translate(64 244)">
+      <text x="0" y="32" font-size="24" font-weight="700">Forward</text>
+      <text x="0" y="58" font-size="15" fill="#64748b">正序 U1 → U2 → U3 → U4</text>
+      <line x1="150" y1="44" x2="1444" y2="44" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+
+      <g transform="translate(168 80)">
+        <rect x="0" y="0" width="292" height="132" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+        <text x="146" y="28" text-anchor="middle" font-size="18" font-weight="700">U1</text>
+        <rect x="16" y="44" width="82" height="54" rx="6" fill="#fef3c7" stroke="#d97706"/>
+        <text x="57" y="76" text-anchor="middle" font-size="16" font-weight="700">AG(P1)</text>
+        <rect x="105" y="44" width="76" height="54" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="143" y="76" text-anchor="middle" font-size="17" font-weight="700">F1</text>
+        <rect x="188" y="44" width="88" height="54" rx="6" fill="#f1f5f9" stroke="#64748b"/>
+        <text x="232" y="68" text-anchor="middle" font-size="14" font-weight="700">reshard</text>
+        <text x="232" y="87" text-anchor="middle" font-size="12" fill="#475569">释放 peer shards</text>
+        <text x="146" y="120" text-anchor="middle" font-size="13" fill="#64748b">完整 P1 只存在于此窗口</text>
+      </g>
+
+      <g transform="translate(478 80)">
+        <rect x="0" y="0" width="292" height="132" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+        <text x="146" y="28" text-anchor="middle" font-size="18" font-weight="700">U2</text>
+        <rect x="16" y="44" width="82" height="54" rx="6" fill="#fef3c7" stroke="#d97706"/>
+        <text x="57" y="76" text-anchor="middle" font-size="16" font-weight="700">AG(P2)</text>
+        <rect x="105" y="44" width="76" height="54" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="143" y="76" text-anchor="middle" font-size="17" font-weight="700">F2</text>
+        <rect x="188" y="44" width="88" height="54" rx="6" fill="#f1f5f9" stroke="#64748b"/>
+        <text x="232" y="68" text-anchor="middle" font-size="14" font-weight="700">reshard</text>
+        <text x="232" y="87" text-anchor="middle" font-size="12" fill="#475569">释放 peer shards</text>
+        <text x="146" y="120" text-anchor="middle" font-size="13" fill="#64748b">完整 P2 只存在于此窗口</text>
+      </g>
+
+      <g transform="translate(788 80)">
+        <rect x="0" y="0" width="292" height="132" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+        <text x="146" y="28" text-anchor="middle" font-size="18" font-weight="700">U3</text>
+        <rect x="16" y="44" width="82" height="54" rx="6" fill="#fef3c7" stroke="#d97706"/>
+        <text x="57" y="76" text-anchor="middle" font-size="16" font-weight="700">AG(P3)</text>
+        <rect x="105" y="44" width="76" height="54" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="143" y="76" text-anchor="middle" font-size="17" font-weight="700">F3</text>
+        <rect x="188" y="44" width="88" height="54" rx="6" fill="#f1f5f9" stroke="#64748b"/>
+        <text x="232" y="68" text-anchor="middle" font-size="14" font-weight="700">reshard</text>
+        <text x="232" y="87" text-anchor="middle" font-size="12" fill="#475569">释放 peer shards</text>
+        <text x="146" y="120" text-anchor="middle" font-size="13" fill="#64748b">完整 P3 只存在于此窗口</text>
+      </g>
+
+      <g transform="translate(1098 80)">
+        <rect x="0" y="0" width="292" height="132" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+        <text x="146" y="28" text-anchor="middle" font-size="18" font-weight="700">U4</text>
+        <rect x="16" y="44" width="82" height="54" rx="6" fill="#fef3c7" stroke="#d97706"/>
+        <text x="57" y="76" text-anchor="middle" font-size="16" font-weight="700">AG(P4)</text>
+        <rect x="105" y="44" width="76" height="54" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="143" y="76" text-anchor="middle" font-size="17" font-weight="700">F4</text>
+        <rect x="188" y="44" width="88" height="54" rx="6" fill="#f1f5f9" stroke="#64748b"/>
+        <text x="232" y="68" text-anchor="middle" font-size="14" font-weight="700">reshard</text>
+        <text x="232" y="87" text-anchor="middle" font-size="12" fill="#475569">释放 peer shards</text>
+        <text x="146" y="120" text-anchor="middle" font-size="13" fill="#64748b">完整 P4 只存在于此窗口</text>
+      </g>
+    </g>
+
+    <g transform="translate(64 500)">
+      <text x="0" y="32" font-size="24" font-weight="700">Backward</text>
+      <text x="0" y="58" font-size="15" fill="#64748b">逆序 U4 → U3 → U2 → U1</text>
+      <line x1="150" y1="44" x2="1444" y2="44" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+
+      <g transform="translate(168 80)">
+        <rect x="0" y="0" width="292" height="132" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+        <text x="146" y="28" text-anchor="middle" font-size="18" font-weight="700">U4</text>
+        <rect x="16" y="44" width="82" height="54" rx="6" fill="#fef3c7" stroke="#d97706"/>
+        <text x="57" y="76" text-anchor="middle" font-size="16" font-weight="700">AG(P4)</text>
+        <rect x="105" y="44" width="76" height="54" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="143" y="76" text-anchor="middle" font-size="17" font-weight="700">B4</text>
+        <rect x="188" y="44" width="88" height="54" rx="6" fill="#dcfce7" stroke="#16a34a"/>
+        <text x="232" y="76" text-anchor="middle" font-size="16" font-weight="700">RS(G4)</text>
+        <text x="146" y="120" text-anchor="middle" font-size="13" fill="#64748b">释放 full P4 / G4</text>
+      </g>
+
+      <g transform="translate(478 80)">
+        <rect x="0" y="0" width="292" height="132" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+        <text x="146" y="28" text-anchor="middle" font-size="18" font-weight="700">U3</text>
+        <rect x="16" y="44" width="82" height="54" rx="6" fill="#fef3c7" stroke="#d97706"/>
+        <text x="57" y="76" text-anchor="middle" font-size="16" font-weight="700">AG(P3)</text>
+        <rect x="105" y="44" width="76" height="54" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="143" y="76" text-anchor="middle" font-size="17" font-weight="700">B3</text>
+        <rect x="188" y="44" width="88" height="54" rx="6" fill="#dcfce7" stroke="#16a34a"/>
+        <text x="232" y="76" text-anchor="middle" font-size="16" font-weight="700">RS(G3)</text>
+        <text x="146" y="120" text-anchor="middle" font-size="13" fill="#64748b">释放 full P3 / G3</text>
+      </g>
+
+      <g transform="translate(788 80)">
+        <rect x="0" y="0" width="292" height="132" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+        <text x="146" y="28" text-anchor="middle" font-size="18" font-weight="700">U2</text>
+        <rect x="16" y="44" width="82" height="54" rx="6" fill="#fef3c7" stroke="#d97706"/>
+        <text x="57" y="76" text-anchor="middle" font-size="16" font-weight="700">AG(P2)</text>
+        <rect x="105" y="44" width="76" height="54" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="143" y="76" text-anchor="middle" font-size="17" font-weight="700">B2</text>
+        <rect x="188" y="44" width="88" height="54" rx="6" fill="#dcfce7" stroke="#16a34a"/>
+        <text x="232" y="76" text-anchor="middle" font-size="16" font-weight="700">RS(G2)</text>
+        <text x="146" y="120" text-anchor="middle" font-size="13" fill="#64748b">释放 full P2 / G2</text>
+      </g>
+
+      <g transform="translate(1098 80)">
+        <rect x="0" y="0" width="292" height="132" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+        <text x="146" y="28" text-anchor="middle" font-size="18" font-weight="700">U1</text>
+        <rect x="16" y="44" width="82" height="54" rx="6" fill="#fef3c7" stroke="#d97706"/>
+        <text x="57" y="76" text-anchor="middle" font-size="16" font-weight="700">AG(P1)</text>
+        <rect x="105" y="44" width="76" height="54" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="143" y="76" text-anchor="middle" font-size="17" font-weight="700">B1</text>
+        <rect x="188" y="44" width="88" height="54" rx="6" fill="#dcfce7" stroke="#16a34a"/>
+        <text x="232" y="76" text-anchor="middle" font-size="16" font-weight="700">RS(G1)</text>
+        <text x="146" y="120" text-anchor="middle" font-size="13" fill="#64748b">释放 full P1 / G1</text>
+      </g>
+    </g>
+
+    <g transform="translate(64 758)">
+      <rect x="0" y="0" width="1472" height="92" rx="8" fill="#fff7ed" stroke="#fb923c"/>
+      <text x="28" y="35" font-size="19" font-weight="700" fill="#9a3412">Optimizer：每个 rank 只更新自己的 (P shard, G shard, O shard)</text>
+      <text x="28" y="65" font-size="16" fill="#9a3412">更新后仍保持参数分片；下一 step 到达 U1 时才重新 AG(P1)，不会在 step 末 All-Gather 全模型。</text>
+    </g>
+  </g>
+</svg>

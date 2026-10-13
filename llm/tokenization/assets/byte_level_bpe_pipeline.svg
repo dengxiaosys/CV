@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="660" viewBox="0 0 1600 660" role="img" aria-labelledby="title desc">
+  <title id="title">Byte-Level BPE 端到端流水线</title>
+  <desc id="desc">展示训练、编码和解码三个阶段，以及 Unicode、UTF-8 字节、BPE token 和 token ID 的关系。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+    <style>
+      .font { font-family: "Source Han Sans SC", "Noto Sans CJK SC", sans-serif; }
+      .title { font-size: 30px; font-weight: 700; fill: #0f172a; }
+      .section { font-size: 20px; font-weight: 700; fill: #334155; }
+      .label { font-size: 18px; font-weight: 700; fill: #0f172a; }
+      .body { font-size: 15px; fill: #475569; }
+      .small { font-size: 13px; fill: #64748b; }
+      .arrow { stroke: #475569; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+      .dash { stroke: #64748b; stroke-width: 2; stroke-dasharray: 7 6; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="1600" height="660" fill="#f8fafc"/>
+  <text x="800" y="48" text-anchor="middle" class="font title">Byte-Level BPE：训练、编码与解码</text>
+
+  <text x="42" y="94" class="font section">编码路径</text>
+
+  <g>
+    <rect x="40" y="115" width="210" height="112" rx="14" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+    <text x="145" y="151" text-anchor="middle" class="font label">Unicode 文本</text>
+    <text x="145" y="181" text-anchor="middle" class="font body">合法 scalar value 序列</text>
+    <text x="145" y="204" text-anchor="middle" class="font small">例：lower 牛 low</text>
+
+    <rect x="300" y="115" width="210" height="112" rx="14" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+    <text x="405" y="151" text-anchor="middle" class="font label">协议分段</text>
+    <text x="405" y="181" text-anchor="middle" class="font body">normalization / special</text>
+    <text x="405" y="204" text-anchor="middle" class="font small">special token 为硬边界</text>
+
+    <rect x="560" y="115" width="210" height="112" rx="14" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+    <text x="665" y="151" text-anchor="middle" class="font label">Pre-tokenization</text>
+    <text x="665" y="181" text-anchor="middle" class="font body">确定禁止跨越的边界</text>
+    <text x="665" y="204" text-anchor="middle" class="font small">各片段独立执行 BPE</text>
+
+    <rect x="820" y="115" width="210" height="112" rx="14" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+    <text x="925" y="151" text-anchor="middle" class="font label">UTF-8 bytes</text>
+    <text x="925" y="181" text-anchor="middle" class="font body">基础字母表固定为 256 项</text>
+    <text x="925" y="204" text-anchor="middle" class="font small">牛 → E7 89 9B</text>
+
+    <rect x="1080" y="115" width="210" height="112" rx="14" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+    <text x="1185" y="151" text-anchor="middle" class="font label">固定 rank 合并</text>
+    <text x="1185" y="181" text-anchor="middle" class="font body">选择当前最小 merge rank</text>
+    <text x="1185" y="204" text-anchor="middle" class="font small">不重新统计输入频率</text>
+
+    <rect x="1340" y="115" width="210" height="112" rx="14" fill="#e2e8f0" stroke="#475569" stroke-width="2"/>
+    <text x="1445" y="151" text-anchor="middle" class="font label">Token IDs</text>
+    <text x="1445" y="181" text-anchor="middle" class="font body">通过词表映射为整数</text>
+    <text x="1445" y="204" text-anchor="middle" class="font small">[262, 32, 260, ...]</text>
+
+    <path d="M250 171 H290" class="arrow"/>
+    <path d="M510 171 H550" class="arrow"/>
+    <path d="M770 171 H810" class="arrow"/>
+    <path d="M1030 171 H1070" class="arrow"/>
+    <path d="M1290 171 H1330" class="arrow"/>
+  </g>
+
+  <text x="42" y="292" class="font section">训练路径</text>
+
+  <g>
+    <rect x="40" y="315" width="250" height="112" rx="14" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+    <text x="165" y="351" text-anchor="middle" class="font label">分段训练语料</text>
+    <text x="165" y="381" text-anchor="middle" class="font body">UTF-8 bytes + pre-token 频率</text>
+    <text x="165" y="404" text-anchor="middle" class="font small">同形片段可按 c(p) 加权</text>
+
+    <rect x="360" y="315" width="250" height="112" rx="14" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+    <text x="485" y="351" text-anchor="middle" class="font label">统计相邻 pair</text>
+<text x="485" y="381" text-anchor="middle" class="font body">全局加权频率 f_k(u,v)</text>
+    <text x="485" y="404" text-anchor="middle" class="font small">不跨 pre-token 边界</text>
+
+    <rect x="680" y="315" width="250" height="112" rx="14" fill="#fef2f2" stroke="#dc2626" stroke-width="2"/>
+    <text x="805" y="351" text-anchor="middle" class="font label">选择并替换</text>
+    <text x="805" y="381" text-anchor="middle" class="font body">最高频 + 确定性 tie-break</text>
+    <text x="805" y="404" text-anchor="middle" class="font small">从左到右非重叠 merge</text>
+
+    <rect x="1000" y="315" width="250" height="112" rx="14" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+    <text x="1125" y="351" text-anchor="middle" class="font label">更新全局状态</text>
+    <text x="1125" y="381" text-anchor="middle" class="font body">新 token、频率与邻接关系</text>
+    <text x="1125" y="404" text-anchor="middle" class="font small">下一轮依赖本轮结果</text>
+
+    <rect x="1320" y="315" width="230" height="112" rx="14" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+    <text x="1435" y="351" text-anchor="middle" class="font label">冻结资产</text>
+    <text x="1435" y="381" text-anchor="middle" class="font body">vocab + merge ranks</text>
+    <text x="1435" y="404" text-anchor="middle" class="font small">供编码器只读使用</text>
+
+    <path d="M290 371 H350" class="arrow"/>
+    <path d="M610 371 H670" class="arrow"/>
+    <path d="M930 371 H990" class="arrow"/>
+    <path d="M1250 371 H1310" class="arrow"/>
+    <path d="M1125 427 C1125 474, 485 474, 485 437" class="dash"/>
+    <path d="M1435 305 V260 C1435 246, 1185 246, 1185 237" class="dash"/>
+  </g>
+
+  <text x="42" y="520" class="font section">解码路径</text>
+
+  <g>
+    <rect x="200" y="540" width="250" height="82" rx="14" fill="#e2e8f0" stroke="#475569" stroke-width="2"/>
+    <text x="325" y="574" text-anchor="middle" class="font label">Token IDs</text>
+    <text x="325" y="600" text-anchor="middle" class="font body">先做逆词表查询</text>
+
+    <rect x="520" y="540" width="250" height="82" rx="14" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+    <text x="645" y="574" text-anchor="middle" class="font label">Token bytes</text>
+    <text x="645" y="600" text-anchor="middle" class="font body">按 ID 顺序完整拼接</text>
+
+    <rect x="840" y="540" width="250" height="82" rx="14" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+    <text x="965" y="574" text-anchor="middle" class="font label">一次 UTF-8 decode</text>
+    <text x="965" y="600" text-anchor="middle" class="font body">不能逐 token 强制解码</text>
+
+    <rect x="1160" y="540" width="250" height="82" rx="14" fill="#f8fafc" stroke="#0f172a" stroke-width="2"/>
+    <text x="1285" y="574" text-anchor="middle" class="font label">Unicode 文本</text>
+    <text x="1285" y="600" text-anchor="middle" class="font body">在协议前提下原样恢复</text>
+
+    <path d="M450 581 H510" class="arrow"/>
+    <path d="M770 581 H830" class="arrow"/>
+    <path d="M1090 581 H1150" class="arrow"/>
+  </g>
+</svg>

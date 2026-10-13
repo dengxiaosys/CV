@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">DDP 与 ZeRO 三阶段的单步通信位置</title>
+  <desc id="desc">对比 DDP、ZeRO Stage 1、Stage 2 和 Stage 3 在 forward、backward 与 optimizer 阶段的集合通信。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="900" fill="#ffffff"/>
+  <g font-family="'Source Han Sans SC', Arial, sans-serif" fill="#0f172a">
+    <text x="64" y="62" font-size="32" font-weight="700">DDP 与 ZeRO 三阶段：通信发生在训练 step 的什么位置</text>
+    <text x="64" y="100" font-size="18" fill="#475569">沿时间从左向右看；Stage 3 把 step 末的整模型参数同步改成了逐 unit、按需恢复参数。</text>
+
+    <g transform="translate(920 44)" font-size="15">
+      <rect x="0" y="0" width="26" height="18" rx="4" fill="#ede9fe" stroke="#7c3aed"/>
+      <text x="36" y="15">计算</text>
+      <rect x="112" y="0" width="26" height="18" rx="4" fill="#dbeafe" stroke="#2563eb"/>
+      <text x="148" y="15">All-Reduce</text>
+      <rect x="274" y="0" width="26" height="18" rx="4" fill="#dcfce7" stroke="#16a34a"/>
+      <text x="310" y="15">Reduce-Scatter</text>
+      <rect x="476" y="0" width="26" height="18" rx="4" fill="#fef3c7" stroke="#d97706"/>
+      <text x="512" y="15">All-Gather</text>
+    </g>
+
+    <line x1="280" y1="156" x2="1518" y2="156" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="1518" y="140" text-anchor="end" font-size="15" fill="#64748b">时间</text>
+
+    <g font-size="20" font-weight="700" fill="#334155">
+      <text x="490" y="143" text-anchor="middle">Forward</text>
+      <text x="900" y="143" text-anchor="middle">Backward</text>
+      <text x="1310" y="143" text-anchor="middle">Optimizer / step end</text>
+    </g>
+    <line x1="690" y1="126" x2="690" y2="778" stroke="#e2e8f0" stroke-width="2"/>
+    <line x1="1110" y1="126" x2="1110" y2="778" stroke="#e2e8f0" stroke-width="2"/>
+
+    <g transform="translate(64 194)">
+      <rect x="0" y="0" width="1472" height="128" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+      <text x="28" y="42" font-size="24" font-weight="700">DDP</text>
+      <text x="28" y="72" font-size="15" fill="#64748b">P / G / O 全量驻留</text>
+
+      <rect x="240" y="28" width="330" height="58" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+      <text x="320" y="54" font-size="18" font-weight="700">F<tspan baseline-shift="sub" font-size="12">1</tspan> → F<tspan baseline-shift="sub" font-size="12">2</tspan> → … → F<tspan baseline-shift="sub" font-size="12">L</tspan></text>
+      <text x="405" y="76" text-anchor="middle" font-size="14" fill="#5b21b6">参数已完整，无固定通信</text>
+
+      <rect x="650" y="18" width="188" height="76" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+      <text x="685" y="50" font-size="17" font-weight="700">B<tspan baseline-shift="sub" font-size="12">L</tspan> → … → B<tspan baseline-shift="sub" font-size="12">1</tspan></text>
+      <text x="744" y="74" text-anchor="middle" font-size="14" fill="#5b21b6">逐 bucket 产梯度</text>
+      <rect x="852" y="18" width="198" height="76" rx="6" fill="#dbeafe" stroke="#2563eb"/>
+      <text x="951" y="50" text-anchor="middle" font-size="17" font-weight="700">All-Reduce(G)</text>
+      <text x="951" y="74" text-anchor="middle" font-size="14" fill="#1e40af">每 rank 得到完整梯度</text>
+
+      <rect x="1100" y="28" width="330" height="58" rx="6" fill="#fee2e2" stroke="#dc2626"/>
+      <text x="1265" y="54" text-anchor="middle" font-size="18" font-weight="700">每 rank 更新完整参数</text>
+      <text x="1265" y="76" text-anchor="middle" font-size="14" fill="#991b1b">更新后不需要参数通信</text>
+    </g>
+
+    <g transform="translate(64 338)">
+      <rect x="0" y="0" width="1472" height="128" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+      <text x="28" y="42" font-size="24" font-weight="700">Stage 1</text>
+      <text x="28" y="72" font-size="15" fill="#64748b">P / G 全量，O 分片</text>
+
+      <rect x="240" y="28" width="330" height="58" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+      <text x="320" y="54" font-size="18" font-weight="700">F<tspan baseline-shift="sub" font-size="12">1</tspan> → F<tspan baseline-shift="sub" font-size="12">2</tspan> → … → F<tspan baseline-shift="sub" font-size="12">L</tspan></text>
+      <text x="405" y="76" text-anchor="middle" font-size="14" fill="#5b21b6">参数已完整，无固定通信</text>
+
+      <rect x="650" y="18" width="188" height="76" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+      <text x="685" y="50" font-size="17" font-weight="700">B<tspan baseline-shift="sub" font-size="12">L</tspan> → … → B<tspan baseline-shift="sub" font-size="12">1</tspan></text>
+      <text x="744" y="74" text-anchor="middle" font-size="14" fill="#5b21b6">完整梯度存储仍保留</text>
+      <rect x="852" y="18" width="198" height="76" rx="6" fill="#dcfce7" stroke="#16a34a"/>
+      <text x="951" y="50" text-anchor="middle" font-size="17" font-weight="700">Reduce-Scatter(G)</text>
+      <text x="951" y="74" text-anchor="middle" font-size="14" fill="#166534">optimizer 前完成</text>
+
+      <rect x="1100" y="18" width="190" height="76" rx="6" fill="#fee2e2" stroke="#dc2626"/>
+      <text x="1195" y="50" text-anchor="middle" font-size="17" font-weight="700">更新 local P shard</text>
+      <text x="1195" y="74" text-anchor="middle" font-size="14" fill="#991b1b">只持有 local O shard</text>
+      <rect x="1304" y="18" width="126" height="76" rx="6" fill="#fef3c7" stroke="#d97706"/>
+      <text x="1367" y="50" text-anchor="middle" font-size="16" font-weight="700">AG(P')</text>
+      <text x="1367" y="74" text-anchor="middle" font-size="13" fill="#92400e">恢复完整参数</text>
+    </g>
+
+    <g transform="translate(64 482)">
+      <rect x="0" y="0" width="1472" height="128" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+      <text x="28" y="42" font-size="24" font-weight="700">Stage 2</text>
+      <text x="28" y="72" font-size="15" fill="#64748b">P 全量，G / O 分片</text>
+
+      <rect x="240" y="28" width="330" height="58" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+      <text x="320" y="54" font-size="18" font-weight="700">F<tspan baseline-shift="sub" font-size="12">1</tspan> → F<tspan baseline-shift="sub" font-size="12">2</tspan> → … → F<tspan baseline-shift="sub" font-size="12">L</tspan></text>
+      <text x="405" y="76" text-anchor="middle" font-size="14" fill="#5b21b6">参数已完整，无固定通信</text>
+
+      <rect x="650" y="18" width="188" height="76" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+      <text x="690" y="50" font-size="17" font-weight="700">B<tspan baseline-shift="sub" font-size="12">i</tspan> 产出 G<tspan baseline-shift="sub" font-size="12">i</tspan></text>
+      <text x="744" y="74" text-anchor="middle" font-size="14" fill="#5b21b6">按逆序逐 bucket 就绪</text>
+      <rect x="852" y="18" width="198" height="76" rx="6" fill="#dcfce7" stroke="#16a34a"/>
+      <text x="910" y="50" font-size="17" font-weight="700">立即 RS(G<tspan baseline-shift="sub" font-size="12">i</tspan>)</text>
+      <text x="951" y="74" text-anchor="middle" font-size="14" fill="#166534">保留 shard，释放 full G</text>
+
+      <rect x="1100" y="18" width="190" height="76" rx="6" fill="#fee2e2" stroke="#dc2626"/>
+      <text x="1195" y="50" text-anchor="middle" font-size="17" font-weight="700">更新 local P shard</text>
+      <text x="1195" y="74" text-anchor="middle" font-size="14" fill="#991b1b">消费 local G / O shard</text>
+      <rect x="1304" y="18" width="126" height="76" rx="6" fill="#fef3c7" stroke="#d97706"/>
+      <text x="1367" y="50" text-anchor="middle" font-size="16" font-weight="700">AG(P')</text>
+      <text x="1367" y="74" text-anchor="middle" font-size="13" fill="#92400e">恢复完整参数</text>
+    </g>
+
+    <g transform="translate(64 626)">
+      <rect x="0" y="0" width="1472" height="148" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+      <text x="28" y="42" font-size="24" font-weight="700">Stage 3</text>
+      <text x="28" y="72" font-size="15" fill="#64748b">P / G / O 全部分片</text>
+
+      <rect x="240" y="18" width="152" height="90" rx="6" fill="#fef3c7" stroke="#d97706"/>
+      <text x="280" y="52" font-size="17" font-weight="700">AG(P<tspan baseline-shift="sub" font-size="12">i</tspan>)</text>
+      <text x="316" y="77" text-anchor="middle" font-size="14" fill="#92400e">逐 unit 恢复</text>
+      <rect x="406" y="18" width="164" height="90" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+      <text x="480" y="52" font-size="17" font-weight="700">F<tspan baseline-shift="sub" font-size="12">i</tspan></text>
+      <text x="488" y="77" text-anchor="middle" font-size="14" fill="#5b21b6">随后 reshard</text>
+
+      <rect x="650" y="18" width="126" height="90" rx="6" fill="#fef3c7" stroke="#d97706"/>
+      <text x="675" y="52" font-size="17" font-weight="700">AG(P<tspan baseline-shift="sub" font-size="12">i</tspan>)</text>
+      <text x="713" y="77" text-anchor="middle" font-size="14" fill="#92400e">逆序恢复</text>
+      <rect x="790" y="18" width="120" height="90" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+      <text x="842" y="52" font-size="17" font-weight="700">B<tspan baseline-shift="sub" font-size="12">i</tspan></text>
+      <text x="803" y="77" font-size="14" fill="#5b21b6">产生 full G<tspan baseline-shift="sub" font-size="10">i</tspan></text>
+      <rect x="924" y="18" width="126" height="90" rx="6" fill="#dcfce7" stroke="#16a34a"/>
+      <text x="950" y="52" font-size="17" font-weight="700">RS(G<tspan baseline-shift="sub" font-size="12">i</tspan>)</text>
+      <text x="987" y="77" text-anchor="middle" font-size="14" fill="#166534">留下 local shard</text>
+
+      <rect x="1100" y="28" width="330" height="70" rx="6" fill="#fee2e2" stroke="#dc2626"/>
+      <text x="1265" y="56" text-anchor="middle" font-size="18" font-weight="700">只更新 local parameter shard</text>
+      <text x="1265" y="80" text-anchor="middle" font-size="14" fill="#991b1b">step 末不 gather 全模型</text>
+    </g>
+
+    <g transform="translate(64 814)">
+      <rect x="0" y="0" width="1472" height="54" rx="8" fill="#fff7ed" stroke="#fb923c"/>
+      <text x="736" y="34" text-anchor="middle" font-size="18" font-weight="700" fill="#9a3412">Stage 1 → 2 改变 gradient 生命周期；Stage 2 → 3 才把参数通信移入逐 unit 的 forward / backward 热路径。</text>
+    </g>
+  </g>
+</svg>

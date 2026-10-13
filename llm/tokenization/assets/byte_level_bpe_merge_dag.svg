@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="860" viewBox="0 0 1600 860" role="img" aria-labelledby="title desc">
+  <title id="title">Worked example 的六轮 merge DAG</title>
+  <desc id="desc">左侧展示英文 low 和 lower 的四条合并规则，右侧展示中文牛的两条字节合并规则。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+    <style>
+      .font { font-family: "Source Han Sans SC", "Noto Sans CJK SC", sans-serif; }
+      .title { font-size: 30px; font-weight: 700; fill: #0f172a; }
+      .section { font-size: 22px; font-weight: 700; fill: #334155; }
+      .token { font-size: 20px; font-weight: 700; fill: #0f172a; }
+      .byte { font-size: 14px; fill: #64748b; }
+      .rank { font-size: 15px; font-weight: 700; fill: #7c3aed; }
+      .note { font-size: 15px; fill: #475569; }
+      .arrow { stroke: #475569; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+      .join { stroke: #94a3b8; stroke-width: 2; fill: none; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="860" fill="#f8fafc"/>
+  <text x="800" y="50" text-anchor="middle" class="font title">完整 worked example：六轮 merge 的依赖结构</text>
+
+  <rect x="36" y="82" width="948" height="750" rx="20" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="510" y="120" text-anchor="middle" class="font section">英文分支：4 条 merge</text>
+
+  <g>
+    <rect x="90" y="162" width="150" height="76" rx="12" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+    <text x="165" y="192" text-anchor="middle" class="font token">o</text>
+    <text x="165" y="217" text-anchor="middle" class="font byte">6F</text>
+
+    <rect x="300" y="162" width="150" height="76" rx="12" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+    <text x="375" y="192" text-anchor="middle" class="font token">w</text>
+    <text x="375" y="217" text-anchor="middle" class="font byte">77</text>
+
+    <path d="M165 238 V274 H375 V238" class="join"/>
+    <path d="M270 274 V310" class="arrow"/>
+    <text x="287" y="296" class="font rank">m0 / rank 0</text>
+
+    <rect x="195" y="318" width="150" height="76" rx="12" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+    <text x="270" y="348" text-anchor="middle" class="font token">ow</text>
+    <text x="270" y="373" text-anchor="middle" class="font byte">6F 77 · ID 257</text>
+
+    <rect x="90" y="438" width="150" height="76" rx="12" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+    <text x="165" y="468" text-anchor="middle" class="font token">l</text>
+    <text x="165" y="493" text-anchor="middle" class="font byte">6C</text>
+
+    <path d="M165 514 V548 H270 V404" class="join"/>
+    <path d="M217 548 V574" class="arrow"/>
+    <text x="236" y="566" class="font rank">m1 / rank 1</text>
+
+    <rect x="142" y="582" width="150" height="76" rx="12" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+    <text x="217" y="612" text-anchor="middle" class="font token">low</text>
+    <text x="217" y="637" text-anchor="middle" class="font byte">6C 6F 77 · ID 258</text>
+  </g>
+
+  <g>
+    <rect x="490" y="438" width="150" height="76" rx="12" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+    <text x="565" y="468" text-anchor="middle" class="font token">low</text>
+    <text x="565" y="493" text-anchor="middle" class="font byte">ID 258</text>
+
+    <rect x="700" y="438" width="150" height="76" rx="12" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+    <text x="775" y="468" text-anchor="middle" class="font token">e</text>
+    <text x="775" y="493" text-anchor="middle" class="font byte">65</text>
+
+    <path d="M565 514 V548 H775 V514" class="join"/>
+    <path d="M670 548 V574" class="arrow"/>
+    <text x="688" y="566" class="font rank">m4 / rank 4</text>
+
+    <rect x="595" y="582" width="150" height="76" rx="12" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+    <text x="670" y="612" text-anchor="middle" class="font token">lowe</text>
+    <text x="670" y="637" text-anchor="middle" class="font byte">ID 261</text>
+
+    <rect x="846" y="582" width="100" height="76" rx="12" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+    <text x="896" y="612" text-anchor="middle" class="font token">r</text>
+    <text x="896" y="637" text-anchor="middle" class="font byte">72</text>
+
+    <path d="M670 658 V690 H896 V658" class="join"/>
+    <path d="M783 690 V716" class="arrow"/>
+    <text x="802" y="710" class="font rank">m5 / rank 5</text>
+
+    <rect x="705" y="724" width="156" height="62" rx="12" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+    <text x="783" y="752" text-anchor="middle" class="font token">lower</text>
+    <text x="783" y="774" text-anchor="middle" class="font byte">ID 262</text>
+  </g>
+
+  <rect x="1016" y="82" width="548" height="750" rx="20" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="1290" y="120" text-anchor="middle" class="font section">中文分支：2 条 merge</text>
+
+  <g>
+    <rect x="1060" y="162" width="120" height="76" rx="12" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+    <text x="1120" y="194" text-anchor="middle" class="font token">E7</text>
+    <text x="1120" y="219" text-anchor="middle" class="font byte">byte 231</text>
+
+    <rect x="1230" y="162" width="120" height="76" rx="12" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+    <text x="1290" y="194" text-anchor="middle" class="font token">89</text>
+    <text x="1290" y="219" text-anchor="middle" class="font byte">byte 137</text>
+
+    <path d="M1120 238 V274 H1290 V238" class="join"/>
+    <path d="M1205 274 V310" class="arrow"/>
+    <text x="1224" y="298" class="font rank">m2 / rank 2</text>
+
+    <rect x="1127" y="318" width="156" height="88" rx="12" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+    <text x="1205" y="349" text-anchor="middle" class="font token">E7 89</text>
+    <text x="1205" y="375" text-anchor="middle" class="font byte">ID 259</text>
+    <text x="1205" y="395" text-anchor="middle" class="font byte">partial UTF-8</text>
+
+    <rect x="1398" y="318" width="120" height="88" rx="12" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+    <text x="1458" y="352" text-anchor="middle" class="font token">9B</text>
+    <text x="1458" y="380" text-anchor="middle" class="font byte">byte 155</text>
+
+    <path d="M1205 406 V458 H1458 V406" class="join"/>
+    <path d="M1331 458 V500" class="arrow"/>
+    <text x="1350" y="486" class="font rank">m3 / rank 3</text>
+
+    <rect x="1243" y="512" width="176" height="96" rx="12" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+    <text x="1331" y="548" text-anchor="middle" class="font token">牛</text>
+    <text x="1331" y="575" text-anchor="middle" class="font byte">E7 89 9B · ID 260</text>
+    <text x="1331" y="596" text-anchor="middle" class="font byte">完整 UTF-8 字符</text>
+  </g>
+
+  <text x="510" y="812" text-anchor="middle" class="font note">英文规则的 rank 2、3 在编码 lower 时是 no-op；编码只应用当前可匹配规则。</text>
+  <text x="1290" y="780" text-anchor="middle" class="font note">单个合法 BPE token 不必是可独立解码的 Unicode 字符。</text>
+</svg>

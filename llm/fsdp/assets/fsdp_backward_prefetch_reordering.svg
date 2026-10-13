@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="820" viewBox="0 0 1600 820" role="img" aria-labelledby="title desc">
+  <title id="title">FSDP backward prefetch 的 collective 重排</title>
+  <desc id="desc">对比未预取时 Reduce-Scatter 阻塞下一次 All-Gather，与预取时先提交下一层 All-Gather、再提交当前层 Reduce-Scatter 的时间线。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="820" fill="#ffffff"/>
+  <g font-family="'Source Han Sans SC', Arial, sans-serif" fill="#0f172a">
+    <text x="64" y="62" font-size="32" font-weight="700">Backward prefetch：改变提交顺序，避免两段通信连续暴露</text>
+    <text x="64" y="100" font-size="18" fill="#475569">假设 All-Gather 与 Reduce-Scatter 共用一条按提交顺序执行的通信流。</text>
+
+    <g transform="translate(1010 46)" font-size="15">
+      <rect x="0" y="0" width="26" height="18" rx="4" fill="#ede9fe" stroke="#7c3aed"/>
+      <text x="36" y="15">Backward 计算</text>
+      <rect x="160" y="0" width="26" height="18" rx="4" fill="#fef3c7" stroke="#d97706"/>
+      <text x="196" y="15">All-Gather</text>
+      <rect x="310" y="0" width="26" height="18" rx="4" fill="#dcfce7" stroke="#16a34a"/>
+      <text x="346" y="15">Reduce-Scatter</text>
+    </g>
+
+    <g transform="translate(64 146)">
+      <rect x="0" y="0" width="1472" height="274" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+      <text x="28" y="42" font-size="25" font-weight="700">未做 backward prefetch</text>
+      <text x="28" y="70" font-size="16" fill="#64748b">B<tspan baseline-shift="sub" font-size="11">i</tspan> 完成后先提交 RS(G<tspan baseline-shift="sub" font-size="11">i</tspan>)，再提交 AG(P<tspan baseline-shift="sub" font-size="11">i−1</tspan>)；同一通信流上二者串行。</text>
+
+      <text x="28" y="128" font-size="17" font-weight="700" fill="#334155">计算流</text>
+      <line x1="150" y1="120" x2="1408" y2="120" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+      <rect x="220" y="92" width="330" height="58" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+      <text x="320" y="127" font-size="19" font-weight="700">Backward(B<tspan baseline-shift="sub" font-size="13">i</tspan>)</text>
+      <rect x="550" y="92" width="500" height="58" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-dasharray="7 5"/>
+      <text x="630" y="117" font-size="18" font-weight="700" fill="#991b1b">暴露等待：RS(G<tspan baseline-shift="sub" font-size="12">i</tspan>) + AG(P<tspan baseline-shift="sub" font-size="12">i−1</tspan>)</text>
+      <text x="710" y="139" font-size="13" fill="#991b1b">P<tspan baseline-shift="sub" font-size="9">i−1</tspan> 未恢复，B<tspan baseline-shift="sub" font-size="9">i−1</tspan> 不能开始</text>
+      <rect x="1050" y="92" width="330" height="58" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+      <text x="1142" y="127" font-size="19" font-weight="700">Backward(B<tspan baseline-shift="sub" font-size="13">i−1</tspan>)</text>
+
+      <text x="28" y="214" font-size="17" font-weight="700" fill="#334155">通信流</text>
+      <line x1="150" y1="206" x2="1408" y2="206" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+      <rect x="550" y="178" width="230" height="58" rx="6" fill="#dcfce7" stroke="#16a34a"/>
+      <text x="635" y="203" font-size="18" font-weight="700">RS(G<tspan baseline-shift="sub" font-size="12">i</tspan>)</text>
+      <text x="615" y="225" font-size="13" fill="#166534">等待 B<tspan baseline-shift="sub" font-size="9">i</tspan> 产出 G<tspan baseline-shift="sub" font-size="9">i</tspan></text>
+      <rect x="780" y="178" width="270" height="58" rx="6" fill="#fef3c7" stroke="#d97706"/>
+      <text x="875" y="203" font-size="18" font-weight="700">AG(P<tspan baseline-shift="sub" font-size="12">i−1</tspan>)</text>
+      <text x="915" y="225" text-anchor="middle" font-size="13" fill="#92400e">被前面的 RS 阻塞</text>
+    </g>
+
+    <g transform="translate(64 446)">
+      <rect x="0" y="0" width="1472" height="274" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+      <text x="28" y="42" font-size="25" font-weight="700">Backward prefetch：先提交下一 unit 的 All-Gather</text>
+      <text x="28" y="70" font-size="16" fill="#64748b">已知反向执行序后，在 B<tspan baseline-shift="sub" font-size="11">i</tspan> 期间恢复 P<tspan baseline-shift="sub" font-size="11">i−1</tspan>；G<tspan baseline-shift="sub" font-size="11">i</tspan> 就绪后再把 RS(G<tspan baseline-shift="sub" font-size="11">i</tspan>) 排在其后。</text>
+
+      <text x="28" y="128" font-size="17" font-weight="700" fill="#334155">计算流</text>
+      <line x1="150" y1="120" x2="1408" y2="120" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+      <rect x="220" y="92" width="420" height="58" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+      <text x="365" y="127" font-size="19" font-weight="700">Backward(B<tspan baseline-shift="sub" font-size="13">i</tspan>)</text>
+      <rect x="640" y="92" width="500" height="58" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+      <text x="815" y="117" font-size="19" font-weight="700">Backward(B<tspan baseline-shift="sub" font-size="13">i−1</tspan>)</text>
+      <text x="810" y="139" font-size="13" fill="#5b21b6">P<tspan baseline-shift="sub" font-size="9">i−1</tspan> 已恢复，可立即开始</text>
+      <rect x="1140" y="92" width="240" height="58" rx="6" fill="#f1f5f9" stroke="#64748b"/>
+      <text x="1260" y="117" text-anchor="middle" font-size="16" font-weight="700">下一 unit</text>
+      <text x="1260" y="139" text-anchor="middle" font-size="13" fill="#475569">继续同样调度</text>
+
+      <text x="28" y="214" font-size="17" font-weight="700" fill="#334155">通信流</text>
+      <line x1="150" y1="206" x2="1408" y2="206" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+      <rect x="220" y="178" width="420" height="58" rx="6" fill="#fef3c7" stroke="#d97706"/>
+      <text x="390" y="203" font-size="18" font-weight="700">AG(P<tspan baseline-shift="sub" font-size="12">i−1</tspan>)</text>
+      <text x="405" y="225" font-size="13" fill="#92400e">与 B<tspan baseline-shift="sub" font-size="9">i</tspan> 重叠</text>
+      <rect x="640" y="178" width="300" height="58" rx="6" fill="#dcfce7" stroke="#16a34a"/>
+      <text x="755" y="203" font-size="18" font-weight="700">RS(G<tspan baseline-shift="sub" font-size="12">i</tspan>)</text>
+      <text x="750" y="225" font-size="13" fill="#166534">与 B<tspan baseline-shift="sub" font-size="9">i−1</tspan> 重叠</text>
+      <rect x="940" y="178" width="200" height="58" rx="6" fill="#fef3c7" stroke="#d97706" stroke-dasharray="7 5"/>
+      <text x="1000" y="203" font-size="16" font-weight="700">AG(P<tspan baseline-shift="sub" font-size="11">i−2</tspan>)</text>
+      <text x="1040" y="225" text-anchor="middle" font-size="13" fill="#92400e">下一轮预取</text>
+    </g>
+
+    <g transform="translate(64 748)">
+      <rect x="0" y="0" width="1472" height="48" rx="8" fill="#ecfdf5" stroke="#4ade80"/>
+      <text x="336" y="31" font-size="18" font-weight="700" fill="#166534">关键变化不是减少通信量，而是把通信流提交顺序从 RS(G<tspan baseline-shift="sub" font-size="12">i</tspan>) → AG(P<tspan baseline-shift="sub" font-size="12">i−1</tspan>) 改为 AG(P<tspan baseline-shift="sub" font-size="12">i−1</tspan>) → RS(G<tspan baseline-shift="sub" font-size="12">i</tspan>)。</text>
+    </g>
+  </g>
+</svg>

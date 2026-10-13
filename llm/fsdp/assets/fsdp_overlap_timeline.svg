@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="820" viewBox="0 0 1600 820" role="img" aria-labelledby="title desc">
+  <title id="title">FSDP communication-computation overlap</title>
+  <desc id="desc">A parameter all-gather overlaps current-layer compute; its unfinished tail becomes exposed wait. Earlier prefetch may reduce wait at the cost of peak memory.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#475569"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="820" fill="#ffffff"/>
+  <g font-family="Arial, 'Noto Sans SC', sans-serif" fill="#0f172a">
+    <text x="64" y="64" font-size="32" font-weight="700">Prefetch goal: place All-Gather underneath existing compute</text>
+    <text x="64" y="100" font-size="18" fill="#475569">Asynchronous launch only creates an opportunity; unfinished communication at parameter use enters the critical path.</text>
+
+    <line x1="250" y1="168" x2="1500" y2="168" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="1498" y="150" text-anchor="end" font-size="16" fill="#64748b">time</text>
+
+    <text x="64" y="250" font-size="20" font-weight="700">communication stream</text>
+    <rect x="300" y="210" width="430" height="70" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+    <text x="425" y="240" font-size="18" font-weight="700">All-Gather(W<tspan baseline-shift="sub" font-size="12">i+1</tspan>)</text>
+    <text x="515" y="264" text-anchor="middle" font-size="15" fill="#92400e">may overlap current-unit compute</text>
+
+    <rect x="900" y="210" width="390" height="70" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+    <text x="1005" y="240" font-size="18" font-weight="700">All-Gather(W<tspan baseline-shift="sub" font-size="12">i+2</tspan>)</text>
+    <text x="1095" y="264" text-anchor="middle" font-size="15" fill="#92400e">next prefetch window</text>
+
+    <text x="64" y="370" font-size="20" font-weight="700">compute stream</text>
+    <rect x="250" y="330" width="350" height="70" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+    <text x="365" y="371" font-size="19" font-weight="700">Compute(U<tspan baseline-shift="sub" font-size="13">i</tspan>)</text>
+
+    <rect x="600" y="330" width="130" height="70" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+    <text x="665" y="360" text-anchor="middle" font-size="17" font-weight="700">Wait</text>
+    <text x="665" y="384" text-anchor="middle" font-size="14" fill="#991b1b">exposed tail</text>
+
+    <rect x="730" y="330" width="350" height="70" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+    <text x="845" y="371" font-size="19" font-weight="700">Compute(U<tspan baseline-shift="sub" font-size="13">i+1</tspan>)</text>
+
+    <rect x="1080" y="330" width="210" height="70" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+    <text x="1185" y="360" text-anchor="middle" font-size="17" font-weight="700">Possible wait</text>
+    <text x="1185" y="384" text-anchor="middle" font-size="14" fill="#991b1b">depends on comm tail</text>
+
+    <rect x="1290" y="330" width="250" height="70" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+    <text x="1355" y="371" font-size="19" font-weight="700">Compute(U<tspan baseline-shift="sub" font-size="13">i+2</tspan>)</text>
+
+    <line x1="300" y1="290" x2="300" y2="314" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="312" y="309" font-size="14" fill="#475569">issued early</text>
+    <line x1="730" y1="290" x2="730" y2="314" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="742" y="309" font-size="14" fill="#475569">weight ready</text>
+
+    <g transform="translate(64 474)">
+      <rect x="0" y="0" width="1472" height="260" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+      <text x="28" y="42" font-size="22" font-weight="700">The same knobs control performance and memory</text>
+
+      <text x="36" y="88" font-size="17" font-weight="700" fill="#166534">Earlier/deeper prefetch</text>
+      <text x="300" y="88" font-size="17">Hides more communication but retains more full weights and staging buffers, increasing peak HBM.</text>
+
+      <text x="36" y="132" font-size="17" font-weight="700" fill="#1e40af">Larger FSDP unit</text>
+      <text x="300" y="132" font-size="17">Fewer collectives and larger payloads, but a larger transient full parameter and fewer overlap boundaries.</text>
+
+      <text x="36" y="176" font-size="17" font-weight="700" fill="#92400e">Smaller FSDP unit</text>
+      <text x="300" y="176" font-size="17">A smaller parameter window and finer scheduling, but more collective launches and latency-sensitive messages.</text>
+
+      <text x="36" y="220" font-size="17" font-weight="700" fill="#991b1b">Verify overlap</text>
+      <text x="300" y="220" font-size="17">Inspect the device timeline, exposed waits, and end-to-end step time, not only Python or Work state.</text>
+    </g>
+  </g>
+</svg>

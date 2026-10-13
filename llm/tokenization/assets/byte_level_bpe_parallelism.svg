@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="800" viewBox="0 0 1600 800" role="img" aria-labelledby="title desc">
+  <title id="title">Byte-Level BPE 的并行边界</title>
+  <desc id="desc">展示训练前处理和单轮局部操作可并行、merge 轮次全局串行，以及冻结后的编码可按文档并行。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    </marker>
+    <style>
+      .font { font-family: "Source Han Sans SC", "Noto Sans CJK SC", sans-serif; }
+      .title { font-size: 30px; font-weight: 700; fill: #0f172a; }
+      .section { font-size: 21px; font-weight: 700; fill: #334155; }
+      .label { font-size: 17px; font-weight: 700; fill: #0f172a; }
+      .body { font-size: 14px; fill: #475569; }
+      .small { font-size: 13px; fill: #64748b; }
+      .arrow { stroke: #475569; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+      .dash { stroke: #7c3aed; stroke-width: 2.2; stroke-dasharray: 7 6; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="1600" height="800" fill="#f8fafc"/>
+  <text x="800" y="48" text-anchor="middle" class="font title">Byte-Level BPE：并行部分与全局依赖</text>
+
+  <text x="40" y="90" class="font section">训练：Map/Reduce 前处理可并行</text>
+
+  <g>
+    <rect x="40" y="112" width="220" height="100" rx="14" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+    <text x="150" y="148" text-anchor="middle" class="font label">语料 Shard 1</text>
+    <text x="150" y="177" text-anchor="middle" class="font body">分段、UTF-8、局部计数</text>
+
+    <rect x="300" y="112" width="220" height="100" rx="14" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+    <text x="410" y="148" text-anchor="middle" class="font label">语料 Shard 2</text>
+    <text x="410" y="177" text-anchor="middle" class="font body">分段、UTF-8、局部计数</text>
+
+    <rect x="560" y="112" width="220" height="100" rx="14" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+    <text x="670" y="148" text-anchor="middle" class="font label">语料 Shard S</text>
+    <text x="670" y="177" text-anchor="middle" class="font body">分段、UTF-8、局部计数</text>
+
+    <rect x="880" y="112" width="270" height="100" rx="14" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+    <text x="1015" y="148" text-anchor="middle" class="font label">全局 Reduce</text>
+    <text x="1015" y="177" text-anchor="middle" class="font body">合并 c(p) 与 pair 频率</text>
+
+    <rect x="1250" y="112" width="300" height="100" rx="14" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+    <text x="1400" y="148" text-anchor="middle" class="font label">选择全局最高频 pair</text>
+    <text x="1400" y="177" text-anchor="middle" class="font body">频率 + 确定性 tie-break</text>
+
+    <path d="M260 162 H850" class="arrow"/>
+    <path d="M520 162 H850" class="arrow"/>
+    <path d="M780 162 H870" class="arrow"/>
+    <path d="M1150 162 H1240" class="arrow"/>
+  </g>
+
+  <text x="40" y="270" class="font section">训练：单轮内部并行，轮次之间串行</text>
+
+  <g>
+    <rect x="40" y="292" width="1510" height="222" rx="18" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+
+    <rect x="80" y="330" width="250" height="118" rx="14" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+    <text x="205" y="366" text-anchor="middle" class="font label">广播本轮 m_k</text>
+    <text x="205" y="394" text-anchor="middle" class="font body">所有 worker 使用同一 pair</text>
+    <text x="205" y="419" text-anchor="middle" class="font small">全局同步点</text>
+
+    <rect x="400" y="306" width="760" height="142" rx="14" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+    <text x="780" y="332" text-anchor="middle" class="font small">并行局部替换与频率 delta 计算</text>
+
+    <rect x="420" y="348" width="210" height="76" rx="11" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+    <text x="525" y="378" text-anchor="middle" class="font label">Worker 1</text>
+    <text x="525" y="404" text-anchor="middle" class="font body">局部替换 + delta</text>
+
+    <rect x="675" y="348" width="210" height="76" rx="11" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+    <text x="780" y="378" text-anchor="middle" class="font label">Worker 2</text>
+    <text x="780" y="404" text-anchor="middle" class="font body">局部替换 + delta</text>
+
+    <rect x="930" y="348" width="210" height="76" rx="11" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+    <text x="1035" y="378" text-anchor="middle" class="font label">Worker S</text>
+    <text x="1035" y="404" text-anchor="middle" class="font body">局部替换 + delta</text>
+
+    <rect x="1210" y="330" width="290" height="118" rx="14" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+    <text x="1355" y="366" text-anchor="middle" class="font label">Reduce delta，选择 m_(k+1)</text>
+    <text x="1355" y="394" text-anchor="middle" class="font body">下一轮依赖更新后的全局状态</text>
+    <text x="1355" y="419" text-anchor="middle" class="font small">全局同步点</text>
+
+    <path d="M330 389 H390" class="arrow"/>
+    <path d="M1160 389 H1200" class="arrow"/>
+    <path d="M1355 448 V480 H205 V458" class="dash"/>
+    <text x="780" y="497" text-anchor="middle" class="font small">必须完成第 k 轮，才能精确确定第 k+1 轮</text>
+  </g>
+
+  <text x="40" y="570" class="font section">冻结 tokenizer 后：编码按文档与 pre-token 并行</text>
+
+  <g>
+    <rect x="40" y="592" width="280" height="130" rx="14" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+    <text x="180" y="628" text-anchor="middle" class="font label">只读 tokenizer 资产</text>
+    <text x="180" y="657" text-anchor="middle" class="font body">pre-tokenizer</text>
+    <text x="180" y="681" text-anchor="middle" class="font body">vocab + merge ranks</text>
+    <text x="180" y="705" text-anchor="middle" class="font body">special-token policy</text>
+
+    <rect x="400" y="592" width="790" height="130" rx="14" fill="#f8fafc" stroke="#0284c7" stroke-width="2"/>
+    <text x="795" y="615" text-anchor="middle" class="font small">并行编码任务组</text>
+
+    <rect x="420" y="628" width="220" height="74" rx="11" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5"/>
+    <text x="530" y="657" text-anchor="middle" class="font label">文档 1</text>
+    <text x="530" y="684" text-anchor="middle" class="font small">各 pre-token 独立 BPE</text>
+
+    <rect x="685" y="628" width="220" height="74" rx="11" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5"/>
+    <text x="795" y="657" text-anchor="middle" class="font label">文档 2</text>
+    <text x="795" y="684" text-anchor="middle" class="font small">无全局频率同步</text>
+
+    <rect x="950" y="628" width="220" height="74" rx="11" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5"/>
+    <text x="1060" y="657" text-anchor="middle" class="font label">文档 B</text>
+    <text x="1060" y="684" text-anchor="middle" class="font small">适合 batch 并行</text>
+
+    <rect x="1270" y="592" width="280" height="130" rx="14" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+    <text x="1410" y="628" text-anchor="middle" class="font label">独立结果</text>
+    <text x="1410" y="657" text-anchor="middle" class="font body">按文档保持原始顺序</text>
+    <text x="1410" y="685" text-anchor="middle" class="font small">多条 token ID 序列</text>
+
+    <path d="M320 657 H390" class="arrow"/>
+    <path d="M1190 657 H1260" class="arrow"/>
+  </g>
+
+  <text x="800" y="770" text-anchor="middle" class="font body">精确 BPE 的核心并行约束：局部工作可分片，merge 决策必须按全局 rank 顺序收敛。</text>
+</svg>

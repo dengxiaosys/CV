@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="860" viewBox="0 0 1600 860" role="img" aria-labelledby="title desc">
+  <title id="title">FSDP 单步峰值 HBM 的生命周期叠加</title>
+  <desc id="desc">展示常驻模型分片、完整参数窗口、activation、完整局部梯度、通信与算子临时内存以及 allocator 保留内存在单步训练时间线上的叠加。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="860" fill="#ffffff"/>
+  <g font-family="'Source Han Sans SC', Arial, sans-serif" fill="#0f172a">
+    <text x="64" y="62" font-size="32" font-weight="700">FSDP 单步峰值 HBM：多条生命周期在同一时刻叠加</text>
+    <text x="64" y="100" font-size="18" fill="#475569">常驻模型状态只是底座；真正的峰值由参数物化、activation、梯度、通信 buffer、算子 workspace 与 allocator 状态共同决定。</text>
+
+    <line x1="300" y1="156" x2="1510" y2="156" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="1510" y="138" text-anchor="end" font-size="15" fill="#64748b">时间</text>
+    <g font-size="19" font-weight="700" fill="#334155">
+      <text x="530" y="142" text-anchor="middle">Forward</text>
+      <text x="990" y="142" text-anchor="middle">Backward</text>
+      <text x="1350" y="142" text-anchor="middle">Optimizer / checkpoint</text>
+    </g>
+    <line x1="760" y1="126" x2="760" y2="716" stroke="#e2e8f0" stroke-width="2"/>
+    <line x1="1220" y1="126" x2="1220" y2="716" stroke="#e2e8f0" stroke-width="2"/>
+
+    <g transform="translate(64 190)">
+      <text x="0" y="33" font-size="18" font-weight="700">常驻模型分片</text>
+      <rect x="236" y="0" width="1210" height="58" rx="6" fill="#dbeafe" stroke="#2563eb"/>
+      <text x="841" y="25" text-anchor="middle" font-size="17" font-weight="700">parameter shard + gradient shard + optimizer-state shard</text>
+      <text x="841" y="47" text-anchor="middle" font-size="14" fill="#1e40af">理想化约为 (M_p + M_g + M_o) / N；贯穿整个 step</text>
+    </g>
+
+    <g transform="translate(64 278)">
+      <text x="0" y="34" font-size="18" font-weight="700">完整参数窗口</text>
+      <rect x="250" y="0" width="176" height="60" rx="6" fill="#fef3c7" stroke="#d97706"/>
+      <text x="338" y="26" text-anchor="middle" font-size="16" font-weight="700">full P[1]</text>
+      <text x="338" y="48" text-anchor="middle" font-size="13" fill="#92400e">AG → F[1] → reshard</text>
+      <rect x="446" y="0" width="176" height="60" rx="6" fill="#fef3c7" stroke="#d97706"/>
+      <text x="534" y="26" text-anchor="middle" font-size="16" font-weight="700">full P[2]</text>
+      <text x="534" y="48" text-anchor="middle" font-size="13" fill="#92400e">可与 F[1] 重叠</text>
+      <rect x="790" y="0" width="176" height="60" rx="6" fill="#fef3c7" stroke="#d97706"/>
+      <text x="878" y="26" text-anchor="middle" font-size="16" font-weight="700">full P[L]</text>
+      <text x="878" y="48" text-anchor="middle" font-size="13" fill="#92400e">AG → B[L]</text>
+      <rect x="986" y="0" width="176" height="60" rx="6" fill="#fef3c7" stroke="#d97706"/>
+      <text x="1074" y="26" text-anchor="middle" font-size="16" font-weight="700">full P[L−1]</text>
+      <text x="1074" y="48" text-anchor="middle" font-size="13" fill="#92400e">backward prefetch</text>
+      <text x="1235" y="36" font-size="14" fill="#64748b">unit 越大或预取越深，重叠窗口越多</text>
+    </g>
+
+    <g transform="translate(64 366)">
+      <text x="0" y="34" font-size="18" font-weight="700">Activation</text>
+      <rect x="250" y="36" width="118" height="24" rx="4" fill="#dcfce7" stroke="#16a34a"/>
+      <rect x="368" y="24" width="118" height="36" rx="4" fill="#dcfce7" stroke="#16a34a"/>
+      <rect x="486" y="12" width="118" height="48" rx="4" fill="#dcfce7" stroke="#16a34a"/>
+      <rect x="604" y="0" width="136" height="60" rx="4" fill="#dcfce7" stroke="#16a34a"/>
+      <rect x="760" y="0" width="136" height="60" rx="4" fill="#dcfce7" stroke="#16a34a"/>
+      <rect x="896" y="12" width="118" height="48" rx="4" fill="#dcfce7" stroke="#16a34a"/>
+      <rect x="1014" y="24" width="118" height="36" rx="4" fill="#dcfce7" stroke="#16a34a"/>
+      <rect x="1132" y="36" width="88" height="24" rx="4" fill="#dcfce7" stroke="#16a34a"/>
+      <text x="735" y="84" text-anchor="middle" font-size="14" fill="#166534">forward 逐层累积，backward 逐层释放；activation checkpointing 降低高度但增加重计算</text>
+    </g>
+
+    <g transform="translate(64 480)">
+      <text x="0" y="34" font-size="18" font-weight="700">完整局部梯度</text>
+      <rect x="790" y="0" width="174" height="60" rx="6" fill="#fee2e2" stroke="#dc2626"/>
+      <text x="877" y="26" text-anchor="middle" font-size="16" font-weight="700">full G[L]</text>
+      <text x="877" y="48" text-anchor="middle" font-size="13" fill="#991b1b">B[L] 后短暂存在</text>
+      <rect x="986" y="0" width="174" height="60" rx="6" fill="#fee2e2" stroke="#dc2626"/>
+      <text x="1073" y="26" text-anchor="middle" font-size="16" font-weight="700">full G[L−1]</text>
+      <text x="1073" y="48" text-anchor="middle" font-size="13" fill="#991b1b">RS 后只留 shard</text>
+    </g>
+
+    <g transform="translate(64 568)">
+      <text x="0" y="34" font-size="18" font-weight="700">临时 buffer</text>
+      <rect x="250" y="0" width="240" height="60" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+      <text x="370" y="26" text-anchor="middle" font-size="16" font-weight="700">All-Gather output / staging</text>
+      <text x="370" y="48" text-anchor="middle" font-size="13" fill="#5b21b6">可能跨 stream 延迟释放</text>
+      <rect x="790" y="0" width="240" height="60" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+      <text x="910" y="26" text-anchor="middle" font-size="16" font-weight="700">Reduce-Scatter input/output</text>
+      <text x="910" y="48" text-anchor="middle" font-size="13" fill="#5b21b6">与 full gradient 生命周期相交</text>
+      <rect x="1050" y="0" width="170" height="60" rx="6" fill="#f1f5f9" stroke="#64748b"/>
+      <text x="1135" y="26" text-anchor="middle" font-size="16" font-weight="700">operator workspace</text>
+      <text x="1135" y="48" text-anchor="middle" font-size="13" fill="#475569">attention / GEMM 等</text>
+      <rect x="1240" y="0" width="206" height="60" rx="6" fill="#fff7ed" stroke="#fb923c"/>
+      <text x="1343" y="26" text-anchor="middle" font-size="16" font-weight="700">checkpoint staging</text>
+      <text x="1343" y="48" text-anchor="middle" font-size="13" fill="#9a3412">GPU → host DRAM</text>
+    </g>
+
+    <g transform="translate(64 656)">
+      <text x="0" y="34" font-size="18" font-weight="700">Allocator</text>
+      <rect x="236" y="0" width="1210" height="58" rx="6" fill="#f1f5f9" stroke="#64748b" stroke-dasharray="7 5"/>
+      <text x="841" y="25" text-anchor="middle" font-size="17" font-weight="700">reserved block、碎片与跨 stream 延迟回收</text>
+      <text x="841" y="47" text-anchor="middle" font-size="14" fill="#475569">memory_reserved 可能在张量释放后仍保持不变，不等于仍有同量的活跃张量</text>
+    </g>
+
+    <g transform="translate(64 758)">
+      <rect x="0" y="0" width="1472" height="70" rx="8" fill="#eff6ff" stroke="#60a5fa"/>
+      <text x="736" y="29" text-anchor="middle" font-size="19" font-weight="700" fill="#1e40af">M_peak = max_t [M_state(t) + M_param(t) + M_act(t) + M_grad(t) + M_comm(t) + M_workspace(t) + M_allocator(t) + M_ckpt(t)]</text>
+      <text x="736" y="54" text-anchor="middle" font-size="15" fill="#1e40af">不能把各类别各自的最大值直接相加；必须找出它们在同一时刻的重叠关系。</text>
+    </g>
+  </g>
+</svg>

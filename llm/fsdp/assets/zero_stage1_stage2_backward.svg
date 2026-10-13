@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="820" viewBox="0 0 1600 820" role="img" aria-labelledby="title desc">
+  <title id="title">ZeRO Stage 1 与 Stage 2 的 backward 生命周期差异</title>
+  <desc id="desc">Stage 1 可在 backward 结束后执行 Reduce-Scatter 并保留完整梯度存储，Stage 2 随梯度就绪立即 Reduce-Scatter 并释放完整梯度。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="820" fill="#ffffff"/>
+  <g font-family="'Source Han Sans SC', Arial, sans-serif" fill="#0f172a">
+    <text x="64" y="62" font-size="32" font-weight="700">Stage 1 与 Stage 2：collective 相同，gradient 生命周期不同</text>
+    <text x="64" y="100" font-size="18" fill="#475569">示例按 U4 → U3 → U2 → U1 反向执行；红色表示完整 local gradient，蓝色表示归约后的 local shard。</text>
+
+    <g transform="translate(930 112)" font-size="15">
+      <rect x="0" y="0" width="26" height="18" rx="4" fill="#ede9fe" stroke="#7c3aed"/>
+      <text x="36" y="15">Backward 计算</text>
+      <rect x="160" y="0" width="26" height="18" rx="4" fill="#dcfce7" stroke="#16a34a"/>
+      <text x="196" y="15">Reduce-Scatter</text>
+      <rect x="354" y="0" width="26" height="18" rx="4" fill="#fee2e2" stroke="#dc2626"/>
+      <text x="390" y="15">完整梯度</text>
+      <rect x="508" y="0" width="26" height="18" rx="4" fill="#dbeafe" stroke="#2563eb"/>
+      <text x="544" y="15">梯度 shard</text>
+    </g>
+
+    <g transform="translate(64 144)">
+      <rect x="0" y="0" width="1472" height="286" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+      <text x="28" y="44" font-size="26" font-weight="700">ZeRO Stage 1</text>
+      <text x="28" y="76" font-size="16" fill="#64748b">只切 optimizer state；Reduce-Scatter 不承担完整 gradient storage 的回收。</text>
+
+      <text x="28" y="130" font-size="17" font-weight="700" fill="#334155">计算流</text>
+      <line x1="150" y1="122" x2="1380" y2="122" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+      <g font-size="18" font-weight="700">
+        <rect x="190" y="92" width="180" height="60" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="280" y="128" text-anchor="middle">B4</text>
+        <rect x="402" y="92" width="180" height="60" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="492" y="128" text-anchor="middle">B3</text>
+        <rect x="614" y="92" width="180" height="60" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="704" y="128" text-anchor="middle">B2</text>
+        <rect x="826" y="92" width="180" height="60" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="916" y="128" text-anchor="middle">B1</text>
+        <rect x="1050" y="86" width="220" height="72" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+        <text x="1160" y="116" text-anchor="middle">Reduce-Scatter</text>
+        <text x="1160" y="140" text-anchor="middle" font-size="14" fill="#166534">可统一放在 optimizer 前</text>
+        <rect x="1300" y="92" width="130" height="60" rx="6" fill="#fee2e2" stroke="#dc2626"/>
+        <text x="1365" y="116" text-anchor="middle" font-size="16">更新 P shard</text>
+        <text x="1365" y="139" text-anchor="middle" font-size="13" fill="#991b1b">随后 AG(P')</text>
+      </g>
+
+      <text x="28" y="210" font-size="17" font-weight="700" fill="#334155">梯度存储</text>
+      <g font-size="15" font-weight="700">
+        <rect x="190" y="180" width="180" height="60" rx="6" fill="#fee2e2" stroke="#dc2626"/>
+        <text x="280" y="205" text-anchor="middle">full G4</text>
+        <text x="280" y="227" text-anchor="middle" font-size="13" fill="#991b1b">继续驻留</text>
+        <rect x="402" y="180" width="180" height="60" rx="6" fill="#fee2e2" stroke="#dc2626"/>
+        <text x="492" y="205" text-anchor="middle">+ full G3</text>
+        <text x="492" y="227" text-anchor="middle" font-size="13" fill="#991b1b">继续累积</text>
+        <rect x="614" y="180" width="180" height="60" rx="6" fill="#fee2e2" stroke="#dc2626"/>
+        <text x="704" y="205" text-anchor="middle">+ full G2</text>
+        <text x="704" y="227" text-anchor="middle" font-size="13" fill="#991b1b">继续累积</text>
+        <rect x="826" y="180" width="180" height="60" rx="6" fill="#fee2e2" stroke="#dc2626"/>
+        <text x="916" y="205" text-anchor="middle">+ full G1</text>
+        <text x="916" y="227" text-anchor="middle" font-size="13" fill="#991b1b">全模型梯度存储</text>
+        <rect x="1050" y="180" width="220" height="60" rx="6" fill="#dbeafe" stroke="#2563eb"/>
+        <text x="1160" y="205" text-anchor="middle">得到 local g^(r)</text>
+        <text x="1160" y="227" text-anchor="middle" font-size="13" fill="#1e40af">供本地 optimizer 使用</text>
+        <rect x="1300" y="180" width="130" height="60" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-dasharray="6 5"/>
+        <text x="1365" y="205" text-anchor="middle" font-size="14">full G buffer</text>
+        <text x="1365" y="227" text-anchor="middle" font-size="13" fill="#991b1b">不靠 RS 回收</text>
+      </g>
+    </g>
+
+    <g transform="translate(64 454)">
+      <rect x="0" y="0" width="1472" height="286" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+      <text x="28" y="44" font-size="26" font-weight="700">ZeRO Stage 2</text>
+      <text x="28" y="76" font-size="16" fill="#64748b">继续切 gradient；每个 bucket 一就绪就 Reduce-Scatter，并立即释放完整梯度。</text>
+
+      <text x="28" y="130" font-size="17" font-weight="700" fill="#334155">计算与通信</text>
+      <line x1="150" y1="122" x2="1380" y2="122" stroke="#94a3b8" stroke-width="2" marker-end="url(#arrow)"/>
+      <g font-size="17" font-weight="700">
+        <rect x="176" y="92" width="112" height="60" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="232" y="128" text-anchor="middle">B4</text>
+        <rect x="300" y="92" width="132" height="60" rx="6" fill="#dcfce7" stroke="#16a34a"/>
+        <text x="366" y="128" text-anchor="middle">RS(G4)</text>
+        <rect x="456" y="92" width="112" height="60" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="512" y="128" text-anchor="middle">B3</text>
+        <rect x="580" y="92" width="132" height="60" rx="6" fill="#dcfce7" stroke="#16a34a"/>
+        <text x="646" y="128" text-anchor="middle">RS(G3)</text>
+        <rect x="736" y="92" width="112" height="60" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="792" y="128" text-anchor="middle">B2</text>
+        <rect x="860" y="92" width="132" height="60" rx="6" fill="#dcfce7" stroke="#16a34a"/>
+        <text x="926" y="128" text-anchor="middle">RS(G2)</text>
+        <rect x="1016" y="92" width="112" height="60" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="1072" y="128" text-anchor="middle">B1</text>
+        <rect x="1140" y="92" width="132" height="60" rx="6" fill="#dcfce7" stroke="#16a34a"/>
+        <text x="1206" y="128" text-anchor="middle">RS(G1)</text>
+        <rect x="1300" y="92" width="130" height="60" rx="6" fill="#fee2e2" stroke="#dc2626"/>
+        <text x="1365" y="116" text-anchor="middle" font-size="16">更新 P shard</text>
+        <text x="1365" y="139" text-anchor="middle" font-size="13" fill="#991b1b">随后 AG(P')</text>
+      </g>
+
+      <text x="28" y="210" font-size="17" font-weight="700" fill="#334155">梯度存储</text>
+      <g font-size="14" font-weight="700">
+        <rect x="176" y="180" width="112" height="60" rx="6" fill="#fee2e2" stroke="#dc2626"/>
+        <text x="232" y="205" text-anchor="middle">full G4</text>
+        <text x="232" y="227" text-anchor="middle" font-size="12" fill="#991b1b">短暂出现</text>
+        <rect x="300" y="180" width="132" height="60" rx="6" fill="#dbeafe" stroke="#2563eb"/>
+        <text x="327" y="205">keep g<tspan baseline-shift="sub" font-size="10">4</tspan><tspan baseline-shift="super" font-size="10">(r)</tspan></text>
+        <text x="366" y="227" text-anchor="middle" font-size="12" fill="#1e40af">free full G4</text>
+        <rect x="456" y="180" width="112" height="60" rx="6" fill="#fee2e2" stroke="#dc2626"/>
+        <text x="512" y="205" text-anchor="middle">full G3</text>
+        <text x="512" y="227" text-anchor="middle" font-size="12" fill="#991b1b">短暂出现</text>
+        <rect x="580" y="180" width="132" height="60" rx="6" fill="#dbeafe" stroke="#2563eb"/>
+        <text x="620" y="205">+ g<tspan baseline-shift="sub" font-size="10">3</tspan><tspan baseline-shift="super" font-size="10">(r)</tspan></text>
+        <text x="646" y="227" text-anchor="middle" font-size="12" fill="#1e40af">free full G3</text>
+        <rect x="736" y="180" width="112" height="60" rx="6" fill="#fee2e2" stroke="#dc2626"/>
+        <text x="792" y="205" text-anchor="middle">full G2</text>
+        <text x="792" y="227" text-anchor="middle" font-size="12" fill="#991b1b">短暂出现</text>
+        <rect x="860" y="180" width="132" height="60" rx="6" fill="#dbeafe" stroke="#2563eb"/>
+        <text x="900" y="205">+ g<tspan baseline-shift="sub" font-size="10">2</tspan><tspan baseline-shift="super" font-size="10">(r)</tspan></text>
+        <text x="926" y="227" text-anchor="middle" font-size="12" fill="#1e40af">free full G2</text>
+        <rect x="1016" y="180" width="112" height="60" rx="6" fill="#fee2e2" stroke="#dc2626"/>
+        <text x="1072" y="205" text-anchor="middle">full G1</text>
+        <text x="1072" y="227" text-anchor="middle" font-size="12" fill="#991b1b">短暂出现</text>
+        <rect x="1140" y="180" width="132" height="60" rx="6" fill="#dbeafe" stroke="#2563eb"/>
+        <text x="1180" y="205">+ g<tspan baseline-shift="sub" font-size="10">1</tspan><tspan baseline-shift="super" font-size="10">(r)</tspan></text>
+        <text x="1206" y="227" text-anchor="middle" font-size="12" fill="#1e40af">只剩 local shards</text>
+        <rect x="1300" y="180" width="130" height="60" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+        <text x="1365" y="205" text-anchor="middle" font-size="14">G storage</text>
+        <text x="1365" y="227" text-anchor="middle" font-size="12" fill="#1e40af">约为全量的 1/N</text>
+      </g>
+    </g>
+
+    <g transform="translate(64 762)">
+      <rect x="0" y="0" width="1472" height="38" rx="8" fill="#eff6ff" stroke="#60a5fa"/>
+      <text x="736" y="26" text-anchor="middle" font-size="17" font-weight="700" fill="#1e40af">Stage 2 没有新增 collective；它把同一个 Reduce-Scatter 提前到 bucket 就绪时，并让 full gradient 的生命周期止于此处。</text>
+    </g>
+  </g>
+</svg>
