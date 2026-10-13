@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="690" viewBox="0 0 1280 690" role="img" aria-labelledby="title desc">
+  <title id="title">Pass-KV and pass-Q comparison</title>
+  <desc id="desc">Pass-KV keeps query shards stationary and rotates KV shards. Pass-Q keeps persistent KV-cache shards stationary, rotates query shards, then returns partial outputs with all-to-all communication.</desc>
+  <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#334155"/></marker></defs>
+  <rect width="1280" height="690" fill="#f8fafc"/>
+  <text x="50" y="52" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#0f172a">Inference CP chooses what to move: KV or Q</text>
+  <text x="50" y="84" font-family="Arial, sans-serif" font-size="17" fill="#475569">The attention result is exact in both modes. The choice changes communication volume and the final output exchange.</text>
+
+  <g font-family="Arial, sans-serif">
+    <rect x="50" y="120" width="570" height="510" rx="8" fill="#fff" stroke="#2563eb" stroke-width="2"/>
+    <rect x="50" y="120" width="570" height="58" rx="8" fill="#2563eb"/><rect x="50" y="170" width="570" height="8" fill="#2563eb"/>
+    <text x="335" y="157" text-anchor="middle" font-size="23" font-weight="700" fill="#fff">pass-KV</text>
+    <text x="335" y="211" text-anchor="middle" font-size="17" font-weight="700" fill="#1e40af">Keep local Q fixed; rotate K and V</text>
+    <g fill="#dbeafe" stroke="#2563eb" stroke-width="2"><rect x="96" y="252" width="104" height="66" rx="6"/><rect x="246" y="252" width="104" height="66" rx="6"/><rect x="396" y="252" width="104" height="66" rx="6"/></g>
+    <g font-size="18" font-weight="700" fill="#1e40af" text-anchor="middle"><text x="148" y="292">KV0</text><text x="298" y="292">KV1</text><text x="448" y="292">KV2</text></g>
+    <g fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"><path d="M202 285 H238"/><path d="M352 285 H388"/><path d="M500 285 C555 285,555 345,148 345 C104 345,103 326,105 314"/></g>
+    <g fill="#e2e8f0" stroke="#64748b" stroke-width="2"><rect x="96" y="378" width="104" height="58" rx="6"/><rect x="246" y="378" width="104" height="58" rx="6"/><rect x="396" y="378" width="104" height="58" rx="6"/></g>
+    <g font-size="18" font-weight="700" fill="#334155" text-anchor="middle"><text x="148" y="413">Q0</text><text x="298" y="413">Q1</text><text x="448" y="413">Q2</text></g>
+    <text x="335" y="479" text-anchor="middle" font-size="17" fill="#334155">Local merge: each Q owner already has all</text><text x="335" y="505" text-anchor="middle" font-size="17" fill="#334155">partial outputs needed for its final result.</text>
+    <rect x="88" y="540" width="494" height="60" rx="6" fill="#eff6ff"/><text x="335" y="565" text-anchor="middle" font-size="16" font-weight="700" fill="#1e40af">Best default for full prefill in GQA</text><text x="335" y="588" text-anchor="middle" font-size="15" fill="#475569">KV has fewer heads than Q; compute can hide ring traffic.</text>
+
+    <rect x="660" y="120" width="570" height="510" rx="8" fill="#fff" stroke="#16a34a" stroke-width="2"/>
+    <rect x="660" y="120" width="570" height="58" rx="8" fill="#16a34a"/><rect x="660" y="170" width="570" height="8" fill="#16a34a"/>
+    <text x="945" y="157" text-anchor="middle" font-size="23" font-weight="700" fill="#fff">pass-Q</text>
+    <text x="945" y="211" text-anchor="middle" font-size="17" font-weight="700" fill="#166534">Keep persistent KV fixed; rotate small Q shards</text>
+    <g fill="#dcfce7" stroke="#16a34a" stroke-width="2"><rect x="706" y="252" width="104" height="66" rx="6"/><rect x="856" y="252" width="104" height="66" rx="6"/><rect x="1006" y="252" width="104" height="66" rx="6"/></g>
+    <g font-size="18" font-weight="700" fill="#166534" text-anchor="middle"><text x="758" y="292">Q0</text><text x="908" y="292">Q1</text><text x="1058" y="292">Q2</text></g>
+    <g fill="none" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"><path d="M812 285 H848"/><path d="M962 285 H998"/><path d="M1110 285 C1165 285,1165 345,758 345 C714 345,713 326,715 314"/></g>
+    <g fill="#e2e8f0" stroke="#64748b" stroke-width="2"><rect x="706" y="378" width="104" height="58" rx="6"/><rect x="856" y="378" width="104" height="58" rx="6"/><rect x="1006" y="378" width="104" height="58" rx="6"/></g>
+    <g font-size="17" font-weight="700" fill="#334155" text-anchor="middle"><text x="758" y="413">KV0</text><text x="908" y="413">KV1</text><text x="1058" y="413">KV2</text></g>
+    <path d="M762 464 H1124" fill="none" stroke="#d97706" stroke-width="3" marker-end="url(#arrow)"/><text x="945" y="493" text-anchor="middle" font-size="17" font-weight="700" fill="#92400e">All-to-All returns partial outputs to each Q owner</text>
+    <rect x="698" y="540" width="494" height="60" rx="6" fill="#f0fdf4"/><text x="945" y="565" text-anchor="middle" font-size="16" font-weight="700" fill="#166534">Best for decode or very high prefix-cache hit rate</text><text x="945" y="588" text-anchor="middle" font-size="15" fill="#475569">Q is tiny, but output All-to-All remains on the critical path.</text>
+  </g>
+  <text x="640" y="666" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Decision variables: new-token length T, cached length P, query/KV head ratio, CP size, compute throughput, and network bandwidth.</text>
+</svg>

@@ -1187,6 +1187,8 @@ Target 使用 CP 时，历史 KV 按上下文分片。验证多个 query positio
 
 Speculative decoding 不会取消 CP 的全局 attention 依赖。它只让一次 CP attention 处理多个新 query positions。CP degree、候选长度和上下文长度需要联合调优：过大的 CP 可能让短验证块受通信延迟主导。
 
+关于 CP 的数据流与在线 softmax，可继续阅读 [Context Parallelism / Ring Attention](../context_parallel/context_parallel.md)。
+
 ### 13.4 Replica parallelism
 
 多个 serving replicas 之间通常独立运行 speculative decoding。路由器可以按以下特征分流：

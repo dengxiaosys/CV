@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="660" viewBox="0 0 1280 660" role="img" aria-labelledby="title desc">
+  <title id="title">Load-balanced sharding for causal attention</title>
+  <desc id="desc">Contiguous sequence sharding gives later ranks more causal attention work. Pairing an early chunk with a symmetric late chunk equalizes total work and KV-cache capacity.</desc>
+  <rect width="1280" height="660" fill="#f8fafc"/>
+  <text x="50" y="52" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#0f172a">Causal attention needs compute-aware sharding</text>
+  <text x="50" y="84" font-family="Arial, sans-serif" font-size="17" fill="#475569">A later query token sees a longer prefix. Equal token counts therefore do not imply equal attention FLOPs.</text>
+
+  <g font-family="Arial, sans-serif">
+    <text x="54" y="132" font-size="20" font-weight="700" fill="#991b1b">Naive contiguous sharding into N = 4 chunks</text>
+    <g transform="translate(54,154)">
+      <rect x="0" y="0" width="288" height="58" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/><rect x="288" y="0" width="288" height="58" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/><rect x="576" y="0" width="288" height="58" fill="#fef3c7" stroke="#d97706" stroke-width="2"/><rect x="864" y="0" width="288" height="58" rx="6" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+      <g text-anchor="middle" font-size="18" font-weight="700"><text x="144" y="36" fill="#1e40af">rank 0: early</text><text x="432" y="36" fill="#166534">rank 1</text><text x="720" y="36" fill="#92400e">rank 2</text><text x="1008" y="36" fill="#991b1b">rank 3: late</text></g>
+    </g>
+    <g transform="translate(54,232)">
+      <text x="0" y="22" font-size="16" fill="#475569">relative causal work</text>
+      <rect x="176" y="2" width="88" height="26" rx="4" fill="#93c5fd"/><rect x="380" y="2" width="104" height="26" rx="4" fill="#86efac"/><rect x="660" y="2" width="120" height="26" rx="4" fill="#fcd34d"/><rect x="936" y="2" width="144" height="26" rx="4" fill="#fca5a5"/>
+      <g text-anchor="middle" font-size="15" font-weight="700" fill="#334155"><text x="220" y="21">1x</text><text x="432" y="21">3x</text><text x="720" y="21">5x</text><text x="1008" y="21">7x</text></g>
+    </g>
+
+    <line x1="54" y1="307" x2="1206" y2="307" stroke="#cbd5e1" stroke-width="2"/>
+    <text x="54" y="352" font-size="20" font-weight="700" fill="#166534">Load-balanced sharding: split into 2N chunks and pair both ends</text>
+    <g transform="translate(54,376)" font-size="17" font-weight="700" text-anchor="middle">
+      <rect x="0" y="0" width="144" height="54" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/><rect x="144" y="0" width="144" height="54" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/><rect x="288" y="0" width="144" height="54" fill="#fef3c7" stroke="#d97706" stroke-width="2"/><rect x="432" y="0" width="144" height="54" fill="#f3e8ff" stroke="#9333ea" stroke-width="2"/><rect x="576" y="0" width="144" height="54" fill="#f3e8ff" stroke="#9333ea" stroke-width="2"/><rect x="720" y="0" width="144" height="54" fill="#fef3c7" stroke="#d97706" stroke-width="2"/><rect x="864" y="0" width="144" height="54" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/><rect x="1008" y="0" width="144" height="54" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+      <text x="72" y="34" fill="#1e40af">C0</text><text x="216" y="34" fill="#166534">C1</text><text x="360" y="34" fill="#92400e">C2</text><text x="504" y="34" fill="#6b21a8">C3</text><text x="648" y="34" fill="#6b21a8">C4</text><text x="792" y="34" fill="#92400e">C5</text><text x="936" y="34" fill="#166534">C6</text><text x="1080" y="34" fill="#1e40af">C7</text>
+    </g>
+
+    <g transform="translate(54,470)" font-size="17">
+      <rect x="0" y="0" width="270" height="108" rx="8" fill="#fff" stroke="#2563eb" stroke-width="2"/><text x="135" y="34" text-anchor="middle" font-weight="700" fill="#1e40af">rank 0</text><text x="135" y="67" text-anchor="middle" fill="#334155">C0 + C7</text><text x="135" y="92" text-anchor="middle" fill="#475569">light + heavy</text>
+      <rect x="294" y="0" width="270" height="108" rx="8" fill="#fff" stroke="#16a34a" stroke-width="2"/><text x="429" y="34" text-anchor="middle" font-weight="700" fill="#166534">rank 1</text><text x="429" y="67" text-anchor="middle" fill="#334155">C1 + C6</text><text x="429" y="92" text-anchor="middle" fill="#475569">light + heavy</text>
+      <rect x="588" y="0" width="270" height="108" rx="8" fill="#fff" stroke="#d97706" stroke-width="2"/><text x="723" y="34" text-anchor="middle" font-weight="700" fill="#92400e">rank 2</text><text x="723" y="67" text-anchor="middle" fill="#334155">C2 + C5</text><text x="723" y="92" text-anchor="middle" fill="#475569">medium + medium</text>
+      <rect x="882" y="0" width="270" height="108" rx="8" fill="#fff" stroke="#9333ea" stroke-width="2"/><text x="1017" y="34" text-anchor="middle" font-weight="700" fill="#6b21a8">rank 3</text><text x="1017" y="67" text-anchor="middle" fill="#334155">C3 + C4</text><text x="1017" y="92" text-anchor="middle" fill="#475569">medium + medium</text>
+    </g>
+    <rect x="294" y="607" width="692" height="38" rx="6" fill="#e2e8f0"/><text x="640" y="632" text-anchor="middle" font-size="16" font-weight="700" fill="#0f172a">rank i owns (Ci, C(2N-i-1)): equal token capacity and approximately equal causal work</text>
+  </g>
+</svg>

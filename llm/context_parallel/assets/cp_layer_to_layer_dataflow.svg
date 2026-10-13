@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="780" viewBox="0 0 1280 780" role="img" aria-labelledby="title desc">
+  <title id="title">Context parallel dataflow across transformer layers</title>
+  <desc id="desc">Each rank retains ownership of its token rows across layers. KV shards move during each attention layer, while globally contextualized outputs remain on the query owner.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#334155"/></marker>
+    <marker id="green-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#16a34a"/></marker>
+  </defs>
+  <rect width="1280" height="780" fill="#f8fafc"/>
+  <text x="48" y="52" font-family="Arial, sans-serif" font-size="28" font-weight="700" fill="#0f172a">Global information flow does not require global output placement</text>
+  <text x="48" y="84" font-family="Arial, sans-serif" font-size="17" fill="#475569">Each rank owns the same token rows across layers; remote information arrives through KV exchange and local reduction.</text>
+
+  <g font-family="Arial, sans-serif">
+    <rect x="54" y="116" width="500" height="600" rx="8" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+    <rect x="726" y="116" width="500" height="600" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+    <rect x="54" y="116" width="500" height="52" rx="8" fill="#2563eb"/><rect x="54" y="160" width="500" height="8" fill="#2563eb"/>
+    <rect x="726" y="116" width="500" height="52" rx="8" fill="#16a34a"/><rect x="726" y="160" width="500" height="8" fill="#16a34a"/>
+    <text x="304" y="149" text-anchor="middle" font-size="22" font-weight="700" fill="#ffffff">CP rank 0 owns token rows I0</text>
+    <text x="976" y="149" text-anchor="middle" font-size="22" font-weight="700" fill="#ffffff">CP rank 1 owns token rows I1</text>
+
+    <g text-anchor="middle">
+      <rect x="174" y="196" width="260" height="58" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+      <text x="304" y="231" font-size="18" font-weight="700" fill="#1e40af">local X[layer l, rank 0]</text>
+      <rect x="846" y="196" width="260" height="58" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+      <text x="976" y="231" font-size="18" font-weight="700" fill="#166534">local X[layer l, rank 1]</text>
+
+      <path d="M304 254 V294" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+      <path d="M976 254 V294" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+      <rect x="154" y="304" width="300" height="66" rx="6" fill="#f8fafc" stroke="#64748b" stroke-width="2"/>
+      <text x="304" y="332" font-size="17" font-weight="700" fill="#334155">local projection</text>
+      <text x="304" y="357" font-size="16" fill="#475569">Q[l,0], K[l,0], V[l,0]</text>
+      <rect x="826" y="304" width="300" height="66" rx="6" fill="#f8fafc" stroke="#64748b" stroke-width="2"/>
+      <text x="976" y="332" font-size="17" font-weight="700" fill="#334155">local projection</text>
+      <text x="976" y="357" font-size="16" fill="#475569">Q[l,1], K[l,1], V[l,1]</text>
+
+      <path d="M304 370 V410" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+      <path d="M976 370 V410" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+      <rect x="154" y="420" width="300" height="82" rx="6" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+      <text x="304" y="451" font-size="17" font-weight="700" fill="#1e40af">Q-owner attention</text>
+      <text x="304" y="479" font-size="16" fill="#475569">Q[l,0] sees KV from I0 and I1</text>
+      <rect x="826" y="420" width="300" height="82" rx="6" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+      <text x="976" y="451" font-size="17" font-weight="700" fill="#166534">Q-owner attention</text>
+      <text x="976" y="479" font-size="16" fill="#475569">Q[l,1] sees KV from I0 and I1</text>
+    </g>
+
+    <path d="M454 438 C564 386,716 386,826 438" fill="none" stroke="#16a34a" stroke-width="3" marker-end="url(#green-arrow)"/>
+    <path d="M826 486 C716 538,564 538,454 486" fill="none" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow)"/>
+    <rect x="546" y="430" width="188" height="60" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+    <text x="640" y="455" text-anchor="middle" font-size="16" font-weight="700" fill="#92400e">KV moves</text>
+    <text x="640" y="478" text-anchor="middle" font-size="15" fill="#475569">outputs do not move</text>
+
+    <g text-anchor="middle">
+      <path d="M304 502 V536" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+      <path d="M976 502 V536" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+      <rect x="154" y="546" width="300" height="72" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+      <text x="304" y="575" font-size="17" font-weight="700" fill="#1e40af">local O[layer l, rank 0]</text>
+      <text x="304" y="601" font-size="15" fill="#475569">global context, rows I0 only</text>
+      <rect x="826" y="546" width="300" height="72" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+      <text x="976" y="575" font-size="17" font-weight="700" fill="#166534">local O[layer l, rank 1]</text>
+      <text x="976" y="601" font-size="15" fill="#475569">global context, rows I1 only</text>
+
+      <path d="M304 618 V648" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+      <path d="M976 618 V648" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+      <text x="304" y="671" font-size="15" fill="#475569">local output projection / residual / norm / MLP</text>
+      <text x="976" y="671" font-size="15" fill="#475569">local output projection / residual / norm / MLP</text>
+      <text x="304" y="699" font-size="18" font-weight="700" fill="#1e40af">X[layer l+1, rank 0] stays local</text>
+      <text x="976" y="699" font-size="18" font-weight="700" fill="#166534">X[layer l+1, rank 1] stays local</text>
+    </g>
+  </g>
+  <rect x="304" y="735" width="672" height="34" rx="6" fill="#e2e8f0"/>
+  <text x="640" y="758" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#0f172a">Next layer repeats projection and KV exchange, not output gather plus re-scatter.</text>
+</svg>
