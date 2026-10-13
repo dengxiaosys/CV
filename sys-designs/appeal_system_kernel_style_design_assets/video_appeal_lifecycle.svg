@@ -1,0 +1,233 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1500" viewBox="0 0 1800 1500">
+  <defs>
+    <style>
+      .title { font: 700 32px "Noto Sans", Arial, sans-serif; fill: #172033; }
+      .subtitle { font: 400 16px "Noto Sans", Arial, sans-serif; fill: #526174; }
+      .lane { font: 700 18px "Noto Sans", Arial, sans-serif; fill: #172033; }
+      .head { font: 700 17px "Noto Sans", Arial, sans-serif; fill: #172033; }
+      .text { font: 400 14px "Noto Sans", Arial, sans-serif; fill: #405166; }
+      .small { font: 400 12px "Noto Sans", Arial, sans-serif; fill: #526174; }
+      .step { font: 700 14px "Noto Sans", Arial, sans-serif; fill: #ffffff; }
+      .source { fill: #edf4ff; stroke: #4f81bd; stroke-width: 1.8; }
+      .framework { fill: #edf7ed; stroke: #4f8a4f; stroke-width: 1.8; }
+      .ops { fill: #fff8df; stroke: #c7a52f; stroke-width: 1.8; }
+      .external { fill: #fff1e3; stroke: #d48a3a; stroke-width: 1.8; }
+      .wait { fill: #fff2cc; stroke: #c7a52f; stroke-width: 2.2; }
+      .callback { fill: #ffe6cc; stroke: #d48a3a; stroke-width: 2.2; }
+      .final { fill: #d9ead3; stroke: #38761d; stroke-width: 2.2; }
+      .arrow { stroke: #405166; stroke-width: 2.1; fill: none; marker-end: url(#arrow); }
+      .return { stroke: #b65f2a; stroke-width: 2; fill: none; stroke-dasharray: 7 5; marker-end: url(#arrowOrange); }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#405166"/>
+    </marker>
+    <marker id="arrowOrange" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#b65f2a"/>
+    </marker>
+  </defs>
+
+  <rect width="1800" height="1500" fill="#ffffff"/>
+  <text x="55" y="55" class="title">Video Appeal: Framework Schedules, Ops Executes</text>
+  <text x="55" y="84" class="subtitle">The task owns waiting state; ops owns business mutation; Framework owns dispatch, locking, and writeback</text>
+
+  <text x="180" y="130" text-anchor="middle" class="lane">Entry / Wake-up</text>
+  <text x="540" y="130" text-anchor="middle" class="lane">Framework Kernel</text>
+  <text x="1020" y="130" text-anchor="middle" class="lane">video_ops / Task Executors</text>
+  <text x="1525" y="130" text-anchor="middle" class="lane">External Dependencies</text>
+
+  <!-- Phase 1 -->
+  <rect x="50" y="160" width="260" height="175" rx="8" class="source"/>
+  <circle cx="82" cy="192" r="18" fill="#4f81bd"/>
+  <text x="82" y="197" text-anchor="middle" class="step">1</text>
+  <text x="112" y="197" class="head">Submit request</text>
+  <text x="75" y="232" class="text">scene: user_self_submit</text>
+  <text x="75" y="258" class="text">entity: video / v_7309</text>
+  <text x="75" y="284" class="small">material + caller context</text>
+
+  <rect x="340" y="160" width="400" height="175" rx="8" class="framework"/>
+  <text x="540" y="197" text-anchor="middle" class="head">Dispatch submit</text>
+  <text x="365" y="232" class="text">lookup(scene, entity_type) -&gt; video_ops</text>
+  <text x="365" y="258" class="text">open writable execution scope</text>
+  <text x="365" y="284" class="text">call ops.auth + ops.submit</text>
+  <text x="365" y="310" class="small">after return: diff/writeback only</text>
+
+  <rect x="770" y="160" width="500" height="175" rx="8" class="ops"/>
+  <text x="1020" y="197" text-anchor="middle" class="head">video_ops.submit</text>
+  <text x="795" y="232" class="text">load facts / ownership / admission / material</text>
+  <text x="795" y="258" class="text">create appeal_record in memory</text>
+  <text x="795" y="284" class="text">create REVIEW_ROUTE_TASK in memory</text>
+  <text x="795" y="310" class="small">ops defines content; Framework persists it</text>
+
+  <rect x="1300" y="160" width="450" height="175" rx="8" class="external"/>
+  <text x="1525" y="197" text-anchor="middle" class="head">Video / Punish Systems</text>
+  <text x="1325" y="232" class="text">return canonical video facts</text>
+  <text x="1325" y="258" class="text">return active punish facts</text>
+  <text x="1325" y="284" class="small">no record creation occurs here</text>
+
+  <path d="M310 245 L335 245" class="arrow"/>
+  <path d="M740 245 L765 245" class="arrow"/>
+  <path d="M1270 235 L1295 235" class="arrow"/>
+  <path d="M1300 295 L1275 295" class="return"/>
+
+  <!-- Phase 2 -->
+  <rect x="50" y="370" width="260" height="175" rx="8" class="source"/>
+  <circle cx="82" cy="402" r="18" fill="#4f8a4f"/>
+  <text x="82" y="407" text-anchor="middle" class="step">2</text>
+  <text x="112" y="407" class="head">trigger_record</text>
+  <text x="75" y="442" class="text">submit completion wakes record</text>
+  <text x="75" y="468" class="small">same entry for retry / monitor</text>
+
+  <rect x="340" y="370" width="400" height="175" rx="8" class="framework"/>
+  <text x="540" y="407" text-anchor="middle" class="head">Schedule route task</text>
+  <text x="365" y="442" class="text">lock + load persisted record</text>
+  <text x="365" y="468" class="text">select REVIEW_ROUTE_TASK</text>
+  <text x="365" y="494" class="text">invoke registered executor</text>
+  <text x="365" y="520" class="small">Framework does not know model semantics</text>
+
+  <rect x="770" y="370" width="500" height="175" rx="8" class="wait"/>
+  <text x="1020" y="407" text-anchor="middle" class="head">REVIEW_ROUTE_TASK waits</text>
+  <text x="795" y="442" class="text">executor finds policy/profile inputs missing</text>
+  <text x="795" y="468" class="text">request providers; append prerequisites</text>
+  <text x="795" y="494" class="text">task.status = WAITING_PREREQUISITES</text>
+  <text x="795" y="520" class="small">executor returns: cannot proceed now</text>
+
+  <rect x="1300" y="370" width="450" height="175" rx="8" class="external"/>
+  <text x="1525" y="407" text-anchor="middle" class="head">Model / Profile Providers</text>
+  <text x="1325" y="442" class="text">policy score request</text>
+  <text x="1325" y="468" class="text">creator profile request</text>
+  <text x="1325" y="494" class="small">provider work continues asynchronously</text>
+
+  <path d="M310 455 L335 455" class="arrow"/>
+  <path d="M740 455 L765 455" class="arrow"/>
+  <path d="M1270 455 L1295 455" class="arrow"/>
+  <path d="M770 515 L745 515" class="return"/>
+
+  <!-- Phase 3 -->
+  <rect x="50" y="580" width="260" height="175" rx="8" class="callback"/>
+  <circle cx="82" cy="612" r="18" fill="#d48a3a"/>
+  <text x="82" y="617" text-anchor="middle" class="step">3</text>
+  <text x="112" y="617" class="head">Prerequisite event</text>
+  <text x="75" y="652" class="text">policy callback READY</text>
+  <text x="75" y="678" class="text">profile deadline wake-up</text>
+
+  <rect x="340" y="580" width="400" height="175" rx="8" class="framework"/>
+  <text x="540" y="617" text-anchor="middle" class="head">Callback dispatch + save</text>
+  <text x="365" y="652" class="text">verify / dedupe / locate record-task-ops</text>
+  <text x="365" y="678" class="text">invoke video_ops.callback</text>
+  <text x="365" y="704" class="text">persist ops mutation; schedule record</text>
+  <text x="365" y="730" class="small">Framework does not parse provider result</text>
+
+  <rect x="770" y="580" width="500" height="175" rx="8" class="ops"/>
+  <text x="1020" y="617" text-anchor="middle" class="head">Ops callback + route executor</text>
+  <text x="795" y="652" class="text">callback handler writes policy result</text>
+  <text x="795" y="678" class="text">executor settles expired optional profile</text>
+  <text x="795" y="704" class="text">route result = HUMAN_REVIEW</text>
+  <text x="795" y="730" class="small">task-owned policy; Framework only saves</text>
+
+  <rect x="1300" y="580" width="450" height="175" rx="8" class="external"/>
+  <text x="1525" y="617" text-anchor="middle" class="head">Provider Facts</text>
+  <text x="1325" y="652" class="text">video_policy_score = READY</text>
+  <text x="1325" y="678" class="text">creator_profile = absent at deadline</text>
+  <text x="1325" y="704" class="small">facts arrive independently</text>
+
+  <path d="M310 665 L335 665" class="arrow"/>
+  <path d="M740 665 L765 665" class="arrow"/>
+
+  <!-- Phase 4 -->
+  <rect x="50" y="790" width="260" height="175" rx="8" class="source"/>
+  <circle cx="82" cy="822" r="18" fill="#7c4d9e"/>
+  <text x="82" y="827" text-anchor="middle" class="step">4</text>
+  <text x="112" y="827" class="head">Record scheduled</text>
+  <text x="75" y="862" class="text">route result is durable</text>
+  <text x="75" y="888" class="small">Framework resumes whole record</text>
+
+  <rect x="340" y="790" width="400" height="175" rx="8" class="framework"/>
+  <text x="540" y="827" text-anchor="middle" class="head">Schedule ops.proceed + task</text>
+  <text x="365" y="862" class="text">invoke video_ops.proceed</text>
+  <text x="365" y="888" class="text">schedule HUMAN_REVIEW_TASK executor</text>
+  <text x="365" y="914" class="text">persist WAITING_CALLBACK and hook result</text>
+  <text x="365" y="940" class="small">end scheduling; Framework is not waiting</text>
+
+  <rect x="770" y="790" width="500" height="175" rx="8" class="wait"/>
+  <text x="1020" y="827" text-anchor="middle" class="head">HUMAN_REVIEW_TASK waits</text>
+  <text x="795" y="862" class="text">ops.proceed creates task</text>
+  <text x="795" y="888" class="text">executor dispatches review_case rv_63821</text>
+  <text x="795" y="914" class="text">task.status = WAITING_CALLBACK</text>
+  <text x="795" y="940" class="small">after_dispatched hook writes audit_8821</text>
+
+  <rect x="1300" y="790" width="450" height="175" rx="8" class="external"/>
+  <text x="1525" y="827" text-anchor="middle" class="head">Human Review System</text>
+  <text x="1325" y="862" class="text">reviewer owns long-running work</text>
+  <text x="1325" y="888" class="text">Framework has no waiting thread</text>
+  <text x="1325" y="914" class="small">completion arrives by callback</text>
+
+  <path d="M310 875 L335 875" class="arrow"/>
+  <path d="M740 875 L765 875" class="arrow"/>
+  <path d="M1270 875 L1295 875" class="arrow"/>
+  <path d="M770 935 L745 935" class="return"/>
+
+  <!-- Phase 5 -->
+  <rect x="50" y="1000" width="260" height="175" rx="8" class="callback"/>
+  <circle cx="82" cy="1032" r="18" fill="#d48a3a"/>
+  <text x="82" y="1037" text-anchor="middle" class="step">5</text>
+  <text x="112" y="1037" class="head">Review callback</text>
+  <text x="75" y="1072" class="text">decision = APPROVED</text>
+  <text x="75" y="1098" class="small">external event enters Framework</text>
+
+  <rect x="340" y="1000" width="400" height="175" rx="8" class="framework"/>
+  <text x="540" y="1037" text-anchor="middle" class="head">Enforce top-half contract</text>
+  <text x="365" y="1072" class="text">verify / dedupe / lock / dispatch ops</text>
+  <text x="365" y="1098" class="text">persist ops mutation</text>
+  <text x="365" y="1124" class="text">schedule_trigger(record.id) -&gt; ACK</text>
+  <text x="365" y="1150" class="small">Framework does not interpret APPROVED</text>
+
+  <rect x="770" y="1000" width="500" height="175" rx="8" class="ops"/>
+  <text x="1020" y="1037" text-anchor="middle" class="head">video_ops.callback</text>
+  <text x="795" y="1072" class="text">parse review payload</text>
+  <text x="795" y="1098" class="text">write task.result.decision = APPROVED</text>
+  <text x="795" y="1124" class="text">task.status = FINISHED; return</text>
+  <text x="795" y="1150" class="small">no punish release or notification here</text>
+
+  <rect x="1300" y="1000" width="450" height="175" rx="8" class="external"/>
+  <text x="1525" y="1037" text-anchor="middle" class="head">Review Completion</text>
+  <text x="1325" y="1072" class="text">rv_63821 / APPROVED</text>
+  <text x="1325" y="1098" class="small">payload is interpreted only by video_ops</text>
+
+  <path d="M310 1085 L335 1085" class="arrow"/>
+  <path d="M740 1085 L765 1085" class="arrow"/>
+
+  <!-- Phase 6 -->
+  <rect x="50" y="1210" width="260" height="175" rx="8" class="source"/>
+  <circle cx="82" cy="1242" r="18" fill="#38761d"/>
+  <text x="82" y="1247" text-anchor="middle" class="step">6</text>
+  <text x="112" y="1247" class="head">Trigger + delay wake</text>
+  <text x="75" y="1282" class="text">review fact wakes record</text>
+  <text x="75" y="1308" class="text">notify timer wakes it again</text>
+
+  <rect x="340" y="1210" width="400" height="175" rx="8" class="framework"/>
+  <text x="540" y="1247" text-anchor="middle" class="head">Schedule and persist</text>
+  <text x="365" y="1282" class="text">invoke cancel_check / proceed / executors</text>
+  <text x="365" y="1308" class="text">save WAITING_DELAY and later task results</text>
+  <text x="365" y="1334" class="text">persist record.status = SUCCEEDED</text>
+  <text x="365" y="1360" class="small">no business decision is made here</text>
+
+  <rect x="770" y="1210" width="500" height="175" rx="8" class="final"/>
+  <text x="1020" y="1247" text-anchor="middle" class="head">video_ops completes the workflow</text>
+  <text x="795" y="1282" class="text">cancel_check returns no cancellation</text>
+  <text x="795" y="1308" class="text">release executor calls punish adapter</text>
+  <text x="795" y="1334" class="text">notify executor waits, then sends inbox message</text>
+  <text x="795" y="1360" class="small">ops.proceed writes record.status = SUCCEEDED</text>
+
+  <rect x="1300" y="1210" width="450" height="175" rx="8" class="external"/>
+  <text x="1525" y="1247" text-anchor="middle" class="head">Punish / Notify Systems</text>
+  <text x="1325" y="1282" class="text">release receipt rel_5527</text>
+  <text x="1325" y="1308" class="text">inbox handoff succeeds</text>
+  <text x="1325" y="1334" class="small">side effects are owned by task executors</text>
+
+  <path d="M310 1295 L335 1295" class="arrow"/>
+  <path d="M740 1295 L765 1295" class="arrow"/>
+  <path d="M1270 1295 L1295 1295" class="arrow"/>
+
+  <rect x="75" y="1420" width="1650" height="54" rx="7" fill="#f3f5f7" stroke="#8b99a8" stroke-width="1.5"/>
+  <text x="900" y="1453" text-anchor="middle" class="text">Business state comes from ops/task handlers; Framework only dispatches, locks, persists, exits, and wakes the record again</text>
+</svg>

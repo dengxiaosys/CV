@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="960" viewBox="0 0 1600 960">
+  <defs>
+    <style>
+      .title { font: 700 30px "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #172033; }
+      .subtitle { font: 400 16px "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #526174; }
+      .head { font: 700 18px "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #172033; }
+      .task-head { font: 700 16px "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #172033; }
+      .text { font: 400 14px "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #405166; }
+      .small { font: 400 13px "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #526174; }
+      .record { fill: #d5e8d4; stroke: #4f8a4f; stroke-width: 2.4; }
+      .field { fill: #ffffff; stroke: #88a68a; stroke-width: 1.5; }
+      .task { fill: #dae8fc; stroke: #4f81bd; stroke-width: 2; }
+      .wait { fill: #fff2cc; stroke: #c7a52f; stroke-width: 2; }
+      .event { fill: #ffe6cc; stroke: #d48a3a; stroke-width: 2; }
+      .arrow { stroke: #405166; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .dash { stroke: #7c4d9e; stroke-width: 2; fill: none; stroke-dasharray: 7 6; marker-end: url(#arrowPurple); }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#405166"/>
+    </marker>
+    <marker id="arrowPurple" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#7c4d9e"/>
+    </marker>
+  </defs>
+
+  <rect width="1600" height="960" fill="#ffffff"/>
+  <text x="70" y="55" class="title">Process-like appeal_record and Its Task Threads</text>
+  <text x="70" y="84" class="subtitle">Ops decides which tasks exist and what they wait for; Framework only schedules and persists</text>
+
+  <rect x="70" y="125" width="420" height="700" rx="8" class="record"/>
+  <text x="280" y="160" text-anchor="middle" class="head">appeal_record</text>
+  <text x="280" y="187" text-anchor="middle" class="small">Process-level durable context</text>
+
+  <rect x="100" y="215" width="360" height="72" rx="6" class="field"/>
+  <text x="120" y="243" class="head">Identity</text>
+  <text x="120" y="267" class="text">id / scene / entity_type / entity_id / user_id</text>
+
+  <rect x="100" y="305" width="360" height="88" rx="6" class="field"/>
+  <text x="120" y="333" class="head">Domain facts</text>
+  <text x="120" y="357" class="text">punish_info / entry_info / context</text>
+  <text x="120" y="379" class="small">Tagged union; at most one active variant</text>
+
+  <rect x="100" y="411" width="360" height="96" rx="6" class="field"/>
+  <text x="120" y="439" class="head">Lifecycle</text>
+  <text x="120" y="463" class="text">INITIALIZED / RUNNING / CANCELLED</text>
+  <text x="120" y="485" class="text">FAILED / SUCCEEDED</text>
+
+  <rect x="100" y="525" width="360" height="94" rx="6" class="field"/>
+  <text x="120" y="553" class="head">Workflow state</text>
+  <text x="120" y="577" class="text">tasks[] / events[]</text>
+  <text x="120" y="599" class="small">Wait/retry/callback states stay out of record.status</text>
+
+  <rect x="100" y="637" width="360" height="76" rx="6" class="field"/>
+  <text x="120" y="665" class="head">Persistence metadata</text>
+  <text x="120" y="689" class="text">version / created_at / updated_at / finished_at</text>
+
+  <rect x="100" y="731" width="360" height="66" rx="6" class="field"/>
+  <text x="120" y="759" class="head">Runtime-only</text>
+  <text x="120" y="783" class="text">current context / original_snapshot / diff</text>
+
+  <text x="955" y="130" text-anchor="middle" class="head">Process-owned Task / Thread DAG</text>
+
+  <rect x="810" y="170" width="290" height="92" rx="7" class="task"/>
+  <text x="955" y="202" text-anchor="middle" class="head">REVIEW_ROUTE_TASK</text>
+  <text x="955" y="228" text-anchor="middle" class="text">action_type: direct / human / transfer</text>
+  <text x="955" y="250" text-anchor="middle" class="small">May wait for model prerequisites</text>
+
+  <rect x="530" y="330" width="260" height="94" rx="7" class="task"/>
+  <text x="660" y="362" text-anchor="middle" class="task-head">HUMAN_REVIEW_TASK</text>
+  <text x="660" y="388" text-anchor="middle" class="text">dispatch standard review</text>
+  <text x="660" y="410" text-anchor="middle" class="small">after_dispatched hooks</text>
+
+  <rect x="830" y="330" width="250" height="94" rx="7" class="task"/>
+  <text x="955" y="362" text-anchor="middle" class="task-head">DIRECT_RESULT</text>
+  <text x="955" y="388" text-anchor="middle" class="text">No human review case</text>
+  <text x="955" y="410" text-anchor="middle" class="small">Produces a direct decision</text>
+
+  <rect x="1120" y="330" width="310" height="108" rx="7" class="task"/>
+  <text x="1275" y="355" text-anchor="middle" class="task-head">TRANSFER_BIZ_ACCOUNT</text>
+  <text x="1275" y="376" text-anchor="middle" class="task-head">REVIEW_TASK</text>
+  <text x="1275" y="402" text-anchor="middle" class="text">TransferBizAccount executor</text>
+  <text x="1275" y="424" text-anchor="middle" class="small">Privileged commercial review team</text>
+
+  <rect x="530" y="492" width="260" height="94" rx="7" class="wait"/>
+  <text x="660" y="524" text-anchor="middle" class="task-head">WAITING_CALLBACK</text>
+  <text x="660" y="550" text-anchor="middle" class="text">Standard review result pending</text>
+  <text x="660" y="572" text-anchor="middle" class="small">No worker thread is held</text>
+
+  <rect x="1120" y="500" width="310" height="94" rx="7" class="wait"/>
+  <text x="1275" y="532" text-anchor="middle" class="task-head">WAITING_CALLBACK</text>
+  <text x="1275" y="558" text-anchor="middle" class="text">Commercial review result pending</text>
+  <text x="1275" y="580" text-anchor="middle" class="small">Sensitive data stays with privileged team</text>
+
+  <rect x="815" y="620" width="280" height="94" rx="7" class="task"/>
+  <text x="955" y="652" text-anchor="middle" class="task-head">PUNISH_RELEASE_TASK</text>
+  <text x="955" y="678" text-anchor="middle" class="text">Release punish state</text>
+  <text x="955" y="700" text-anchor="middle" class="small">Independent retry and logs</text>
+
+  <rect x="660" y="760" width="250" height="94" rx="7" class="task"/>
+  <text x="785" y="792" text-anchor="middle" class="task-head">INBOX_NOTIFY_TASK</text>
+  <text x="785" y="818" text-anchor="middle" class="text">In-app message adapter</text>
+  <text x="785" y="840" text-anchor="middle" class="small">Own args, result, retry policy</text>
+
+  <rect x="1000" y="760" width="250" height="94" rx="7" class="task"/>
+  <text x="1125" y="792" text-anchor="middle" class="task-head">SMS_NOTIFY_TASK</text>
+  <text x="1125" y="818" text-anchor="middle" class="text">SMS gateway adapter</text>
+  <text x="1125" y="840" text-anchor="middle" class="small">Own args, result, retry policy</text>
+
+  <rect x="1455" y="170" width="120" height="138" rx="7" class="event"/>
+  <text x="1515" y="202" text-anchor="middle" class="head">events[]</text>
+  <text x="1515" y="231" text-anchor="middle" class="text">callback</text>
+  <text x="1515" y="255" text-anchor="middle" class="text">revoke</text>
+  <text x="1515" y="279" text-anchor="middle" class="text">hook result</text>
+
+  <rect x="1440" y="330" width="140" height="190" rx="7" class="wait"/>
+  <text x="1510" y="362" text-anchor="middle" class="task-head">Conditions</text>
+  <text x="1510" y="392" text-anchor="middle" class="small">prerequisites</text>
+  <text x="1510" y="416" text-anchor="middle" class="small">runnable_after</text>
+  <text x="1510" y="440" text-anchor="middle" class="small">next_retry_at</text>
+  <text x="1510" y="464" text-anchor="middle" class="small">wait_deadline_at</text>
+  <text x="1510" y="488" text-anchor="middle" class="small">is_critical</text>
+
+  <path d="M875 262 C810 280,720 295,660 325" class="arrow"/>
+  <path d="M955 262 L955 325" class="arrow"/>
+  <path d="M1035 262 C1110 280,1205 295,1275 325" class="arrow"/>
+  <path d="M660 424 L660 487" class="arrow"/>
+  <path d="M1275 438 L1275 495" class="arrow"/>
+  <path d="M790 539 C850 552,900 580,930 615" class="arrow"/>
+  <path d="M955 424 L955 615" class="arrow"/>
+  <path d="M1120 547 C1065 557,1015 583,980 615" class="arrow"/>
+  <path d="M910 714 C880 730,835 740,800 755" class="arrow"/>
+  <path d="M1000 714 C1030 730,1080 740,1110 755" class="arrow"/>
+  <path d="M1455 239 C1410 250,1370 285,1330 325" class="dash"/>
+  <path d="M1580 425 L1590 425 L1590 130 L1100 130 L1100 165" class="dash"/>
+
+  <path d="M490 475 C515 475,500 216,805 216" class="arrow"/>
+  <text x="525" y="450" class="small">tasks[]</text>
+
+  <rect x="525" y="885" width="1050" height="54" rx="7" fill="#f3f5f7" stroke="#8b99a8" stroke-width="1.5"/>
+  <text x="1050" y="909" text-anchor="middle" class="head">Core Invariant</text>
+  <text x="1050" y="930" text-anchor="middle" class="text">ops owns task creation and waits; Framework owns scheduling and persistence</text>
+</svg>

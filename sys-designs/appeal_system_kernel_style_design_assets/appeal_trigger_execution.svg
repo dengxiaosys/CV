@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="930" viewBox="0 0 1500 930">
+  <defs>
+    <style>
+      .title { font: 700 30px "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #172033; }
+      .subtitle { font: 400 16px "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #526174; }
+      .lane { font: 700 18px "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #172033; }
+      .head { font: 700 16px "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #172033; }
+      .text { font: 400 14px "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #405166; }
+      .small { font: 400 13px "Noto Sans CJK SC", "Microsoft YaHei", sans-serif; fill: #526174; }
+      .framework { fill: #d5e8d4; stroke: #4f8a4f; stroke-width: 2; }
+      .worker { fill: #dae8fc; stroke: #4f81bd; stroke-width: 2; }
+      .store { fill: #ffe6cc; stroke: #d48a3a; stroke-width: 2; }
+      .event { fill: #fff2cc; stroke: #c7a52f; stroke-width: 2; }
+      .exit { fill: #f0e6f6; stroke: #7c4d9e; stroke-width: 2; }
+      .line { stroke: #8b99a8; stroke-width: 1.5; stroke-dasharray: 7 6; }
+      .arrow { stroke: #405166; stroke-width: 2.1; fill: none; marker-end: url(#arrow); }
+      .async { stroke: #b65f2a; stroke-width: 2.1; fill: none; stroke-dasharray: 8 6; marker-end: url(#arrowOrange); }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#405166"/>
+    </marker>
+    <marker id="arrowOrange" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#b65f2a"/>
+    </marker>
+  </defs>
+
+  <rect width="1500" height="930" fill="#ffffff"/>
+  <text x="70" y="55" class="title">trigger_record: Lock Every Mutable Record Path</text>
+  <text x="70" y="84" class="subtitle">Any path that may mutate the record holds its lock through diff and writeback</text>
+
+  <text x="175" y="130" text-anchor="middle" class="lane">Event Entry</text>
+  <text x="555" y="130" text-anchor="middle" class="lane">Framework Kernel</text>
+  <text x="950" y="130" text-anchor="middle" class="lane">Task Executor / Adapter</text>
+  <text x="1320" y="130" text-anchor="middle" class="lane">Mongo / External System</text>
+
+  <line x1="350" y1="150" x2="350" y2="870" class="line"/>
+  <line x1="760" y1="150" x2="760" y2="870" class="line"/>
+  <line x1="1150" y1="150" x2="1150" y2="870" class="line"/>
+
+  <rect x="70" y="170" width="210" height="100" rx="8" class="event"/>
+  <text x="175" y="202" text-anchor="middle" class="head">Trigger Source</text>
+  <text x="175" y="229" text-anchor="middle" class="text">callback / delayed MQ</text>
+  <text x="175" y="252" text-anchor="middle" class="text">retry / monitor / submit</text>
+
+  <rect x="420" y="170" width="270" height="100" rx="8" class="framework"/>
+  <text x="555" y="202" text-anchor="middle" class="head">Entry Dispatch</text>
+  <text x="555" y="229" text-anchor="middle" class="text">auth / signature / idempotency</text>
+  <text x="555" y="252" text-anchor="middle" class="small">locate and dispatch ops handler</text>
+
+  <rect x="420" y="315" width="270" height="126" rx="8" class="framework"/>
+  <text x="555" y="347" text-anchor="middle" class="head">Locked: Load and Select</text>
+  <text x="555" y="374" text-anchor="middle" class="text">lock -&gt; load -&gt; deep copy</text>
+  <text x="555" y="398" text-anchor="middle" class="text">dispatch cancel_check / proceed</text>
+  <text x="555" y="422" text-anchor="middle" class="text">dispatch runnable task handler</text>
+
+  <rect x="1210" y="315" width="220" height="126" rx="8" class="store"/>
+  <text x="1320" y="347" text-anchor="middle" class="head">Mongo</text>
+  <text x="1320" y="374" text-anchor="middle" class="text">record snapshot</text>
+  <text x="1320" y="398" text-anchor="middle" class="text">task / result state</text>
+  <text x="1320" y="422" text-anchor="middle" class="text">field-level patch</text>
+
+  <rect x="820" y="485" width="260" height="112" rx="8" class="worker"/>
+  <text x="950" y="517" text-anchor="middle" class="head">Ops / Task Handler</text>
+  <text x="950" y="544" text-anchor="middle" class="text">mutates current_record</text>
+  <text x="950" y="568" text-anchor="middle" class="small">Framework keeps record lock</text>
+
+  <rect x="1210" y="485" width="220" height="112" rx="8" class="store"/>
+  <text x="1320" y="517" text-anchor="middle" class="head">External System</text>
+  <text x="1320" y="544" text-anchor="middle" class="text">sync result or async case_id</text>
+  <text x="1320" y="568" text-anchor="middle" class="small">long work uses callback</text>
+
+  <rect x="420" y="640" width="270" height="128" rx="8" class="framework"/>
+  <text x="555" y="672" text-anchor="middle" class="head">Persist / Redispatch</text>
+  <text x="555" y="699" text-anchor="middle" class="text">handler returned mutation / wait</text>
+  <text x="555" y="723" text-anchor="middle" class="text">diff/writeback common envelope</text>
+  <text x="555" y="747" text-anchor="middle" class="text">redispatch runnable; exit if waiting</text>
+
+  <rect x="420" y="805" width="270" height="88" rx="8" class="exit"/>
+  <text x="555" y="837" text-anchor="middle" class="head">Unified Exit Path</text>
+  <text x="555" y="864" text-anchor="middle" class="text">diff -&gt; patch -&gt; clear current -&gt; unlock</text>
+
+  <path d="M280 220 L415 220" class="arrow"/>
+  <path d="M555 270 L555 310" class="arrow"/>
+  <path d="M690 378 L1205 378" class="arrow"/>
+  <text x="940" y="366" text-anchor="middle" class="small">load</text>
+  <path d="M555 441 C620 465,730 525,815 540" class="arrow"/>
+  <path d="M1080 541 L1205 541" class="arrow"/>
+  <path d="M1210 575 C1120 630,800 675,695 697" class="arrow"/>
+  <path d="M555 768 L555 800" class="arrow"/>
+  <path d="M690 704 L1205 430" class="arrow"/>
+  <text x="940" y="620" text-anchor="middle" class="small">patch before unlock</text>
+
+  <path d="M1320 597 C1360 700,1240 760,1110 800" class="async"/>
+  <text x="980" y="775" class="small">handler wrote WAITING_CALLBACK; Framework persists and exits</text>
+
+  <rect x="790" y="805" width="640" height="88" rx="8" fill="#f3f5f7" stroke="#8b99a8" stroke-width="1.5"/>
+  <text x="1110" y="837" text-anchor="middle" class="head">No-Lock Regions</text>
+  <text x="1110" y="864" text-anchor="middle" class="text">Read-only queries and remote async waiting do not hold mutable record state</text>
+</svg>

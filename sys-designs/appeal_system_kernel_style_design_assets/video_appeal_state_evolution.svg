@@ -1,0 +1,160 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1050" viewBox="0 0 1800 1050">
+  <defs>
+    <style>
+      .title { font: 700 32px "Noto Sans", Arial, sans-serif; fill: #172033; }
+      .subtitle { font: 400 16px "Noto Sans", Arial, sans-serif; fill: #526174; }
+      .head { font: 700 18px "Noto Sans", Arial, sans-serif; fill: #172033; }
+      .state { font: 700 15px "Noto Sans", Arial, sans-serif; fill: #172033; }
+      .text { font: 400 14px "Noto Sans", Arial, sans-serif; fill: #405166; }
+      .small { font: 400 12px "Noto Sans", Arial, sans-serif; fill: #526174; }
+      .card { fill: #ffffff; stroke: #8b99a8; stroke-width: 1.8; }
+      .header-blue { fill: #dae8fc; stroke: #4f81bd; stroke-width: 1.8; }
+      .header-yellow { fill: #fff2cc; stroke: #c7a52f; stroke-width: 1.8; }
+      .header-orange { fill: #ffe6cc; stroke: #d48a3a; stroke-width: 1.8; }
+      .header-green { fill: #d5e8d4; stroke: #4f8a4f; stroke-width: 1.8; }
+      .rule { stroke: #d1d8e0; stroke-width: 1.2; }
+      .arrow { stroke: #405166; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+      .wake { stroke: #b65f2a; stroke-width: 2; fill: none; stroke-dasharray: 8 6; marker-end: url(#arrowOrange); }
+      .critical { fill: #b42318; }
+      .optional { fill: #c58a00; }
+      .done { fill: #3f7f44; }
+      .waiting { fill: #c58a00; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#405166"/>
+    </marker>
+    <marker id="arrowOrange" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#b65f2a"/>
+    </marker>
+  </defs>
+
+  <rect width="1800" height="1050" fill="#ffffff"/>
+  <text x="55" y="55" class="title">Video Appeal: Durable Record Evolution</text>
+  <text x="55" y="84" class="subtitle">Each column is a persisted snapshot; the workflow is reconstructed after every callback or delayed wake-up</text>
+
+  <rect x="45" y="145" width="310" height="700" rx="8" class="card"/>
+  <rect x="45" y="145" width="310" height="82" rx="8" class="header-blue"/>
+  <text x="200" y="177" text-anchor="middle" class="head">T0 - First wait persisted</text>
+  <text x="200" y="204" text-anchor="middle" class="state">record = RUNNING</text>
+  <text x="70" y="260" class="state">Identity</text>
+  <text x="70" y="287" class="text">scene: user_self_submit</text>
+  <text x="70" y="311" class="text">entity: video / v_7309</text>
+  <line x1="70" y1="333" x2="330" y2="333" class="rule"/>
+  <circle cx="78" cy="368" r="6" class="waiting"/>
+  <text x="95" y="373" class="state">REVIEW_ROUTE_TASK</text>
+  <text x="95" y="398" class="text">WAITING_PREREQUISITES</text>
+  <circle cx="78" cy="437" r="6" class="critical"/>
+  <text x="95" y="442" class="text">video_policy_score</text>
+  <text x="95" y="464" class="small">critical / REQUESTED</text>
+  <circle cx="78" cy="503" r="6" class="optional"/>
+  <text x="95" y="508" class="text">creator_profile</text>
+  <text x="95" y="530" class="small">optional / REQUESTED</text>
+  <line x1="70" y1="560" x2="330" y2="560" class="rule"/>
+  <text x="70" y="590" class="small">Record created by video_ops.submit</text>
+  <text x="70" y="614" class="small">Wait written by route-task executor</text>
+  <text x="70" y="638" class="small">Framework persisted both mutations</text>
+
+  <rect x="390" y="145" width="310" height="700" rx="8" class="card"/>
+  <rect x="390" y="145" width="310" height="82" rx="8" class="header-yellow"/>
+  <text x="545" y="177" text-anchor="middle" class="head">T0 + 30s - Route done</text>
+  <text x="545" y="204" text-anchor="middle" class="state">record = RUNNING</text>
+  <circle cx="423" cy="270" r="6" class="done"/>
+  <text x="440" y="275" class="text">video_policy_score = READY</text>
+  <text x="440" y="298" class="small">critical result available</text>
+  <circle cx="423" cy="337" r="6" class="optional"/>
+  <text x="440" y="342" class="text">creator_profile = FAILED</text>
+  <text x="440" y="365" class="small">optional deadline expired</text>
+  <line x1="415" y1="394" x2="675" y2="394" class="rule"/>
+  <circle cx="423" cy="430" r="6" class="done"/>
+  <text x="440" y="435" class="state">REVIEW_ROUTE_TASK</text>
+  <text x="440" y="460" class="text">FINISHED</text>
+  <text x="440" y="484" class="small">action_type = HUMAN_REVIEW</text>
+  <circle cx="423" cy="525" r="6" class="waiting"/>
+  <text x="440" y="530" class="state">HUMAN_REVIEW_TASK</text>
+  <text x="440" y="555" class="text">CREATED</text>
+  <line x1="415" y1="585" x2="675" y2="585" class="rule"/>
+  <text x="415" y="615" class="small">Task executor settled prerequisites</text>
+  <text x="415" y="639" class="small">video_ops.proceed expanded the DAG</text>
+
+  <rect x="735" y="145" width="310" height="700" rx="8" class="card"/>
+  <rect x="735" y="145" width="310" height="82" rx="8" class="header-orange"/>
+  <text x="890" y="177" text-anchor="middle" class="head">Review dispatched</text>
+  <text x="890" y="204" text-anchor="middle" class="state">record = RUNNING</text>
+  <circle cx="768" cy="270" r="6" class="waiting"/>
+  <text x="785" y="275" class="state">HUMAN_REVIEW_TASK</text>
+  <text x="785" y="300" class="text">WAITING_CALLBACK</text>
+  <text x="785" y="324" class="small">review_case_id = rv_63821</text>
+  <line x1="760" y1="354" x2="1020" y2="354" class="rule"/>
+  <circle cx="768" cy="390" r="6" fill="#7c4d9e"/>
+  <text x="785" y="395" class="state">after_dispatched hook</text>
+  <text x="785" y="420" class="text">FINISHED</text>
+  <text x="785" y="444" class="small">audit_event_id = audit_8821</text>
+  <line x1="760" y1="474" x2="1020" y2="474" class="rule"/>
+  <text x="760" y="506" class="text">HUMAN_REVIEW_TASK is waiting</text>
+  <text x="760" y="530" class="text">Framework saved and exited</text>
+  <text x="760" y="554" class="text">no worker thread retained</text>
+  <text x="760" y="600" class="small">Review callback will wake Framework</text>
+  <text x="760" y="622" class="small">and be dispatched to video_ops</text>
+
+  <rect x="1080" y="145" width="310" height="700" rx="8" class="card"/>
+  <rect x="1080" y="145" width="310" height="82" rx="8" class="header-orange"/>
+  <text x="1235" y="177" text-anchor="middle" class="head">Callback accepted</text>
+  <text x="1235" y="204" text-anchor="middle" class="state">record = RUNNING</text>
+  <circle cx="1113" cy="270" r="6" class="done"/>
+  <text x="1130" y="275" class="state">HUMAN_REVIEW_TASK</text>
+  <text x="1130" y="300" class="text">FINISHED / APPROVED</text>
+  <circle cx="1113" cy="342" r="6" class="done"/>
+  <text x="1130" y="347" class="state">PUNISH_RELEASE_TASK</text>
+  <text x="1130" y="372" class="text">FINISHED / rel_5527</text>
+  <line x1="1105" y1="402" x2="1365" y2="402" class="rule"/>
+  <circle cx="1113" cy="438" r="6" class="waiting"/>
+  <text x="1130" y="443" class="state">INBOX_NOTIFY_TASK</text>
+  <text x="1130" y="468" class="text">WAITING_DELAY</text>
+  <text x="1130" y="492" class="small">runnable_after = now + 30s</text>
+  <text x="1130" y="516" class="small">is_critical = false</text>
+  <line x1="1105" y1="546" x2="1365" y2="546" class="rule"/>
+  <text x="1105" y="578" class="small">video_ops.callback wrote APPROVED</text>
+  <text x="1105" y="602" class="small">executors produced release and delay facts</text>
+
+  <rect x="1425" y="145" width="310" height="700" rx="8" class="card"/>
+  <rect x="1425" y="145" width="310" height="82" rx="8" class="header-green"/>
+  <text x="1580" y="177" text-anchor="middle" class="head">Final durable state</text>
+  <text x="1580" y="204" text-anchor="middle" class="state">record = SUCCEEDED</text>
+  <circle cx="1458" cy="270" r="6" class="done"/>
+  <text x="1475" y="275" class="text">route = FINISHED</text>
+  <circle cx="1458" cy="310" r="6" class="done"/>
+  <text x="1475" y="315" class="text">human review = FINISHED</text>
+  <circle cx="1458" cy="350" r="6" class="done"/>
+  <text x="1475" y="355" class="text">punish release = FINISHED</text>
+  <circle cx="1458" cy="390" r="6" class="done"/>
+  <text x="1475" y="395" class="text">inbox notify = FINISHED</text>
+  <line x1="1450" y1="425" x2="1710" y2="425" class="rule"/>
+  <text x="1450" y="460" class="state">events[]</text>
+  <text x="1450" y="486" class="small">policy score callback</text>
+  <text x="1450" y="510" class="small">profile timeout</text>
+  <text x="1450" y="534" class="small">review callback APPROVED</text>
+  <text x="1450" y="558" class="small">hook result audit_8821</text>
+  <line x1="1450" y1="588" x2="1710" y2="588" class="rule"/>
+  <text x="1450" y="620" class="text">video_ops.proceed set SUCCEEDED</text>
+  <text x="1450" y="644" class="text">Framework persisted; monitor stops</text>
+  <text x="1450" y="668" class="text">query reads snapshot lock-free</text>
+
+  <path d="M355 495 L385 495" class="wake"/>
+  <path d="M700 495 L730 495" class="wake"/>
+  <path d="M1045 495 L1075 495" class="wake"/>
+  <path d="M1390 495 L1420 495" class="wake"/>
+  <text x="370" y="478" text-anchor="middle" class="small">wake</text>
+  <text x="715" y="478" text-anchor="middle" class="small">proceed</text>
+  <text x="1060" y="478" text-anchor="middle" class="small">callback</text>
+  <text x="1405" y="478" text-anchor="middle" class="small">delay</text>
+
+  <rect x="75" y="885" width="1650" height="112" rx="8" fill="#f3f5f7" stroke="#8b99a8" stroke-width="1.5"/>
+  <text x="900" y="917" text-anchor="middle" class="head">Recovery Invariant</text>
+  <text x="900" y="945" text-anchor="middle" class="text">Every wake-up reloads the record, then Framework dispatches ops/task handlers; no transition depends on a surviving stack</text>
+  <circle cx="565" cy="974" r="6" class="critical"/>
+  <text x="580" y="979" class="small">critical failure blocks</text>
+  <circle cx="785" cy="974" r="6" class="optional"/>
+  <text x="800" y="979" class="small">optional timeout may continue</text>
+  <circle cx="1055" cy="974" r="6" class="done"/>
+  <text x="1070" y="979" class="small">finished fact is durable</text>
+</svg>
