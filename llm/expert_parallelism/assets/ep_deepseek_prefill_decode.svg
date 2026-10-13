@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="820" viewBox="0 0 1440 820" role="img" aria-labelledby="title desc">
+  <title id="title">DeepSeek-V3 prefill and decode deployment units</title>
+  <desc id="desc">The published DeepSeek-V3 deployment separates prefill and decode. Prefill uses 32 GPUs with attention TP4 times DP8 and MoE EP32. Decode uses 320 GPUs with attention TP4 times DP80 and MoE EP320.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0 0L0 6L9 3Z" fill="#334155"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <rect width="1440" height="820" fill="#f8fafc"/>
+  <g font-family="Arial, sans-serif">
+    <text x="54" y="58" font-size="30" font-weight="700" fill="#0f172a">DeepSeek-V3: phase-specific parallel layouts</text>
+    <text x="54" y="91" font-size="17" fill="#475569">Published minimum deployment units on the H800 cluster; these are architecture examples, not universal defaults.</text>
+
+    <g filter="url(#shadow)">
+      <rect x="54" y="132" width="626" height="570" rx="8" fill="#ffffff" stroke="#2563eb" stroke-width="2"/>
+      <rect x="760" y="132" width="626" height="570" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-width="2"/>
+    </g>
+
+    <text x="84" y="177" font-size="24" font-weight="700" fill="#1d4ed8">Prefill unit</text>
+    <text x="790" y="177" font-size="24" font-weight="700" fill="#6d28d9">Decode unit</text>
+    <text x="84" y="208" font-size="16" fill="#475569">4 nodes / 32 GPUs</text>
+    <text x="790" y="208" font-size="16" fill="#475569">40 nodes / 320 GPUs</text>
+
+    <g>
+      <rect x="84" y="241" width="566" height="112" rx="6" fill="#eff6ff" stroke="#2563eb"/>
+      <text x="110" y="274" font-size="18" font-weight="700" fill="#1e40af">Attention and dense path</text>
+      <text x="110" y="306" font-size="17" fill="#0f172a">TP4 with sequence parallelism x DP8</text>
+      <text x="110" y="333" font-size="15" fill="#475569">Small TP group limits high-frequency TP communication.</text>
+
+      <rect x="84" y="380" width="566" height="145" rx="6" fill="#faf5ff" stroke="#7c3aed"/>
+      <text x="110" y="413" font-size="18" font-weight="700" fill="#6d28d9">MoE path</text>
+      <text x="110" y="445" font-size="17" fill="#0f172a">EP32 across all 32 GPUs</text>
+      <text x="110" y="474" font-size="15" fill="#475569">8 original routed experts + 1 redundant expert per GPU</text>
+      <text x="110" y="501" font-size="15" fill="#475569">Hierarchical IB then NVLink token forwarding</text>
+
+      <rect x="84" y="552" width="566" height="104" rx="6" fill="#ecfdf5" stroke="#16a34a"/>
+      <text x="110" y="584" font-size="18" font-weight="700" fill="#166534">Optimization objective</text>
+      <text x="110" y="614" font-size="15" fill="#334155">Large token batches make grouped GEMMs efficient.</text>
+      <text x="110" y="638" font-size="15" fill="#334155">Two micro-batches overlap attention, MoE, dispatch, and combine.</text>
+    </g>
+
+    <path d="M700 414H740" stroke="#334155" stroke-width="4" marker-end="url(#arrow)"/>
+    <text x="720" y="389" text-anchor="middle" font-size="14" font-weight="700" fill="#334155">KV</text>
+    <text x="720" y="442" text-anchor="middle" font-size="14" font-weight="700" fill="#334155">handoff</text>
+
+    <g>
+      <rect x="790" y="241" width="566" height="112" rx="6" fill="#eff6ff" stroke="#2563eb"/>
+      <text x="816" y="274" font-size="18" font-weight="700" fill="#1e40af">Attention and dense path</text>
+      <text x="816" y="306" font-size="17" fill="#0f172a">TP4 with sequence parallelism x DP80</text>
+      <text x="816" y="333" font-size="15" fill="#475569">Many attention data shards serve independent decode batches.</text>
+
+      <rect x="790" y="380" width="566" height="145" rx="6" fill="#faf5ff" stroke="#7c3aed"/>
+      <text x="816" y="413" font-size="18" font-weight="700" fill="#6d28d9">MoE path</text>
+      <text x="816" y="445" font-size="17" fill="#0f172a">EP320 across all 320 GPUs</text>
+      <text x="816" y="474" font-size="15" fill="#475569">One expert instance per GPU</text>
+      <text x="816" y="501" font-size="15" fill="#475569">256 routed + 64 redundant/shared expert instances</text>
+
+      <rect x="790" y="552" width="566" height="104" rx="6" fill="#fff7ed" stroke="#ea580c"/>
+      <text x="816" y="584" font-size="18" font-weight="700" fill="#9a3412">Optimization objective</text>
+      <text x="816" y="614" font-size="15" fill="#334155">Small per-expert batches are memory- and latency-sensitive.</text>
+      <text x="816" y="638" font-size="15" fill="#334155">Direct IB point-to-point dispatch/combine minimizes latency.</text>
+    </g>
+
+    <rect x="54" y="740" width="1332" height="48" rx="6" fill="#e2e8f0"/>
+    <text x="78" y="770" font-size="15" fill="#0f172a"><tspan font-weight="700">Lesson:</tspan> prefill favors throughput and large expert batches; decode favors low-latency communication and finer expert placement.</text>
+  </g>
+</svg>

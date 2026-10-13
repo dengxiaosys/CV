@@ -256,7 +256,7 @@ GQA/MQA 之所以对长上下文重要，是因为 KV Cache 与 $N_{KV}$ 成正�
 
 这一节的核心数学确实是 online softmax。普通 attention 公式只用于确定输入和输出；真正让 Ring Attention 成立的是：每个 KV block 可以压缩成可重标定的 softmax 状态，再在同一 GPU 或不同 CP ranks 之间精确合并。
 
-本文不重复 online softmax 的完整手算过程，只沿用常见的 $s,m,\ell,z,o,L$ 记号，并说明如何把一个 owner 内的 KV-tile 归约扩展成跨 CP ranks 的归约，以及如何合并多个独立 key partitions 的状态。
+Online softmax 的逐块更新、数值例子和正确性证明已经在 Assignment 2 的[《FlashAttention-2 Forward 初学者教材》第 4 章](../stanford_cs336/assignments/assignment2-systems/notes/03_02_flash_attention_2_beginner_textbook.md#4-online-softmax从一个-query-的输出开始)完整推导。本文不重复其手算过程，只沿用其中的 $s,m,\ell,z,o,L$ 记号，并说明如何把一个 owner 内的 KV-tile 归约扩展成跨 CP ranks 的归约。关于多个独立 key partitions 的合并，还可对照 Assignment 2 的[跨 block online-softmax 状态合并](../stanford_cs336/assignments/assignment2-systems/notes/03_04_flash_attention_1_to_2_evolution.md#64-第四步不要把同一-query-的-key-reduction-随意拆给多个-blocks)。
 
 ### 3.1 Online softmax 的 $m,\ell,z$ 状态
 
