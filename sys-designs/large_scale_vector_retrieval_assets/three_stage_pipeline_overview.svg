@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="492" viewBox="0 0 1600 492">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#334155"/>
+    </marker>
+    <marker id="arrowg" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+    </marker>
+    <style>
+      .title { font: 700 29px sans-serif; fill: #0f172a; }
+      .subtitle { font: 400 16px sans-serif; fill: #475569; }
+      .paneltitle { font: 700 18px sans-serif; }
+      .name { font: 700 18px sans-serif; fill: #0f172a; }
+      .do { font: 400 14px sans-serif; fill: #1e293b; }
+      .out { font: 700 15px sans-serif; fill: #166534; }
+      .artlabel { font: 700 13px sans-serif; fill: #64748b; }
+      .file { font: 600 13.5px monospace; fill: #1e3a8a; }
+      .pillfile { font: 600 13px monospace; fill: #1d4ed8; }
+      .pilltxt { font: 600 12.5px sans-serif; fill: #1d4ed8; }
+      .note { font: 400 14px sans-serif; fill: #475569; }
+      .alabel { font: 600 13px sans-serif; fill: #475569; }
+      .arrow { stroke: #334155; stroke-width: 2.6; fill: none; marker-end: url(#arrow); }
+      .arrowd { stroke: #64748b; stroke-width: 2; fill: none; stroke-dasharray: 7 5; marker-end: url(#arrowg); }
+      .box { stroke: #334155; stroke-width: 2; }
+      .phase { font: 700 12px sans-serif; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="492" fill="#f8fafc"/>
+  <text x="800" y="44" text-anchor="middle" class="title">IVF 三阶段流水线：执行顺序与产物依赖</text>
+  <text x="800" y="74" text-anchor="middle" class="subtitle">实线＝执行顺序（并传递其标注的产物）；虚线＝跨阶段产物依赖。阶段一、二离线按天构建，阶段三按查询触发消费。</text>
+
+  <!-- offline panel -->
+  <rect x="24" y="96" width="986" height="272" rx="16" fill="#f0f9ff" stroke="#0ea5e9" stroke-width="2"/>
+  <text x="44" y="122" class="paneltitle" fill="#0369a1">离线构建 · 按天独立（历史天产物不可变，新增数据只追加自己的天级索引）</text>
+
+  <!-- online panel -->
+  <rect x="1130" y="96" width="446" height="272" rx="16" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+  <text x="1150" y="122" class="paneltitle" fill="#c2410c">在线检索 · 按查询触发</text>
+
+  <!-- Stage 1 -->
+  <rect x="40" y="140" width="400" height="216" rx="12" class="box" fill="#fef3c7"/>
+  <rect x="326" y="150" width="104" height="24" rx="12" fill="#fde68a" stroke="#d97706" stroke-width="1"/>
+  <text x="378" y="167" text-anchor="middle" class="phase" fill="#92400e">离线 · 按天</text>
+  <text x="58" y="178" class="name">阶段一 · 训练聚类中心</text>
+  <text x="58" y="212" class="do">· 抽样被查向量，收集到 driver</text>
+  <text x="58" y="234" class="do">· 跑 Lloyd k-means 聚类</text>
+  <text x="58" y="256" class="do">· 得 n_list 个球面聚类中心</text>
+  <rect x="54" y="280" width="372" height="66" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <text x="70" y="302" class="artlabel">产物</text>
+  <text x="70" y="323" class="file">centroids.bin</text>
+  <text x="70" y="341" class="file">index_meta.json</text>
+
+  <!-- Stage 2 -->
+  <rect x="590" y="140" width="400" height="216" rx="12" class="box" fill="#e0f2fe"/>
+  <rect x="876" y="150" width="104" height="24" rx="12" fill="#bae6fd" stroke="#0284c7" stroke-width="1"/>
+  <text x="928" y="167" text-anchor="middle" class="phase" fill="#075985">离线 · 按天</text>
+  <text x="608" y="178" class="name">阶段二 · 建倒排 + 残差半径</text>
+  <text x="608" y="212" class="do">· 每条向量分到最近 cell</text>
+  <text x="608" y="234" class="do">· 落成按 cell_id 分区倒排 shard</text>
+  <text x="608" y="256" class="do">· 同遍统计 min sim → 残差半径 R_j</text>
+  <rect x="604" y="280" width="372" height="66" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <text x="620" y="302" class="artlabel">产物</text>
+  <text x="620" y="323" class="file">cell_id=*/part-*.parquet</text>
+  <text x="620" y="341" class="file">cell_radius.bin</text>
+
+  <!-- Stage 3 -->
+  <rect x="1150" y="140" width="400" height="216" rx="12" class="box" fill="#dcfce7"/>
+  <rect x="1436" y="150" width="104" height="24" rx="12" fill="#bbf7d0" stroke="#16a34a" stroke-width="1"/>
+  <text x="1488" y="167" text-anchor="middle" class="phase" fill="#166534">在线 · 触发</text>
+  <text x="1168" y="178" class="name">阶段三 · 分布式自适应检索</text>
+  <text x="1168" y="208" class="do">· query 成矩阵 → 球冠界选 cell</text>
+  <text x="1168" y="230" class="do">· 生成跨天路由表 {date/cid → qi}</text>
+  <text x="1168" y="252" class="do">· 只读命中 shard 逐 query 匹配</text>
+  <text x="1168" y="274" class="do">· 按 group_id 归并去重</text>
+  <text x="1168" y="296" class="do">· 最近无产物天：遍历 / ES-DiskANN 补回</text>
+  <text x="1168" y="332" class="out">输出 → 命中 group 集合 G_τ</text>
+
+  <!-- sequence arrow 1 : S1 -> S2 -->
+  <path class="arrow" d="M440 196 H590"/>
+  <rect x="450" y="212" width="130" height="62" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.4"/>
+  <text x="515" y="234" text-anchor="middle" class="pillfile">centroids.bin</text>
+  <text x="515" y="258" text-anchor="middle" class="pillfile">index_meta.json</text>
+
+  <!-- sequence arrow 2 : S2 -> S3 -->
+  <path class="arrow" d="M990 196 H1150"/>
+  <rect x="998" y="204" width="144" height="84" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.4"/>
+  <text x="1070" y="226" text-anchor="middle" class="pillfile">cell_radius.bin</text>
+  <text x="1070" y="250" text-anchor="middle" class="pilltxt">cell_id 定长编码</text>
+  <text x="1070" y="274" text-anchor="middle" class="pilltxt">shard 数据</text>
+
+  <!-- skip dependency S1 -> S3 -->
+  <path class="arrowd" d="M240 356 V402 H1350 V358"/>
+  <rect x="470" y="386" width="640" height="30" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="790" y="406" text-anchor="middle" class="alabel">centroids.bin · index_meta.json 亦跨阶段直供阶段三（query 路由 + 校验 n_list/d/metric）</text>
+
+  <!-- bottom note -->
+  <text x="800" y="452" text-anchor="middle" class="note">跨多天回查：检索侧并发命中各日索引 → 按 group_id 跨天合并去重（无需拼成大索引、无需重训历史中心）。四个契约稳定即可三阶段独立迭代、独立调度。</text>
+</svg>

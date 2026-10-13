@@ -1211,3 +1211,11 @@ $$ \Pr_{\mathcal{A}}(Y_{t+1:T}=y_{t+1:T}\mid x_{1:t})=\prod_{i=1}^{T-t}p_{t+i}(y
 3. David A. Levin, Yuval Peres, with contributions by Elizabeth L. Wilmer. [*Markov Chains and Mixing Times*, 2nd ed.](https://pages.uoregon.edu/dlevin/MARKOV/mcmt2e.pdf). American Mathematical Society, 2017；作者官方 PDF。第 4.1-4.2 节给出 total variation 的等价定义、coupling inequality 与达到最优相等概率的 coupling 构造。
 4. Yaniv Leviathan, Matan Kalman, Yossi Matias. [“Fast Inference from Transformers via Speculative Decoding”](https://proceedings.mlr.press/v202/leviathan23a.html). *Proceedings of the 40th International Conference on Machine Learning*, PMLR 202, 2023. Section 2.3、Theorem 3.5、Appendix A.1-A.2 给出 speculative sampling、overlap 接受率、精确性证明以及与经典 rejection sampling 的比较。
 5. Charlie Chen, Sebastian Borgeaud, Geoffrey Irving, Jean-Baptiste Lespiau, Laurent Sifre, John Jumper. [“Accelerating Large Language Model Decoding with Speculative Sampling”](https://arxiv.org/abs/2302.01318). arXiv:2302.01318, 2023. Section 4.2 与补充材料 Theorem 1 独立给出 modified rejection sampling、positive residual 重采样和 target 分布恢复证明。
+
+---
+
+## 源路径
+
+```text
+institutionalized/speculative_decoding/probability_foundations.md
+```

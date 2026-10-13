@@ -1266,3 +1266,11 @@ $$ \tau_B=1.4 $$
 8. PyTorch. [Reproducibility 官方说明](https://docs.pytorch.org/docs/stable/notes/randomness.html). 用于跨版本、跨平台、CPU/GPU 与非确定性 operation 的可复现性边界。
 9. Yaniv Leviathan, Matan Kalman, Yossi Matias. [“Fast Inference from Transformers via Speculative Decoding”](https://proceedings.mlr.press/v202/leviathan23a.html). ICML 2023. Section 2.3、Theorem 3.5 与 Appendix A 给出 speculative sampling、接受校正和输出分布保持。
 10. Charlie Chen, Sebastian Borgeaud, Geoffrey Irving, Jean-Baptiste Lespiau, Laurent Sifre, John Jumper. [“Accelerating Large Language Model Decoding with Speculative Sampling”](https://arxiv.org/abs/2302.01318). 2023. Section 4.2 与补充材料给出 modified rejection sampling、正 residual 校正与 target 分布恢复。
+
+---
+
+## 源路径
+
+```text
+institutionalized/speculative_decoding/temperature_and_top_p.md
+```

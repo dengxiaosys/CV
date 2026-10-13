@@ -1501,3 +1501,11 @@ Context Parallelism 的本质可以压缩成一条因果链：
 3. **边界**：何时计算足以隐藏通信，何时应该减少 CP degree，何时必须从精确 dense attention 转向检索或稀疏方法？
 
 Ring Attention 给出了精确分布式 attention 的算法骨架；MLSys 2025 的 inference CP 论文则把这个骨架补成了适应多轮会话、persistent KV、GQA 与在线延迟目标的系统。理解两篇论文之间的这层关系，才能准确理解“把 1M KV 分散到多张 GPU”背后的完整含义。
+
+---
+
+## 源路径
+
+```text
+institutionalized/context_parallel/context_parallel.md
+```

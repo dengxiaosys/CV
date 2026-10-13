@@ -2214,3 +2214,11 @@ MoE 用 $E$ 个总 experts 与每 token 的 $k$ 个 active experts，把模型�
 ```
 
 真正理解 Expert Parallelism 的标准，是能够从任意一个 token 和任意一个 rank 出发，准确说明：这个 token 为什么来到这里、使用了哪个 logical/physical expert、传输了多少数据、由谁把结果送回、哪个 rank 决定 critical path，以及扩大 EP degree 后哪些容量下降、哪些通信上升、哪些状态根本没有被切分。
+
+---
+
+## 源路径
+
+```text
+institutionalized/expert_parallelism/expert_parallelism.md
+```

@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 580" font-family="sans-serif">
+  <defs>
+    <marker id="arrJ" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#82b366"/>
+    </marker>
+    <marker id="arrScalar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#b85450"/>
+    </marker>
+  </defs>
+
+  <text x="500" y="30" text-anchor="middle" font-size="20" font-weight="bold" fill="#333">方案二：JVM Reader——把解析与匹配整体下放 executor（默认）</text>
+  <text x="500" y="52" text-anchor="middle" font-size="13" fill="#888">Driver 完全不碰路径与匹配；「读 Parquet + 逐 query 匹配」整段在 executor 并行执行</text>
+
+  <!-- Driver lane -->
+  <rect x="30" y="72" width="940" height="120" rx="8" fill="#fafafa" stroke="#ddd"/>
+  <text x="46" y="94" font-size="14" font-weight="bold" fill="#6c8ebf">Driver（单机）——零路径物化</text>
+
+  <rect x="60" y="106" width="240" height="70" rx="6" fill="#dae8fc" stroke="#6c8ebf"/>
+  <text x="180" y="132" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">下发「每天 + 其选中 cell 号」</text>
+  <text x="180" y="152" text-anchor="middle" font-size="11" fill="#666">每天一行的紧凑表</text>
+  <text x="180" y="168" text-anchor="middle" font-size="11" fill="#666">不含任何文件路径</text>
+
+  <rect x="700" y="106" width="240" height="70" rx="6" fill="#f8cecc" stroke="#b85450"/>
+  <text x="820" y="132" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">只回收一个标量</text>
+  <text x="820" y="152" text-anchor="middle" font-size="11" fill="#666">选中 cell 总数（用于剪枝统计）</text>
+  <text x="820" y="168" text-anchor="middle" font-size="11" fill="#666">cell 号 / 路径 / 匹配结果都不回 Driver</text>
+
+  <text x="500" y="128" text-anchor="middle" font-size="12" font-weight="bold" fill="#996f00">query 矩阵 / 阈值</text>
+  <text x="500" y="146" text-anchor="middle" font-size="11" fill="#996f00">以广播下发</text>
+  <text x="500" y="162" text-anchor="middle" font-size="11" fill="#888">（避免每分区重复序列化）</text>
+
+  <!-- arrows driver -> executor -->
+  <line x1="180" y1="176" x2="180" y2="230" stroke="#82b366" stroke-width="2.5" marker-end="url(#arrJ)"/>
+  <text x="196" y="208" font-size="11" fill="#82b366">交给 JVM</text>
+  <line x1="820" y1="230" x2="820" y2="176" stroke="#b85450" stroke-width="2.5" marker-end="url(#arrScalar)"/>
+  <text x="836" y="208" font-size="11" fill="#b85450">仅标量回传</text>
+
+  <!-- executor lane -->
+  <rect x="30" y="230" width="940" height="320" rx="8" fill="#f4faf2" stroke="#cde3c4"/>
+  <text x="46" y="252" font-size="14" font-weight="bold" fill="#82b366">Executors（并行）——自主解析路径 + 直读 Parquet + 逐 query 匹配</text>
+
+  <!-- step 1 chunk -->
+  <rect x="50" y="266" width="200" height="90" rx="6" fill="#d5e8d4" stroke="#82b366"/>
+  <text x="150" y="290" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">① 切块</text>
+  <text x="150" y="312" text-anchor="middle" font-size="11" fill="#555">把每天的 cell 列表</text>
+  <text x="150" y="330" text-anchor="middle" font-size="11" fill="#555">切成大小受限的小块</text>
+  <text x="150" y="348" text-anchor="middle" font-size="11" fill="#888">每块含若干 cell 号</text>
+
+  <!-- step 2 partition -->
+  <rect x="280" y="266" width="200" height="90" rx="6" fill="#d5e8d4" stroke="#82b366"/>
+  <text x="380" y="290" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">② 定并行度</text>
+  <text x="380" y="312" text-anchor="middle" font-size="11" fill="#555">仅用「块数」这个标量</text>
+  <text x="380" y="330" text-anchor="middle" font-size="11" fill="#555">决定读取分区数</text>
+  <text x="380" y="348" text-anchor="middle" font-size="11" fill="#888">均匀打散到各分区</text>
+
+  <line x1="250" y1="311" x2="278" y2="311" stroke="#82b366" stroke-width="2" marker-end="url(#arrJ)"/>
+
+  <!-- step 3 read+match per partition -->
+  <rect x="510" y="266" width="440" height="90" rx="6" fill="#d5e8d4" stroke="#82b366"/>
+  <text x="730" y="290" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">③ 每分区：自拼路径 → 直读 Parquet → 逐 query 匹配</text>
+  <text x="730" y="312" text-anchor="middle" font-size="11" fill="#555">executor 侧凭 cell 号自行拼出 Parquet 路径并读取</text>
+  <text x="730" y="330" text-anchor="middle" font-size="11" fill="#555">每条子向量只与「选中它所在 cell」的那批 query 算内积</text>
+  <text x="730" y="348" text-anchor="middle" font-size="11" fill="#888">过阈值且落在时间窗内 → 记为命中</text>
+
+  <line x1="480" y1="311" x2="508" y2="311" stroke="#82b366" stroke-width="2" marker-end="url(#arrJ)"/>
+
+  <!-- parallel partitions illustration -->
+  <text x="46" y="386" font-size="13" font-weight="bold" fill="#333">各分区在不同 executor 上并行读+匹配</text>
+  <g>
+    <rect x="60" y="398" width="270" height="66" rx="6" fill="#fff" stroke="#82b366"/>
+    <text x="195" y="420" text-anchor="middle" font-size="12" font-weight="bold" fill="#555">分区 P1</text>
+    <text x="195" y="440" text-anchor="middle" font-size="11" fill="#888">读若干 cell 的 Parquet</text>
+    <text x="195" y="456" text-anchor="middle" font-size="11" fill="#888">→ 产出命中行</text>
+
+    <rect x="365" y="398" width="270" height="66" rx="6" fill="#fff" stroke="#82b366"/>
+    <text x="500" y="420" text-anchor="middle" font-size="12" font-weight="bold" fill="#555">分区 P2</text>
+    <text x="500" y="440" text-anchor="middle" font-size="11" fill="#888">读若干 cell 的 Parquet</text>
+    <text x="500" y="456" text-anchor="middle" font-size="11" fill="#888">→ 产出命中行</text>
+
+    <rect x="670" y="398" width="270" height="66" rx="6" fill="#fff" stroke="#82b366"/>
+    <text x="805" y="420" text-anchor="middle" font-size="12" font-weight="bold" fill="#555">分区 P3 … Pn</text>
+    <text x="805" y="440" text-anchor="middle" font-size="11" fill="#888">读若干 cell 的 Parquet</text>
+    <text x="805" y="456" text-anchor="middle" font-size="11" fill="#888">→ 产出命中行</text>
+  </g>
+
+  <!-- why java note -->
+  <rect x="60" y="486" width="880" height="48" rx="6" fill="#fff2cc" stroke="#d6b656"/>
+  <text x="500" y="508" text-anchor="middle" font-size="12" font-weight="bold" fill="#996f00">为何必须用 Java：PySpark 的执行侧 Python worker 没有裸的 JVM / HDFS 访问能力，无法在 executor 上自主列举目录、打开任意 Parquet 文件</text>
+  <text x="500" y="526" text-anchor="middle" font-size="12" fill="#996f00">「executor 自主解析路径并读 Parquet」这件事 PySpark 表达不出来——这是能力边界，不是性能偏好</text>
+</svg>

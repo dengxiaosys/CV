@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="380" viewBox="0 0 1480 380">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#334155"/>
+    </marker>
+    <style>
+      .title { font: 700 30px sans-serif; fill: #0f172a; }
+      .subtitle { font: 400 17px sans-serif; fill: #475569; }
+      .name { font: 700 17px sans-serif; fill: #0f172a; }
+      .nameW { font: 700 18px sans-serif; fill: #ffffff; }
+      .subW { font: 600 14px sans-serif; fill: #e2e8f0; }
+      .shape { font: 600 16px sans-serif; fill: #1e3a8a; }
+      .note { font: 400 13.5px sans-serif; fill: #475569; }
+      .noteW { font: 400 13px sans-serif; fill: #cbd5e1; }
+      .arrow { stroke: #334155; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+      .arrowd { stroke: #94a3b8; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow); }
+      .alabel { font: 600 14px sans-serif; fill: #0f172a; }
+      .box { stroke: #334155; stroke-width: 2; }
+    </style>
+  </defs>
+
+  <rect width="1480" height="380" fill="#f8fafc"/>
+  <text x="740" y="50" text-anchor="middle" class="title">推理阶段：一张图片如何产生 embedding</text>
+  <text x="740" y="84" text-anchor="middle" class="subtitle">模型视为黑箱——只做前向：输入图片、输出单位向量（训练后参数固定，检索时不再改动）</text>
+
+  <!-- Box1: input image -->
+  <g transform="translate(40,150)">
+    <rect width="240" height="130" rx="12" class="box" fill="#fef3c7"/>
+    <rect x="97" y="16" width="46" height="32" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.5"/>
+    <circle cx="112" cy="28" r="5" fill="#fbbf24"/>
+    <polygon points="99,47 112,32 122,40 132,30 143,47" fill="#94a3b8"/>
+    <text x="120" y="82" text-anchor="middle" class="name">输入图片 I</text>
+    <text x="120" y="107" text-anchor="middle" class="note">任意分辨率 / 视频帧</text>
+  </g>
+  <path class="arrow" d="M280 215 H350"/>
+
+  <!-- Box2: model (black box) -->
+  <g transform="translate(350,150)">
+    <rect width="250" height="130" rx="12" fill="#0f172a" stroke="#0f172a" stroke-width="2"/>
+    <text x="125" y="48" text-anchor="middle" class="nameW">模型 · 编码器 &#966;&#952;</text>
+    <text x="125" y="76" text-anchor="middle" class="subW">（黑箱：内部结构不展开）</text>
+    <text x="125" y="104" text-anchor="middle" class="noteW">把一张图片映射为一个向量</text>
+  </g>
+  <path class="arrow" d="M600 215 H670"/>
+
+  <!-- Box3: raw vector -->
+  <g transform="translate(670,150)">
+    <rect width="230" height="130" rx="12" class="box" fill="#dbeafe"/>
+    <text x="115" y="50" text-anchor="middle" class="name">输出向量 g(I)</text>
+    <text x="115" y="80" text-anchor="middle" class="shape">g(I) &#8712; R^d</text>
+    <text x="115" y="106" text-anchor="middle" class="note">尚未归一化</text>
+  </g>
+  <path class="arrow" d="M900 215 H985"/>
+  <text x="942" y="202" text-anchor="middle" class="alabel">L2 归一化</text>
+
+  <!-- Box4: embedding (unit vector) -->
+  <g transform="translate(985,150)">
+    <rect width="285" height="130" rx="12" fill="#bbf7d0" stroke="#16a34a" stroke-width="3"/>
+    <text x="142" y="46" text-anchor="middle" class="name">单位向量 z(I) ＝ embedding</text>
+    <text x="142" y="76" text-anchor="middle" class="shape">&#8214;z(I)&#8214; = 1</text>
+    <text x="142" y="104" text-anchor="middle" class="note">单位球面 S^{d-1}，本方案 d = 128</text>
+  </g>
+  <path class="arrowd" d="M1270 215 H1340"/>
+
+  <!-- Box5: downstream retrieval (faint) -->
+  <g transform="translate(1340,150)">
+    <rect width="110" height="130" rx="12" fill="#ffffff" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 5"/>
+    <text x="55" y="58" text-anchor="middle" class="name" style="font-size:15px">cosine 检索</text>
+    <text x="55" y="84" text-anchor="middle" class="note">§2 起</text>
+  </g>
+
+  <text x="740" y="345" text-anchor="middle" class="shape">query 与底库子向量共用同一模型、同一前向；产出的 z(I) 即 §1.1 中的 q_i 与 x。</text>
+</svg>

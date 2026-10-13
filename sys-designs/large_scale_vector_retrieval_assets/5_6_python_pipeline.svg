@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 560" font-family="sans-serif">
+  <defs>
+    <marker id="arrP" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6c8ebf"/>
+    </marker>
+    <marker id="arrGray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#999"/>
+    </marker>
+  </defs>
+
+  <text x="500" y="30" text-anchor="middle" font-size="20" font-weight="bold" fill="#333">方案一：Python 流水线——分批解析与扫描重叠</text>
+  <text x="500" y="52" text-anchor="middle" font-size="13" fill="#888">任一时刻 Driver 只持有一批的路径，峰值内存与批大小挂钩、与总选中量无关</text>
+
+  <!-- Driver lane -->
+  <rect x="30" y="72" width="940" height="150" rx="8" fill="#fafafa" stroke="#ddd"/>
+  <text x="46" y="94" font-size="14" font-weight="bold" fill="#6c8ebf">Driver（单机，仅做协调，不物化全量路径）</text>
+
+  <!-- selected cells (huge) -->
+  <rect x="50" y="108" width="150" height="94" rx="6" fill="#f8cecc" stroke="#b85450"/>
+  <text x="125" y="140" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">选中 cell 集合</text>
+  <text x="125" y="162" text-anchor="middle" font-size="12" fill="#b85450">千万量级</text>
+  <text x="125" y="182" text-anchor="middle" font-size="11" fill="#888">不可一次性解析</text>
+
+  <!-- manifest write -->
+  <rect x="230" y="108" width="180" height="94" rx="6" fill="#dae8fc" stroke="#6c8ebf"/>
+  <text x="320" y="134" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">选 cell 结果</text>
+  <text x="320" y="152" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">写 HDFS 清单</text>
+  <text x="320" y="174" text-anchor="middle" font-size="11" fill="#666">executor 直接落盘</text>
+  <text x="320" y="190" text-anchor="middle" font-size="11" fill="#666">Driver 只收「每天选了多少」标量</text>
+
+  <!-- batching -->
+  <rect x="440" y="108" width="180" height="94" rx="6" fill="#dae8fc" stroke="#6c8ebf"/>
+  <text x="530" y="140" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">双上限组批</text>
+  <text x="530" y="162" text-anchor="middle" font-size="11" fill="#666">按「天数」与「cell 数」</text>
+  <text x="530" y="180" text-anchor="middle" font-size="11" fill="#666">顺序切成有界的批</text>
+
+  <!-- prefetch window -->
+  <rect x="650" y="108" width="300" height="94" rx="6" fill="#fff2cc" stroke="#d6b656"/>
+  <text x="800" y="130" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">预取窗口：解析与扫描重叠</text>
+  <text x="800" y="152" text-anchor="middle" font-size="11" fill="#666">解析「下一批」路径（不触发扫描）</text>
+  <text x="800" y="170" text-anchor="middle" font-size="11" fill="#666">同时扫描「当前批」数据</text>
+  <text x="800" y="188" text-anchor="middle" font-size="11" fill="#996f00">→ 掩盖元数据准备延迟</text>
+
+  <line x1="200" y1="155" x2="228" y2="155" stroke="#6c8ebf" stroke-width="2" marker-end="url(#arrP)"/>
+  <line x1="410" y1="155" x2="438" y2="155" stroke="#6c8ebf" stroke-width="2" marker-end="url(#arrP)"/>
+  <line x1="620" y1="155" x2="648" y2="155" stroke="#6c8ebf" stroke-width="2" marker-end="url(#arrP)"/>
+
+  <!-- timeline: overlap illustration -->
+  <text x="46" y="256" font-size="14" font-weight="bold" fill="#333">时间线（流水线重叠）</text>
+  <line x1="50" y1="268" x2="950" y2="268" stroke="#ccc" stroke-width="1"/>
+
+  <!-- prepare row -->
+  <text x="120" y="292" text-anchor="end" font-size="12" fill="#996f00">解析(元数据)</text>
+  <rect x="130" y="280" width="130" height="22" rx="3" fill="#fff2cc" stroke="#d6b656"/><text x="195" y="296" text-anchor="middle" font-size="11" fill="#333">批1</text>
+  <rect x="270" y="280" width="130" height="22" rx="3" fill="#fff2cc" stroke="#d6b656"/><text x="335" y="296" text-anchor="middle" font-size="11" fill="#333">批2</text>
+  <rect x="410" y="280" width="130" height="22" rx="3" fill="#fff2cc" stroke="#d6b656"/><text x="475" y="296" text-anchor="middle" font-size="11" fill="#333">批3</text>
+  <rect x="550" y="280" width="130" height="22" rx="3" fill="#fff2cc" stroke="#d6b656"/><text x="615" y="296" text-anchor="middle" font-size="11" fill="#333">批4</text>
+
+  <!-- scan row (shifted right = overlap) -->
+  <text x="120" y="326" text-anchor="end" font-size="12" fill="#6c8ebf">扫描(读数据)</text>
+  <rect x="270" y="314" width="130" height="22" rx="3" fill="#dae8fc" stroke="#6c8ebf"/><text x="335" y="330" text-anchor="middle" font-size="11" fill="#333">批1</text>
+  <rect x="410" y="314" width="130" height="22" rx="3" fill="#dae8fc" stroke="#6c8ebf"/><text x="475" y="330" text-anchor="middle" font-size="11" fill="#333">批2</text>
+  <rect x="550" y="314" width="130" height="22" rx="3" fill="#dae8fc" stroke="#6c8ebf"/><text x="615" y="330" text-anchor="middle" font-size="11" fill="#333">批3</text>
+  <rect x="690" y="314" width="130" height="22" rx="3" fill="#dae8fc" stroke="#6c8ebf"/><text x="755" y="330" text-anchor="middle" font-size="11" fill="#333">批4</text>
+
+  <line x1="335" y1="304" x2="335" y2="312" stroke="#999" stroke-width="1" stroke-dasharray="2,2"/>
+  <text x="600" y="356" text-anchor="middle" font-size="11" fill="#888">「解析下一批」与「扫描当前批」在时间上错开重叠</text>
+
+  <!-- two read modes -->
+  <text x="46" y="392" font-size="14" font-weight="bold" fill="#333">每批按扫描密度自适应读模式</text>
+  <rect x="50" y="404" width="440" height="132" rx="8" fill="#d5e8d4" stroke="#82b366"/>
+  <text x="270" y="428" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">密度低 → 精确叶子读</text>
+  <text x="270" y="452" text-anchor="middle" font-size="12" fill="#555">只传选中 cell 的精确路径</text>
+  <text x="270" y="472" text-anchor="middle" font-size="12" fill="#555">保留分区裁剪、只读选中 cell</text>
+  <text x="270" y="500" text-anchor="middle" font-size="11" fill="#888">选中占比小时最省 I/O</text>
+  <text x="270" y="520" text-anchor="middle" font-size="11" fill="#888">（避免读到无关 cell）</text>
+
+  <rect x="510" y="404" width="440" height="132" rx="8" fill="#d5e8d4" stroke="#82b366"/>
+  <text x="730" y="428" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">密度高 → 整天目录读</text>
+  <text x="730" y="452" text-anchor="middle" font-size="12" fill="#555">选中占比很高时，逐个叶子路径</text>
+  <text x="730" y="472" text-anchor="middle" font-size="12" fill="#555">的解析开销反超「整天顺序读」</text>
+  <text x="730" y="500" text-anchor="middle" font-size="11" fill="#888">干脆整天读，回避海量叶子路径</text>
+  <text x="730" y="520" text-anchor="middle" font-size="11" fill="#888">的解析成本</text>
+</svg>

@@ -1,0 +1,195 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1640" height="780" viewBox="0 0 1640 780">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#334155"/>
+    </marker>
+    <marker id="arrowo" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#ea580c"/>
+    </marker>
+    <style>
+      .title { font: 700 29px sans-serif; fill: #0f172a; }
+      .subtitle { font: 400 16px sans-serif; fill: #475569; }
+      .lane { font: 700 15px sans-serif; }
+      .step { font: 700 16px sans-serif; fill: #0f172a; }
+      .sec  { font: 600 12px sans-serif; fill: #64748b; }
+      .do   { font: 400 13px sans-serif; fill: #1e293b; }
+      .qtitle { font: 700 12.5px sans-serif; fill: #9a3412; }
+      .q    { font: 400 12.5px sans-serif; fill: #7c2d12; }
+      .val  { font: 600 12.5px monospace; fill: #1d4ed8; }
+      .arrow { stroke: #334155; stroke-width: 2.4; fill: none; marker-end: url(#arrow); }
+      .box { stroke: #334155; stroke-width: 2; }
+      .note { font: 400 13px sans-serif; fill: #475569; }
+    </style>
+  </defs>
+
+  <rect width="1640" height="780" fill="#f8fafc"/>
+  <text x="820" y="42" text-anchor="middle" class="title">阶段一 · 聚类中心训练：做什么、按什么顺序、要定哪些可调量</text>
+  <text x="820" y="72" text-anchor="middle" class="subtitle">先定最根本的 n_list（它决定样本量下界），再顺序执行 ②~⑥。上排＝执行步骤（顺序）；下排＝每步需拍板的可调量取值。唯一产出：n_list 个球面聚类中心。</text>
+
+  <!-- lane labels -->
+  <rect x="20" y="98" width="132" height="258" rx="10" fill="#eef2ff" stroke="#818cf8" stroke-width="1.5"/>
+  <text x="86" y="150" text-anchor="middle" class="lane" fill="#4338ca">执行步骤</text>
+  <text x="86" y="176" text-anchor="middle" class="sec" fill="#6366f1">（顺序）</text>
+  <text x="86" y="238" text-anchor="middle" class="note" fill="#475569">离线 · 按天</text>
+  <text x="86" y="262" text-anchor="middle" class="note" fill="#475569">只跑一次</text>
+  <text x="86" y="286" text-anchor="middle" class="note" fill="#475569">driver 内存</text>
+
+  <rect x="20" y="452" width="132" height="262" rx="10" fill="#fff7ed" stroke="#fb923c" stroke-width="1.5"/>
+  <text x="86" y="560" text-anchor="middle" class="lane" fill="#c2410c">要回答的</text>
+  <text x="86" y="584" text-anchor="middle" class="lane" fill="#c2410c">关键问题</text>
+  <text x="86" y="614" text-anchor="middle" class="sec" fill="#ea580c">（可调量取值）</text>
+
+  <!-- geometry: 6 step boxes, x0=170, w=232, gap=13 -->
+  <!-- S1 : n_list (前置决策) -->
+  <g>
+    <rect x="170" y="98" width="232" height="258" rx="12" fill="#ffedd5" stroke="#ea580c" stroke-width="2.6"/>
+    <text x="186" y="126" class="sec" fill="#c2410c">§3.2 · 前置决策（最根本）</text>
+    <text x="186" y="150" class="step">① 定中心数 n_list</text>
+    <text x="186" y="180" class="do">· 按 √N ~ 4√N 启发式</text>
+    <text x="186" y="202" class="do">· 只看延迟/内存，不看召回</text>
+    <text x="186" y="224" class="do">· 高维下堆中心数收益极低</text>
+    <text x="186" y="246" class="do">· 全链路共享，三阶段一致</text>
+    <text x="186" y="276" class="do" fill="#9a3412">下游：定样本量下界 →</text>
+  </g>
+  <!-- S2 : 定训练样本量 (§3.3) -->
+  <g>
+    <rect x="415" y="98" width="232" height="258" rx="12" class="box" fill="#fef3c7"/>
+    <text x="431" y="126" class="sec">§3.3 · 样本量</text>
+    <text x="431" y="150" class="step">② 定训练样本量</text>
+    <text x="431" y="180" class="do">· 满足 n_train ≥ 39·n_list</text>
+    <text x="431" y="202" class="do">· 由抽样比 p 决定规模</text>
+    <text x="431" y="224" class="do">· 校验 driver 内存装得下</text>
+    <text x="431" y="246" class="do">  (≈ n_train·d·4B)</text>
+    <text x="431" y="276" class="do" fill="#475569">产出：目标规模 n_train / p</text>
+  </g>
+  <!-- S3 : 抽样训练集 (§3.4) -->
+  <g>
+    <rect x="660" y="98" width="232" height="258" rx="12" class="box" fill="#fef3c7"/>
+    <text x="676" y="126" class="sec">§3.4 · 采样</text>
+    <text x="676" y="150" class="step">③ 抽样训练集</text>
+    <text x="676" y="180" class="do">· 先 explode 再伯努利采样</text>
+    <text x="676" y="202" class="do">· 每条子向量独立以 p 命中</text>
+    <text x="676" y="224" class="do">· 破坏行内相关、更均匀</text>
+    <text x="676" y="246" class="do">· 收进 driver 内存</text>
+    <text x="676" y="276" class="do" fill="#475569">产出：n_train 条 d 维样本</text>
+  </g>
+  <!-- S4 : 选初始中心 (§3.5) -->
+  <g>
+    <rect x="905" y="98" width="232" height="258" rx="12" class="box" fill="#fef3c7"/>
+    <text x="921" y="126" class="sec">§3.5 · 初始化</text>
+    <text x="921" y="150" class="step">④ 选初始中心</text>
+    <text x="921" y="180" class="do">· random / hierarchical /</text>
+    <text x="921" y="202" class="do">  kmeans++ / kmeanspp_sub</text>
+    <text x="921" y="224" class="do">· 大 K 时初始化耗时/质量</text>
+    <text x="921" y="246" class="do">  差异常比主循环更显著</text>
+    <text x="921" y="276" class="do" fill="#475569">产出：K 个初始中心</text>
+  </g>
+  <!-- S5 : 跑全量 Lloyd (§3.6/§3.7) -->
+  <g>
+    <rect x="1150" y="98" width="232" height="258" rx="12" class="box" fill="#fef3c7"/>
+    <text x="1166" y="126" class="sec">§3.6 / §3.7 · 迭代</text>
+    <text x="1166" y="150" class="step">⑤ 跑全量 Lloyd</text>
+    <text x="1166" y="180" class="do">· E 步：全样本分到最近中心</text>
+    <text x="1166" y="202" class="do">· M 步：以簇内真实均值更新</text>
+    <text x="1166" y="224" class="do">· 达 max_iter 或 tol 即停</text>
+    <text x="1166" y="246" class="do">· 首轮吃掉绝大部分收益</text>
+    <text x="1166" y="276" class="do" fill="#475569">监控：inertia / avg_cos</text>
+  </g>
+  <!-- S6 : 归一化并落盘 (§2.3/§3.1) -->
+  <g>
+    <rect x="1395" y="98" width="228" height="258" rx="12" fill="#dcfce7" stroke="#16a34a" stroke-width="2.4"/>
+    <text x="1411" y="126" class="sec">§2.3 / §3.1 · 收尾</text>
+    <text x="1411" y="150" class="step">⑥ 归一化并落盘</text>
+    <text x="1411" y="180" class="do">· 中心投回单位球面(一次)</text>
+    <text x="1411" y="202" class="do">· 抽样估 obj_ip_mean 质量</text>
+    <text x="1411" y="224" class="do">· 写 centroids.bin</text>
+    <text x="1411" y="246" class="do">· 写 index_meta.json(事实源)</text>
+    <text x="1411" y="278" class="step" fill="#166534">产物 → 供阶段二、三</text>
+  </g>
+
+  <!-- sequence arrows -->
+  <path class="arrow" d="M402 227 H415"/>
+  <path class="arrow" d="M647 227 H660"/>
+  <path class="arrow" d="M892 227 H905"/>
+  <path class="arrow" d="M1137 227 H1150"/>
+  <path class="arrow" d="M1382 227 H1395"/>
+
+  <!-- down connectors -->
+  <path class="arrow" d="M286 356 V452"/>
+  <path class="arrow" d="M531 356 V452"/>
+  <path class="arrow" d="M776 356 V452"/>
+  <path class="arrow" d="M1021 356 V452"/>
+  <path class="arrow" d="M1266 356 V452"/>
+  <path class="arrow" d="M1509 356 V452"/>
+
+  <!-- ===== question boxes ===== -->
+  <!-- Q1 for S1 : n_list = ? -->
+  <g>
+    <rect x="170" y="452" width="232" height="262" rx="12" fill="#ffedd5" stroke="#ea580c" stroke-width="2"/>
+    <text x="186" y="480" class="qtitle">Q1 中心数 n_list = ?（最关键）</text>
+    <text x="186" y="504" class="q">§3.2：√N ~ 4√N，合理区间</text>
+    <text x="186" y="526" class="q">[65536, 262144]，取上沿</text>
+    <text x="204" y="558" class="val">n_list = 262144 = 2^18</text>
+    <text x="186" y="592" class="q" fill="#9a3412">cell 更瘦、球冠界通过更少</text>
+    <text x="186" y="614" class="q" fill="#9a3412">index_meta.json 兜底校验</text>
+    <text x="186" y="648" class="qtitle">↓ 决定 Q2 的样本量下界</text>
+  </g>
+  <!-- Q2 for S2 : 抽样比 p = ? -->
+  <g>
+    <rect x="415" y="452" width="232" height="262" rx="12" fill="#fff7ed" stroke="#f97316" stroke-width="1.6"/>
+    <text x="431" y="480" class="qtitle">Q2 抽样比 p = ?</text>
+    <text x="431" y="504" class="q">约束：p·N_vec ≥ 39·n_list</text>
+    <text x="431" y="528" class="q">~70/中心 → p≈0.008</text>
+    <text x="431" y="552" class="q">省时降档 → p≈0.004</text>
+    <text x="449" y="586" class="val">线上 p = 0.004</text>
+    <text x="431" y="626" class="q" fill="#9a3412">越大越准、越慢越吃内存</text>
+  </g>
+  <!-- Q3 for S3 : 采样粒度 -->
+  <g>
+    <rect x="660" y="452" width="232" height="262" rx="12" fill="#fff7ed" stroke="#f97316" stroke-width="1.6"/>
+    <text x="676" y="480" class="qtitle">Q3 采样怎么做？</text>
+    <text x="676" y="504" class="q">· 粒度＝子向量级</text>
+    <text x="676" y="526" class="q">  (explode 之后，非行级)</text>
+    <text x="676" y="548" class="q">· 独立伯努利、不整行成块</text>
+    <text x="676" y="588" class="q">已定的设计选择，无需</text>
+    <text x="676" y="610" class="q">逐日调（主旋钮是 Q2 的 p）</text>
+  </g>
+  <!-- Q4 for S4 : 初始化策略 -->
+  <g>
+    <rect x="905" y="452" width="232" height="262" rx="12" fill="#fff7ed" stroke="#f97316" stroke-width="1.6"/>
+    <text x="921" y="480" class="qtitle">Q4 初始化策略 = ?</text>
+    <text x="921" y="504" class="q">random / hierarchical /</text>
+    <text x="921" y="526" class="q">kmeans++ / *_sub</text>
+    <text x="921" y="548" class="q">hier 复杂度最优 O(N·2√K·d)</text>
+    <text x="939" y="582" class="val">线上 = random</text>
+    <text x="921" y="620" class="q" fill="#9a3412">实测 hier 未见明显优劣，</text>
+    <text x="921" y="642" class="q" fill="#9a3412">故取零成本的 random</text>
+  </g>
+  <!-- Q5 for S5 : 迭代停止 -->
+  <g>
+    <rect x="1150" y="452" width="232" height="262" rx="12" fill="#fff7ed" stroke="#f97316" stroke-width="1.6"/>
+    <text x="1166" y="480" class="qtitle">Q5 迭代停在哪？</text>
+    <text x="1166" y="504" class="q">max_iter：最大轮数</text>
+    <text x="1166" y="528" class="q">tol：中心移动阈（早停）</text>
+    <text x="1166" y="552" class="q">算法＝全量 Lloyd(full)</text>
+    <text x="1188" y="586" class="val">max_iter = 12</text>
+    <text x="1188" y="610" class="val">tol = 1e-4</text>
+    <text x="1166" y="648" class="q" fill="#9a3412">一步到位 → 常跑满未早停</text>
+  </g>
+  <!-- Q6 for S6 : 落盘契约 -->
+  <g>
+    <rect x="1395" y="452" width="228" height="262" rx="12" fill="#fff7ed" stroke="#f97316" stroke-width="1.6"/>
+    <text x="1411" y="480" class="qtitle">Q6 产物怎么落？</text>
+    <text x="1411" y="504" class="q">· 归一化后写 raw float32</text>
+    <text x="1411" y="526" class="q">  row-major / little-endian</text>
+    <text x="1411" y="548" class="q">· index_meta.json 锚定</text>
+    <text x="1411" y="570" class="q">  n_list / d / metric</text>
+    <text x="1411" y="604" class="q">固定契约，非逐日可调；</text>
+    <text x="1411" y="626" class="q">是下游对齐的单一事实源</text>
+  </g>
+
+  <!-- dashed link: n_list (Q1) drives sample-size lower bound (Q2), short adjacent hop -->
+  <path d="M286 664 V740 H531 V716" stroke="#ea580c" stroke-width="1.8" fill="none" stroke-dasharray="7 5" marker-end="url(#arrowo)"/>
+  <rect x="300" y="730" width="196" height="20" rx="6" fill="#ffedd5" stroke="#fb923c" stroke-width="1"/>
+  <text x="398" y="744" text-anchor="middle" class="qtitle">n_list 决定 39·n_list 样本下界</text>
+</svg>

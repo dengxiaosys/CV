@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1560" height="720" viewBox="0 0 1560 720">
+<defs>
+  <marker id="arw" markerWidth="11" markerHeight="11" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+    <path d="M0,0 L0,8 L10,4 z" fill="#334155"/>
+  </marker>
+  <marker id="arwr" markerWidth="12" markerHeight="12" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+    <path d="M0,0 L0,8 L10,4 z" fill="#b91c1c"/>
+  </marker>
+  <marker id="arwg" markerWidth="11" markerHeight="11" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+    <path d="M0,0 L0,8 L10,4 z" fill="#0891b2"/>
+  </marker>
+  <style>
+    .title{font:700 27px sans-serif;fill:#0f172a}
+    .sub{font:400 15px sans-serif;fill:#475569}
+    .name{font:700 16px sans-serif;fill:#0f172a}
+    .do{font:400 13px sans-serif;fill:#1e293b}
+    .note{font:400 12.5px sans-serif;fill:#475569}
+    .file{font:600 12.5px monospace;fill:#1d4ed8}
+    .band{font:700 13px sans-serif}
+    .arw{stroke:#334155;stroke-width:2.4;fill:none;marker-end:url(#arw)}
+    .arwg{stroke:#0891b2;stroke-width:2.2;fill:none;marker-end:url(#arwg);stroke-dasharray:6 4}
+    .box{stroke:#334155;stroke-width:2}
+    .red{font:700 14px sans-serif;fill:#b91c1c}
+    .grn{font:700 13px sans-serif;fill:#166534}
+  </style>
+</defs>
+<rect width="1560" height="720" fill="#f8fafc"/>
+<text x="780" y="44" text-anchor="middle" class="title">阶段二总览：倒排建库 + 残差半径（融合在一遍分配里）</text>
+<text x="780" y="72" text-anchor="middle" class="sub">分配是 broadcast map（无 shuffle）；落盘前有且仅有一次 shuffle（按 cell_id 重分布）；残差半径经 accumulator 两级 min 归并、无 shuffle。</text>
+<rect x="26" y="150" width="486" height="424" rx="14" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+<text x="46" y="176" class="band" fill="#047857">① 分配阶段 · 纯 map（窄依赖，无 shuffle）</text>
+<rect x="536" y="150" width="360" height="424" rx="14" fill="#fef2f2" stroke="#ef4444" stroke-width="2"/>
+<text x="556" y="176" class="band" fill="#b91c1c">② 落盘前 · 唯一一次 shuffle</text>
+<rect x="920" y="150" width="614" height="424" rx="14" fill="#eff6ff" stroke="#3b82f6" stroke-width="2"/>
+<text x="940" y="176" class="band" fill="#1d4ed8">③ 产物</text>
+<rect x="48" y="212" width="210" height="120" rx="10" class="box" fill="#fef3c7"/>
+<text x="153" y="240" text-anchor="middle" class="name">源 Parquet（只读）</text>
+<text x="153" y="266" text-anchor="middle" class="do">按天分区，一行一内容</text>
+<text x="153" y="286" text-anchor="middle" class="do">embeddings: array&lt;array&lt;float&gt;&gt;</text>
+<text x="153" y="312" text-anchor="middle" class="note">~2.5e9 子向量 / 日</text>
+<rect x="48" y="360" width="210" height="98" rx="10" class="box" fill="#e0e7ff"/>
+<text x="153" y="388" text-anchor="middle" class="name">中心（broadcast）</text>
+<text x="153" y="412" text-anchor="middle" class="file">_coarse/centroids.bin</text>
+<text x="153" y="434" text-anchor="middle" class="note">(n_list, d)=(262144,128)</text>
+<rect x="292" y="212" width="200" height="246" rx="10" class="box" fill="#d1fae5"/>
+<text x="392" y="238" text-anchor="middle" class="name">mapPartitions</text>
+<text x="392" y="258" text-anchor="middle" class="note">逐条子向量分配</text>
+<text x="308" y="286" class="do">· 批 MICRO_BATCH=8192</text>
+<text x="308" y="308" class="do">· 分块 argmax 找最近 cell</text>
+<text x="308" y="330" class="do">  (CENTROID_CHUNK=4096)</text>
+<text x="308" y="352" class="do">· cell_id = argmax⟨x,c_j⟩</text>
+<text x="308" y="378" class="do">· 顺手留下 best_sim</text>
+<text x="308" y="404" class="do" fill="#047857">→ 每条: (cell_id, id,</text>
+<text x="326" y="424" class="do" fill="#047857">create_time, vec, sub_idx)</text>
+<text x="326" y="446" class="do" fill="#047857">+ best_sim（旁路）</text>
+<path class="arw" d="M258 272 H292"/>
+<path class="arw" d="M258 402 H278 V330 H292"/>
+<rect x="558" y="230" width="316" height="150" rx="10" fill="#fee2e2" stroke="#ef4444" stroke-width="2"/>
+<text x="716" y="258" text-anchor="middle" class="red">repartition(8000, "cell_id")</text>
+<text x="574" y="286" class="do">按 cell_id 做 hash 重分布：</text>
+<text x="574" y="308" class="do">同一 cell 的成员本散落在各</text>
+<text x="574" y="330" class="do">源分区，shuffle 把它们归拢</text>
+<text x="574" y="352" class="do">到同一计算分区。</text>
+<text x="574" y="374" class="note">全量 ~1.28TB 过网，不可避免</text>
+<text x="716" y="424" text-anchor="middle" class="red">↓ 每 cell 仅一个 task 写出</text>
+<text x="716" y="448" text-anchor="middle" class="do">partitionBy("cell_id")：每 cell 单 part 文件</text>
+<path d="M492 305 H558" stroke="#b91c1c" stroke-width="3" fill="none" marker-end="url(#arwr)"/>
+<text x="525" y="296" text-anchor="middle" class="note" fill="#b91c1c">全量行</text>
+<rect x="946" y="212" width="560" height="118" rx="10" class="box" fill="#dbeafe"/>
+<text x="1226" y="240" text-anchor="middle" class="name">倒排 shard（按 cell 分区）</text>
+<text x="1226" y="266" text-anchor="middle" class="file">cell_id=NNNNNNNNNN/part-*.parquet</text>
+<text x="1226" y="290" text-anchor="middle" class="do">每行 = 一条子向量：id, create_time, vec[128], sub_idx</text>
+<text x="1226" y="312" text-anchor="middle" class="note">cell_id 定长 10 位（字典序=数值序）；动态分区覆盖保护 _coarse/</text>
+<path class="arw" d="M874 300 H946"/>
+<rect x="946" y="392" width="560" height="164" rx="10" fill="#cffafe" stroke="#0891b2" stroke-width="2"/>
+<text x="1226" y="420" text-anchor="middle" class="name" fill="#155e75">残差半径旁路（无 shuffle）</text>
+<text x="966" y="448" class="do">· 分区内：本地 dict 累积 cell_id → min(best_sim)</text>
+<text x="966" y="472" class="do">· 跨分区：汇入 min 型 accumulator，driver 归并出全局 min·sim_j</text>
+<text x="966" y="496" class="do">· 换算 R_j = √(2 − 2·min·sim_j)</text>
+<text x="966" y="524" class="file">→ _coarse/cell_radius.bin  (n_list,) float32 ≈1MB</text>
+<text x="966" y="546" class="note">复用分配已算的 best_sim，无新增点积、无额外扫描（增量耗时≈0）</text>
+<path d="M392 458 V596 H1226 V556" stroke="#0891b2" stroke-width="2.2" fill="none" stroke-dasharray="6 4" marker-end="url(#arwg)"/>
+<text x="740" y="588" text-anchor="middle" class="grn">best_sim 经 accumulator 归并（不走 shuffle）</text>
+<text x="783" y="640" text-anchor="middle" class="sub">要点：全阶段只有 ② 一次 shuffle；① 分配（broadcast map）与残差旁路（accumulator）均无 shuffle。</text>
+</svg>

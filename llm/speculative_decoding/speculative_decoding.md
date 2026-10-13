@@ -1758,3 +1758,11 @@ $$ \frac{t_d+t_v+t_s+t_{\mathrm{KV}}+t_{\mathrm{sched}}}{\mathbb{E}[L]}<t_{\math
 左侧是 speculative decoding 平均每个 committed token 的真实成本，右侧是 target-only 单 token 成本。接受率、draft 大小、候选长度、batch、上下文和并行拓扑最终都通过这个不等式共同决定成败。
 
 因此，它不是一个打开开关就必然加速的技巧，而是一项跨越概率论、Transformer 执行、KV Cache、sampling、分布式并行和在线调度的系统优化。理解 residual 校正解释了“为什么结果仍正确”；理解短块验证解释了“为什么可能更快”；理解事务式 KV 与在线成本模型，才足以把它可靠地部署到真实服务中。
+
+---
+
+## 源路径
+
+```text
+institutionalized/speculative_decoding/speculative_decoding.md
+```
