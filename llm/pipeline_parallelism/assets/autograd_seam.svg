@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="520" viewBox="0 0 1400 520">
+  <defs>
+    <style>
+      .title { font: 700 24px Inter, "Noto Sans CJK SC", sans-serif; fill: #172033; }
+      .heading { font: 700 20px Inter, "Noto Sans CJK SC", sans-serif; fill: #172033; }
+      .body { font: 500 16px Inter, "Noto Sans CJK SC", sans-serif; fill: #344054; }
+      .small { font: 500 14px Inter, "Noto Sans CJK SC", sans-serif; fill: #475467; }
+      .label { font: 700 15px Inter, "Noto Sans CJK SC", sans-serif; }
+    </style>
+    <marker id="blue-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="red-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#dc2626"/>
+    </marker>
+  </defs>
+
+  <rect width="1400" height="520" fill="#ffffff"/>
+  <text x="60" y="45" class="title">跨进程 autograd：图被截断，链式法则由 activation gradient 显式接回</text>
+
+  <rect x="60" y="82" width="530" height="326" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+  <text x="325" y="118" text-anchor="middle" class="heading">进程 / Stage s</text>
+  <rect x="102" y="168" width="108" height="64" rx="7" fill="#ffffff" stroke="#94a3b8"/>
+  <text x="156" y="195" text-anchor="middle" class="body">输入</text>
+  <text x="156" y="217" text-anchor="middle" class="small">hₘ⁽ˢ⁻¹⁾</text>
+  <rect x="260" y="157" width="138" height="86" rx="7" fill="#dbeafe" stroke="#2563eb"/>
+  <text x="329" y="190" text-anchor="middle" class="heading">Fₛ</text>
+  <text x="329" y="218" text-anchor="middle" class="small">局部计算图</text>
+  <rect x="448" y="168" width="108" height="64" rx="7" fill="#ffffff" stroke="#94a3b8"/>
+  <text x="502" y="195" text-anchor="middle" class="body">输出</text>
+  <text x="502" y="217" text-anchor="middle" class="small">hₘ⁽ˢ⁾</text>
+  <path d="M210 200H252 M398 200H440" stroke="#2563eb" stroke-width="3" fill="none" marker-end="url(#blue-arrow)"/>
+  <text x="325" y="282" text-anchor="middle" class="body">保留带 grad_fn 的本地输出 hₘ⁽ˢ⁾</text>
+  <text x="325" y="311" text-anchor="middle" class="small">后续用外部梯度调用 backward(hₘ⁽ˢ⁾, gₘ⁽ˢ⁾)</text>
+
+  <rect x="810" y="82" width="530" height="326" rx="8" fill="#ecfdf3" stroke="#16a34a" stroke-width="2"/>
+  <text x="1075" y="118" text-anchor="middle" class="heading">进程 / Stage s+1</text>
+  <rect x="844" y="168" width="126" height="64" rx="7" fill="#ffffff" stroke="#94a3b8"/>
+  <text x="907" y="194" text-anchor="middle" class="body">新 leaf</text>
+  <text x="907" y="217" text-anchor="middle" class="small">ĥₘ⁽ˢ⁾</text>
+  <rect x="1016" y="157" width="138" height="86" rx="7" fill="#dcfce7" stroke="#16a34a"/>
+  <text x="1085" y="190" text-anchor="middle" class="heading">Fₛ₊₁</text>
+  <text x="1085" y="218" text-anchor="middle" class="small">新的局部计算图</text>
+  <rect x="1200" y="168" width="104" height="64" rx="7" fill="#ffffff" stroke="#94a3b8"/>
+  <text x="1252" y="195" text-anchor="middle" class="body">Loss</text>
+  <text x="1252" y="217" text-anchor="middle" class="small">或下一边界</text>
+  <path d="M970 200H1008 M1154 200H1192" stroke="#16a34a" stroke-width="3" fill="none" marker-end="url(#blue-arrow)"/>
+  <text x="1075" y="282" text-anchor="middle" class="body">ĥₘ⁽ˢ⁾ = recv(detach(hₘ⁽ˢ⁾)).requires_grad_(True)</text>
+  <text x="1075" y="311" text-anchor="middle" class="small">本地 backward 得到 gₘ⁽ˢ⁾ = ∂L / ∂ĥₘ⁽ˢ⁾</text>
+
+  <rect x="615" y="120" width="170" height="160" rx="8" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+  <text x="700" y="153" text-anchor="middle" class="heading">进程边界</text>
+  <text x="700" y="184" text-anchor="middle" class="body">只传 tensor data</text>
+  <text x="700" y="213" text-anchor="middle" class="small">不传 grad_fn</text>
+  <text x="700" y="243" text-anchor="middle" class="small">shape / dtype / tag</text>
+
+  <path d="M556 175H836" stroke="#2563eb" stroke-width="4" fill="none" marker-end="url(#blue-arrow)"/>
+  <rect x="619" y="137" width="162" height="30" rx="5" fill="#ffffff"/>
+  <text x="700" y="158" text-anchor="middle" class="label" fill="#1d4ed8">Forward activation</text>
+
+  <path d="M844 350H564" stroke="#dc2626" stroke-width="4" fill="none" marker-end="url(#red-arrow)"/>
+  <rect x="616" y="358" width="168" height="30" rx="5" fill="#ffffff"/>
+  <text x="700" y="379" text-anchor="middle" class="label" fill="#b91c1c">Backward gradient</text>
+
+  <rect x="60" y="440" width="1280" height="48" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="700" y="470" text-anchor="middle" class="body">参数梯度始终在参数 owner 上计算；跨 stage 返回的是边界 activation 的向量-雅可比积，而不是参数梯度。</text>
+</svg>

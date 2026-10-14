@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="760" viewBox="0 0 1500 760">
+  <defs>
+    <style>
+      .title { font: 700 25px Inter, "Noto Sans CJK SC", sans-serif; fill: #172033; }
+      .heading { font: 700 20px Inter, "Noto Sans CJK SC", sans-serif; fill: #172033; }
+      .body { font: 500 16px Inter, "Noto Sans CJK SC", sans-serif; fill: #344054; }
+      .small { font: 500 14px Inter, "Noto Sans CJK SC", sans-serif; fill: #475467; }
+      .cell { font: 700 14px Inter, "Noto Sans CJK SC", sans-serif; fill: #ffffff; }
+      .version { font: 700 15px Inter, "Noto Sans CJK SC", sans-serif; fill: #172033; }
+    </style>
+    <marker id="blue-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="red-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#dc2626"/>
+    </marker>
+  </defs>
+
+  <rect width="1500" height="760" fill="#ffffff"/>
+  <text x="55" y="44" class="title">PipeDream：1F1B 保持流水线常满，weight stashing 保持局部梯度正确</text>
+
+  <rect x="48" y="76" width="1404" height="174" rx="8" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+  <text x="76" y="112" class="heading">训练流水线是双向的：forward 向右传 activation，backward 向左传 gradient</text>
+  <rect x="168" y="145" width="250" height="66" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+  <text x="293" y="174" text-anchor="middle" class="heading">Stage 0</text>
+  <text x="293" y="198" text-anchor="middle" class="small">较早层 · 本地参数 θ₀</text>
+  <rect x="625" y="145" width="250" height="66" rx="8" fill="#ecfdf3" stroke="#16a34a" stroke-width="2"/>
+  <text x="750" y="174" text-anchor="middle" class="heading">Stage 1</text>
+  <text x="750" y="198" text-anchor="middle" class="small">较晚层 · 本地参数 θ₁</text>
+  <rect x="1082" y="145" width="250" height="66" rx="8" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+  <text x="1207" y="174" text-anchor="middle" class="heading">Loss</text>
+  <text x="1207" y="198" text-anchor="middle" class="small">产生最末边界梯度</text>
+  <path d="M418 163H617 M875 163H1074" stroke="#2563eb" stroke-width="4" fill="none" marker-end="url(#blue-arrow)"/>
+  <text x="520" y="151" text-anchor="middle" class="small" fill="#1d4ed8">Forward activation</text>
+  <text x="978" y="151" text-anchor="middle" class="small" fill="#1d4ed8">Forward output</text>
+  <path d="M1082 205H883 M625 205H426" stroke="#dc2626" stroke-width="4" fill="none" marker-end="url(#red-arrow)"/>
+  <text x="978" y="230" text-anchor="middle" class="small" fill="#b91c1c">Backward gradient</text>
+  <text x="520" y="230" text-anchor="middle" class="small" fill="#b91c1c">Backward gradient</text>
+
+  <rect x="48" y="278" width="1404" height="280" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="76" y="316" class="heading">某个 stage 的局部版本时间线：warmup 后执行 1F1B，并在每次 backward 后更新</text>
+  <text x="76" y="344" class="small">示例中 F0、F1 都发生在第一次更新之前，因此都 stash θ⁰；B1 到达时当前权重已经是 θ¹。</text>
+
+  <g transform="translate(76,372)">
+    <g class="small" text-anchor="middle">
+      <text x="66" y="0">t0</text><text x="206" y="0">t1</text><text x="346" y="0">t2</text>
+      <text x="486" y="0">t3</text><text x="626" y="0">t4</text><text x="766" y="0">t5</text>
+      <text x="906" y="0">t6</text><text x="1046" y="0">t7</text>
+    </g>
+
+    <rect x="0" y="20" width="132" height="76" rx="7" fill="#2563eb"/>
+    <rect x="140" y="20" width="132" height="76" rx="7" fill="#2563eb"/>
+    <rect x="280" y="20" width="132" height="76" rx="7" fill="#dc2626"/>
+    <rect x="420" y="20" width="132" height="76" rx="7" fill="#2563eb"/>
+    <rect x="560" y="20" width="132" height="76" rx="7" fill="#dc2626"/>
+    <rect x="700" y="20" width="132" height="76" rx="7" fill="#2563eb"/>
+    <rect x="840" y="20" width="132" height="76" rx="7" fill="#dc2626"/>
+    <rect x="980" y="20" width="132" height="76" rx="7" fill="#dc2626"/>
+
+    <g class="cell" text-anchor="middle">
+      <text x="66" y="49">F0 uses θ⁰</text><text x="66" y="74">stash θ⁰</text>
+      <text x="206" y="49">F1 uses θ⁰</text><text x="206" y="74">stash θ⁰</text>
+      <text x="346" y="49">B0 uses θ⁰</text><text x="346" y="74">update → θ¹</text>
+      <text x="486" y="49">F2 uses θ¹</text><text x="486" y="74">stash θ¹</text>
+      <text x="626" y="49">B1 uses θ⁰</text><text x="626" y="74">apply to θ¹</text>
+      <text x="766" y="49">F3 uses θ²</text><text x="766" y="74">stash θ²</text>
+      <text x="906" y="49">B2 uses θ¹</text><text x="906" y="74">apply to θ²</text>
+      <text x="1046" y="49">B3 uses θ²</text><text x="1046" y="74">apply to θ³</text>
+    </g>
+
+    <rect x="1142" y="18" width="184" height="80" rx="8" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+    <text x="1234" y="48" text-anchor="middle" class="version">无周期性 flush</text>
+    <text x="1234" y="75" text-anchor="middle" class="small">steady state 持续注入数据</text>
+
+    <path d="M0 128H1112" stroke="#94a3b8" stroke-width="2"/>
+    <circle cx="66" cy="128" r="7" fill="#f59e0b"/><circle cx="206" cy="128" r="7" fill="#f59e0b"/>
+    <circle cx="486" cy="128" r="7" fill="#f59e0b"/><circle cx="766" cy="128" r="7" fill="#f59e0b"/>
+    <text x="0" y="162" class="small">stash 生命周期：</text>
+    <text x="132" y="162" class="small">forward 保存版本 → 对应 backward 取回同一版本 → 完成后释放</text>
+  </g>
+
+  <rect x="48" y="586" width="430" height="122" rx="8" fill="#ecfdf3" stroke="#16a34a" stroke-width="2"/>
+  <text x="72" y="620" class="heading">Weight stashing 修复什么？</text>
+  <text x="72" y="652" class="body">F1 与 B1 都使用 θ⁰，局部梯度对应原 forward。</text>
+  <text x="72" y="680" class="small">避免 backward 错读更新后的权重。</text>
+
+  <rect x="510" y="586" width="430" height="122" rx="8" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+  <text x="534" y="620" class="heading">它没有消除什么？</text>
+  <text x="534" y="652" class="body">g₁(θ⁰) 仍被应用到当前 θ¹，版本延迟 δ=1。</text>
+  <text x="534" y="680" class="small">优化轨迹不同于同步 SGD。</text>
+
+  <rect x="972" y="586" width="480" height="122" rx="8" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2"/>
+  <text x="996" y="620" class="heading">跨 stage 还会发生什么？</text>
+  <text x="996" y="652" class="body">同一 minibatch 经过各 stage 时可能看到不同更新计数。</text>
+  <text x="996" y="680" class="small">整条 forward 未必对应单一全局参数快照。</text>
+</svg>

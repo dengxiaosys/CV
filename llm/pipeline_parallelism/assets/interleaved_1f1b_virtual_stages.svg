@@ -1,0 +1,165 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="900" viewBox="0 0 1500 900">
+  <defs>
+    <style>
+      .title { font: 700 24px Inter, "Noto Sans CJK SC", sans-serif; fill: #172033; }
+      .heading { font: 700 19px Inter, "Noto Sans CJK SC", sans-serif; fill: #172033; }
+      .axis { font: 600 13px Inter, "Noto Sans CJK SC", sans-serif; fill: #475467; }
+      .device { font: 700 16px Inter, "Noto Sans CJK SC", sans-serif; fill: #172033; }
+      .cell { font: 700 14px Inter, "Noto Sans CJK SC", sans-serif; fill: #ffffff; }
+      .chunk-cell { font: 700 11px Inter, "Noto Sans CJK SC", sans-serif; fill: #ffffff; }
+      .note { font: 500 15px Inter, "Noto Sans CJK SC", sans-serif; fill: #475467; }
+      .legend { font: 600 14px Inter, "Noto Sans CJK SC", sans-serif; fill: #344054; }
+    </style>
+  </defs>
+
+  <rect width="1500" height="900" fill="#ffffff"/>
+  <text x="60" y="42" class="title">普通 1F1B 与 Interleaved 1F1B：K=2、v=2、M=4 的全局时序</text>
+  <text x="60" y="72" class="note">逻辑路径：C0 → C1 → C2 → C3；GPU 0 持有 C0、C2，GPU 1 持有 C1、C3。</text>
+
+  <text x="60" y="112" class="heading">普通 1F1B：v=1</text>
+  <text x="220" y="112" class="note">每张 GPU 只有一个完整 stage；一个完整 stage action 占两个 chunk 时间槽</text>
+
+  <g transform="translate(180,128)">
+    <text x="-18" y="22" text-anchor="end" class="axis">chunk 时间槽</text>
+    <g class="axis" text-anchor="middle">
+      <text x="27" y="22">1</text><text x="81" y="22">2</text><text x="135" y="22">3</text><text x="189" y="22">4</text>
+      <text x="243" y="22">5</text><text x="297" y="22">6</text><text x="351" y="22">7</text><text x="405" y="22">8</text>
+      <text x="459" y="22">9</text><text x="513" y="22">10</text><text x="567" y="22">11</text><text x="621" y="22">12</text>
+      <text x="675" y="22">13</text><text x="729" y="22">14</text><text x="783" y="22">15</text><text x="837" y="22">16</text>
+      <text x="891" y="22">17</text><text x="945" y="22">18</text><text x="999" y="22">19</text><text x="1053" y="22">20</text>
+    </g>
+
+    <g fill="#f1f5f9" stroke="#d0d5dd">
+      <rect x="0" y="45" width="1080" height="54"/>
+      <rect x="0" y="119" width="1080" height="54"/>
+      <path d="M54 45V173 M108 45V173 M162 45V173 M216 45V173 M270 45V173 M324 45V173 M378 45V173 M432 45V173 M486 45V173 M540 45V173 M594 45V173 M648 45V173 M702 45V173 M756 45V173 M810 45V173 M864 45V173 M918 45V173 M972 45V173 M1026 45V173"/>
+    </g>
+
+    <g class="device" text-anchor="end">
+      <text x="-18" y="79">GPU 0 / Stage 0</text>
+      <text x="-18" y="153">GPU 1 / Stage 1</text>
+    </g>
+
+    <g fill="#2563eb" stroke="#1d4ed8">
+      <rect x="3" y="49" width="102" height="46" rx="5"/>
+      <rect x="111" y="49" width="102" height="46" rx="5"/>
+      <rect x="435" y="49" width="102" height="46" rx="5"/>
+      <rect x="651" y="49" width="102" height="46" rx="5"/>
+      <rect x="111" y="123" width="102" height="46" rx="5"/>
+      <rect x="327" y="123" width="102" height="46" rx="5"/>
+      <rect x="543" y="123" width="102" height="46" rx="5"/>
+      <rect x="759" y="123" width="102" height="46" rx="5"/>
+    </g>
+    <g fill="#dc2626" stroke="#b91c1c">
+      <rect x="327" y="49" width="102" height="46" rx="5"/>
+      <rect x="543" y="49" width="102" height="46" rx="5"/>
+      <rect x="759" y="49" width="102" height="46" rx="5"/>
+      <rect x="975" y="49" width="102" height="46" rx="5"/>
+      <rect x="219" y="123" width="102" height="46" rx="5"/>
+      <rect x="435" y="123" width="102" height="46" rx="5"/>
+      <rect x="651" y="123" width="102" height="46" rx="5"/>
+      <rect x="867" y="123" width="102" height="46" rx="5"/>
+    </g>
+    <g class="cell" text-anchor="middle">
+      <text x="54" y="78">F0</text><text x="162" y="78">F1</text><text x="378" y="78">B0</text><text x="486" y="78">F2</text>
+      <text x="594" y="78">B1</text><text x="702" y="78">F3</text><text x="810" y="78">B2</text><text x="1026" y="78">B3</text>
+      <text x="162" y="152">F0</text><text x="270" y="152">B0</text><text x="378" y="152">F1</text><text x="486" y="152">B1</text>
+      <text x="594" y="152">F2</text><text x="702" y="152">B2</text><text x="810" y="152">F3</text><text x="918" y="152">B3</text>
+    </g>
+
+    <rect x="1100" y="80" width="160" height="60" rx="8" fill="#ecfdf3" stroke="#16a34a" stroke-width="2"/>
+    <text x="1180" y="105" text-anchor="middle" class="device">Optimizer</text>
+    <text x="1180" y="128" text-anchor="middle" class="axis">slot 20 后更新</text>
+    <path d="M1080 110H1092" stroke="#16a34a" stroke-width="3"/>
+    <path d="M1092 110l-10-6v12z" fill="#16a34a"/>
+
+    <text x="540" y="208" text-anchor="middle" class="legend">每张 GPU 有 4 个空闲 chunk 时间槽，pipeline flush 结束于 slot 20</text>
+  </g>
+
+  <line x1="60" y1="400" x2="1440" y2="400" stroke="#d0d5dd" stroke-width="2"/>
+
+  <text x="60" y="442" class="heading">Interleaved 1F1B：v=2</text>
+  <text x="290" y="442" class="note">每张 GPU 持有两个不连续 chunks；每个 chunk action 只占一个时间槽</text>
+
+  <g transform="translate(180,458)">
+    <text x="-18" y="22" text-anchor="end" class="axis">chunk 时间槽</text>
+    <g class="axis" text-anchor="middle">
+      <text x="27" y="22">1</text><text x="81" y="22">2</text><text x="135" y="22">3</text><text x="189" y="22">4</text>
+      <text x="243" y="22">5</text><text x="297" y="22">6</text><text x="351" y="22">7</text><text x="405" y="22">8</text>
+      <text x="459" y="22">9</text><text x="513" y="22">10</text><text x="567" y="22">11</text><text x="621" y="22">12</text>
+      <text x="675" y="22">13</text><text x="729" y="22">14</text><text x="783" y="22">15</text><text x="837" y="22">16</text>
+      <text x="891" y="22">17</text><text x="945" y="22">18</text>
+    </g>
+
+    <g fill="#f1f5f9" stroke="#d0d5dd">
+      <rect x="0" y="45" width="972" height="54"/>
+      <rect x="0" y="119" width="972" height="54"/>
+      <path d="M54 45V173 M108 45V173 M162 45V173 M216 45V173 M270 45V173 M324 45V173 M378 45V173 M432 45V173 M486 45V173 M540 45V173 M594 45V173 M648 45V173 M702 45V173 M756 45V173 M810 45V173 M864 45V173 M918 45V173"/>
+    </g>
+
+    <g class="device" text-anchor="end">
+      <text x="-18" y="79">GPU 0 / C0,C2</text>
+      <text x="-18" y="153">GPU 1 / C1,C3</text>
+    </g>
+
+    <g fill="#2563eb" stroke="#1d4ed8">
+      <rect x="3" y="49" width="48" height="46" rx="5"/><rect x="57" y="49" width="48" height="46" rx="5"/>
+      <rect x="435" y="49" width="48" height="46" rx="5"/><rect x="489" y="49" width="48" height="46" rx="5"/>
+      <rect x="57" y="123" width="48" height="46" rx="5"/><rect x="111" y="123" width="48" height="46" rx="5"/>
+      <rect x="489" y="123" width="48" height="46" rx="5"/><rect x="543" y="123" width="48" height="46" rx="5"/>
+    </g>
+    <g fill="#60a5fa" stroke="#2563eb">
+      <rect x="111" y="49" width="48" height="46" rx="5"/><rect x="219" y="49" width="48" height="46" rx="5"/>
+      <rect x="543" y="49" width="48" height="46" rx="5"/><rect x="651" y="49" width="48" height="46" rx="5"/>
+      <rect x="165" y="123" width="48" height="46" rx="5"/><rect x="273" y="123" width="48" height="46" rx="5"/>
+      <rect x="597" y="123" width="48" height="46" rx="5"/><rect x="705" y="123" width="48" height="46" rx="5"/>
+    </g>
+    <g fill="#dc2626" stroke="#b91c1c">
+      <rect x="597" y="49" width="48" height="46" rx="5"/><rect x="705" y="49" width="48" height="46" rx="5"/>
+      <rect x="867" y="49" width="48" height="46" rx="5"/><rect x="921" y="49" width="48" height="46" rx="5"/>
+      <rect x="381" y="123" width="48" height="46" rx="5"/><rect x="435" y="123" width="48" height="46" rx="5"/>
+      <rect x="813" y="123" width="48" height="46" rx="5"/><rect x="867" y="123" width="48" height="46" rx="5"/>
+    </g>
+    <g fill="#f87171" stroke="#dc2626">
+      <rect x="327" y="49" width="48" height="46" rx="5"/><rect x="381" y="49" width="48" height="46" rx="5"/>
+      <rect x="759" y="49" width="48" height="46" rx="5"/><rect x="813" y="49" width="48" height="46" rx="5"/>
+      <rect x="219" y="123" width="48" height="46" rx="5"/><rect x="327" y="123" width="48" height="46" rx="5"/>
+      <rect x="651" y="123" width="48" height="46" rx="5"/><rect x="759" y="123" width="48" height="46" rx="5"/>
+    </g>
+
+    <g class="chunk-cell" text-anchor="middle">
+      <text x="27" y="78">C0·F0</text><text x="81" y="78">C0·F1</text><text x="135" y="78">C2·F0</text><text x="243" y="78">C2·F1</text>
+      <text x="351" y="78">C2·B0</text><text x="405" y="78">C2·B1</text><text x="459" y="78">C0·F2</text><text x="513" y="78">C0·F3</text>
+      <text x="567" y="78">C2·F2</text><text x="621" y="78">C0·B0</text><text x="675" y="78">C2·F3</text><text x="729" y="78">C0·B1</text>
+      <text x="783" y="78">C2·B2</text><text x="837" y="78">C2·B3</text><text x="891" y="78">C0·B2</text><text x="945" y="78">C0·B3</text>
+
+      <text x="81" y="152">C1·F0</text><text x="135" y="152">C1·F1</text><text x="189" y="152">C3·F0</text><text x="243" y="152">C3·B0</text>
+      <text x="297" y="152">C3·F1</text><text x="351" y="152">C3·B1</text><text x="405" y="152">C1·B0</text><text x="459" y="152">C1·B1</text>
+      <text x="513" y="152">C1·F2</text><text x="567" y="152">C1·F3</text><text x="621" y="152">C3·F2</text><text x="675" y="152">C3·B2</text>
+      <text x="729" y="152">C3·F3</text><text x="783" y="152">C3·B3</text><text x="837" y="152">C1·B2</text><text x="891" y="152">C1·B3</text>
+    </g>
+
+    <rect x="992" y="80" width="160" height="60" rx="8" fill="#ecfdf3" stroke="#16a34a" stroke-width="2"/>
+    <text x="1072" y="105" text-anchor="middle" class="device">Optimizer</text>
+    <text x="1072" y="128" text-anchor="middle" class="axis">slot 18 后更新</text>
+    <path d="M972 110H984" stroke="#16a34a" stroke-width="3"/>
+    <path d="M984 110l-10-6v12z" fill="#16a34a"/>
+
+    <text x="486" y="208" text-anchor="middle" class="legend">每张 GPU 只有 2 个空闲 chunk 时间槽，pipeline flush 提前到 slot 18</text>
+  </g>
+
+  <g transform="translate(180,790)">
+    <rect x="0" y="0" width="22" height="22" rx="4" fill="#2563eb"/>
+    <text x="34" y="17" class="legend">C0/C1 forward</text>
+    <rect x="180" y="0" width="22" height="22" rx="4" fill="#60a5fa" stroke="#2563eb"/>
+    <text x="214" y="17" class="legend">C2/C3 forward</text>
+    <rect x="394" y="0" width="22" height="22" rx="4" fill="#dc2626"/>
+    <text x="428" y="17" class="legend">C0/C1 backward</text>
+    <rect x="592" y="0" width="22" height="22" rx="4" fill="#f87171" stroke="#dc2626"/>
+    <text x="626" y="17" class="legend">C2/C3 backward</text>
+    <rect x="806" y="0" width="22" height="22" rx="4" fill="#f1f5f9" stroke="#d0d5dd"/>
+    <text x="840" y="17" class="legend">空白：bubble</text>
+  </g>
+
+  <text x="180" y="850" class="note">均衡理想模型：忽略 P2P、kernel launch 与调度开销；同一 GPU 上的两个 chunks 始终串行执行。</text>
+</svg>

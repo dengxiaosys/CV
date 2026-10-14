@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="720" viewBox="0 0 1500 720">
+  <defs>
+    <style>
+      .title { font: 700 24px Inter, "Noto Sans CJK SC", sans-serif; fill: #172033; }
+      .heading { font: 700 18px Inter, "Noto Sans CJK SC", sans-serif; fill: #172033; }
+      .body { font: 500 15px Inter, "Noto Sans CJK SC", sans-serif; fill: #344054; }
+      .small { font: 500 13px Inter, "Noto Sans CJK SC", sans-serif; fill: #475467; }
+      .chunk { font: 700 16px Inter, sans-serif; fill: #ffffff; text-anchor: middle; }
+      .worker { font: 700 16px Inter, "Noto Sans CJK SC", sans-serif; fill: #172033; }
+    </style>
+    <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M1 1L7 4L1 7Z" fill="#64748b"/>
+    </marker>
+    <marker id="back-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto">
+      <path d="M1 1L7 4L1 7Z" fill="#dc2626"/>
+    </marker>
+  </defs>
+
+  <rect width="1500" height="720" fill="#ffffff"/>
+  <text x="60" y="42" class="title">ZB-V：P 个 workers 各持有两个 chunks，形成 V 形放置</text>
+  <text x="60" y="70" class="body">示意 P=4、K=2P=8；模型深度仍按 C0, ..., C7 递增，但 worker ownership 为 0, 1, 2, 3, 3, 2, 1, 0。</text>
+
+  <text x="60" y="112" class="heading">模型深度与单个 microbatch 的 forward 路径</text>
+  <g transform="translate(135,132)">
+    <g stroke-width="2">
+      <rect x="0" y="0" width="110" height="66" rx="7" fill="#2563eb" stroke="#1d4ed8"/>
+      <rect x="160" y="0" width="110" height="66" rx="7" fill="#0f766e" stroke="#115e59"/>
+      <rect x="320" y="0" width="110" height="66" rx="7" fill="#d97706" stroke="#b45309"/>
+      <rect x="480" y="0" width="110" height="66" rx="7" fill="#7c3aed" stroke="#6d28d9"/>
+      <rect x="640" y="0" width="110" height="66" rx="7" fill="#7c3aed" stroke="#6d28d9"/>
+      <rect x="800" y="0" width="110" height="66" rx="7" fill="#d97706" stroke="#b45309"/>
+      <rect x="960" y="0" width="110" height="66" rx="7" fill="#0f766e" stroke="#115e59"/>
+      <rect x="1120" y="0" width="110" height="66" rx="7" fill="#2563eb" stroke="#1d4ed8"/>
+    </g>
+    <g class="chunk">
+      <text x="55" y="29">C0</text><text x="55" y="51">W0</text>
+      <text x="215" y="29">C1</text><text x="215" y="51">W1</text>
+      <text x="375" y="29">C2</text><text x="375" y="51">W2</text>
+      <text x="535" y="29">C3</text><text x="535" y="51">W3</text>
+      <text x="695" y="29">C4</text><text x="695" y="51">W3</text>
+      <text x="855" y="29">C5</text><text x="855" y="51">W2</text>
+      <text x="1015" y="29">C6</text><text x="1015" y="51">W1</text>
+      <text x="1175" y="29">C7</text><text x="1175" y="51">W0</text>
+    </g>
+    <g fill="none" stroke="#64748b" stroke-width="2.5" marker-end="url(#arrow)">
+      <path d="M110 33H152"/><path d="M270 33H312"/><path d="M430 33H472"/>
+      <path d="M590 33H632"/><path d="M750 33H792"/><path d="M910 33H952"/><path d="M1070 33H1112"/>
+    </g>
+    <text x="615" y="96" text-anchor="middle" class="small">Forward：W0 → W1 → W2 → W3 → W3 → W2 → W1 → W0</text>
+  </g>
+
+  <text x="60" y="274" class="heading">每个 worker 的两个 chunks</text>
+  <g transform="translate(180,292)">
+    <g class="worker" text-anchor="end">
+      <text x="0" y="31">Worker 0</text><text x="0" y="89">Worker 1</text>
+      <text x="0" y="147">Worker 2</text><text x="0" y="205">Worker 3</text>
+    </g>
+    <g>
+      <rect x="28" y="0" width="210" height="42" rx="7" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+      <rect x="278" y="0" width="210" height="42" rx="7" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+      <text x="133" y="27" text-anchor="middle" class="body">first chunk: C0</text>
+      <text x="383" y="27" text-anchor="middle" class="body">second chunk: C7</text>
+
+      <rect x="28" y="58" width="210" height="42" rx="7" fill="#ecfdf9" stroke="#0f766e" stroke-width="2"/>
+      <rect x="278" y="58" width="210" height="42" rx="7" fill="#ecfdf9" stroke="#0f766e" stroke-width="2"/>
+      <text x="133" y="85" text-anchor="middle" class="body">first chunk: C1</text>
+      <text x="383" y="85" text-anchor="middle" class="body">second chunk: C6</text>
+
+      <rect x="28" y="116" width="210" height="42" rx="7" fill="#fff7ed" stroke="#d97706" stroke-width="2"/>
+      <rect x="278" y="116" width="210" height="42" rx="7" fill="#fff7ed" stroke="#d97706" stroke-width="2"/>
+      <text x="133" y="143" text-anchor="middle" class="body">first chunk: C2</text>
+      <text x="383" y="143" text-anchor="middle" class="body">second chunk: C5</text>
+
+      <rect x="28" y="174" width="210" height="42" rx="7" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2"/>
+      <rect x="278" y="174" width="210" height="42" rx="7" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2"/>
+      <text x="133" y="201" text-anchor="middle" class="body">first chunk: C3</text>
+      <text x="383" y="201" text-anchor="middle" class="body">second chunk: C4</text>
+    </g>
+
+    <g transform="translate(570,0)">
+      <rect x="0" y="0" width="550" height="100" rx="8" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+      <text x="24" y="32" class="heading">为什么 backward 能更早返回？</text>
+      <text x="24" y="61" class="body">Forward 从 C0 开始，在 C7 结束；二者都属于 Worker 0。</text>
+      <text x="24" y="86" class="body">因此 backward 也从 Worker 0 的 C7 开始，不必先从末 worker 返回。</text>
+
+      <path d="M520 132H30" fill="none" stroke="#dc2626" stroke-width="3" marker-end="url(#back-arrow)"/>
+      <text x="275" y="122" text-anchor="middle" class="small">Backward：C7 → C6 → C5 → C4 → C3 → C2 → C1 → C0</text>
+
+      <rect x="0" y="158" width="168" height="58" rx="8" fill="#f8fafc" stroke="#94a3b8"/>
+      <rect x="190" y="158" width="168" height="58" rx="8" fill="#f8fafc" stroke="#94a3b8"/>
+      <rect x="380" y="158" width="168" height="58" rx="8" fill="#f8fafc" stroke="#94a3b8"/>
+      <text x="84" y="181" text-anchor="middle" class="small">Warmup</text>
+      <text x="84" y="204" text-anchor="middle" class="body">注入 2P−1 个 F</text>
+      <text x="274" y="181" text-anchor="middle" class="small">Steady state</text>
+      <text x="274" y="204" text-anchor="middle" class="body">重复 F-B-W</text>
+      <text x="464" y="181" text-anchor="middle" class="small">Cooldown</text>
+      <text x="464" y="204" text-anchor="middle" class="body">B 优先，W 填空</text>
+    </g>
+  </g>
+
+  <rect x="180" y="620" width="1140" height="54" rx="8" fill="#f8fafc" stroke="#94a3b8"/>
+  <text x="750" y="644" text-anchor="middle" class="body">理想条件 T_F = T_B = T_W：峰值 activation 为 P · M_B，与 1F1B 相同；逻辑 chunk 数 K = 2P。</text>
+  <text x="750" y="664" text-anchor="middle" class="small">代价：单个 microbatch 穿过 2P−1 个 chunk 边界，pipeline P2P 次数相应增加。</text>
+</svg>

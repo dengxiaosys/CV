@@ -1,0 +1,179 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="900" viewBox="0 0 1500 900">
+  <defs>
+    <style>
+      .title { font: 700 24px Inter, "Noto Sans CJK SC", sans-serif; fill: #172033; }
+      .heading { font: 700 19px Inter, "Noto Sans CJK SC", sans-serif; fill: #172033; }
+      .axis { font: 600 14px Inter, "Noto Sans CJK SC", sans-serif; fill: #475467; }
+      .stage { font: 700 17px Inter, "Noto Sans CJK SC", sans-serif; fill: #172033; }
+      .cell { font: 700 13px Inter, "Noto Sans CJK SC", sans-serif; fill: #ffffff; }
+      .note { font: 500 15px Inter, "Noto Sans CJK SC", sans-serif; fill: #475467; }
+      .legend { font: 600 15px Inter, "Noto Sans CJK SC", sans-serif; fill: #344054; }
+    </style>
+  </defs>
+
+  <rect width="1500" height="900" fill="#ffffff"/>
+  <text x="60" y="42" class="title">拆分 dgrad 与 wgrad：2 个 stage、4 个 microbatch 的全局时序</text>
+  <text x="60" y="72" class="note">理想耗时模型：forward、dgrad、wgrad 各占一个 action 时间槽；传统 fused backward 占两个时间槽。</text>
+
+  <text x="60" y="112" class="heading">传统 1F1B：dgrad 与 wgrad 捆绑执行</text>
+  <text x="430" y="112" class="note">前一 stage 必须等待整个 fused backward block 完成</text>
+
+  <g transform="translate(180,128)">
+    <text x="-18" y="22" text-anchor="end" class="axis">时间槽</text>
+    <g class="axis" text-anchor="middle">
+      <text x="32.5" y="22">1</text><text x="97.5" y="22">2</text><text x="162.5" y="22">3</text><text x="227.5" y="22">4</text>
+      <text x="292.5" y="22">5</text><text x="357.5" y="22">6</text><text x="422.5" y="22">7</text><text x="487.5" y="22">8</text>
+      <text x="552.5" y="22">9</text><text x="617.5" y="22">10</text><text x="682.5" y="22">11</text><text x="747.5" y="22">12</text>
+      <text x="812.5" y="22">13</text><text x="877.5" y="22">14</text><text x="942.5" y="22">15</text>
+    </g>
+
+    <g fill="#f1f5f9" stroke="#d0d5dd">
+      <rect x="0" y="45" width="975" height="54"/>
+      <rect x="0" y="119" width="975" height="54"/>
+      <path d="M65 45V173 M130 45V173 M195 45V173 M260 45V173 M325 45V173 M390 45V173 M455 45V173 M520 45V173 M585 45V173 M650 45V173 M715 45V173 M780 45V173 M845 45V173 M910 45V173"/>
+    </g>
+
+    <g class="stage" text-anchor="end">
+      <text x="-18" y="79">Stage 0</text>
+      <text x="-18" y="153">Stage 1</text>
+    </g>
+
+    <g fill="#2563eb" stroke="#1d4ed8">
+      <rect x="4" y="49" width="57" height="46" rx="5"/>
+      <rect x="69" y="49" width="57" height="46" rx="5"/>
+      <rect x="394" y="49" width="57" height="46" rx="5"/>
+      <rect x="589" y="49" width="57" height="46" rx="5"/>
+      <rect x="69" y="123" width="57" height="46" rx="5"/>
+      <rect x="264" y="123" width="57" height="46" rx="5"/>
+      <rect x="459" y="123" width="57" height="46" rx="5"/>
+      <rect x="654" y="123" width="57" height="46" rx="5"/>
+    </g>
+
+    <g fill="#dc2626" stroke="#b91c1c">
+      <rect x="264" y="49" width="122" height="46" rx="5"/>
+      <rect x="459" y="49" width="122" height="46" rx="5"/>
+      <rect x="654" y="49" width="122" height="46" rx="5"/>
+      <rect x="849" y="49" width="122" height="46" rx="5"/>
+      <rect x="134" y="123" width="122" height="46" rx="5"/>
+      <rect x="329" y="123" width="122" height="46" rx="5"/>
+      <rect x="524" y="123" width="122" height="46" rx="5"/>
+      <rect x="719" y="123" width="122" height="46" rx="5"/>
+    </g>
+
+    <g class="cell" text-anchor="middle">
+      <text x="32.5" y="78">F0</text><text x="97.5" y="78">F1</text>
+      <text x="325" y="78">B0 + W0</text><text x="422.5" y="78">F2</text>
+      <text x="520" y="78">B1 + W1</text><text x="617.5" y="78">F3</text>
+      <text x="715" y="78">B2 + W2</text><text x="910" y="78">B3 + W3</text>
+
+      <text x="97.5" y="152">F0</text><text x="195" y="152">B0 + W0</text>
+      <text x="292.5" y="152">F1</text><text x="390" y="152">B1 + W1</text>
+      <text x="487.5" y="152">F2</text><text x="585" y="152">B2 + W2</text>
+      <text x="682.5" y="152">F3</text><text x="780" y="152">B3 + W3</text>
+    </g>
+
+    <rect x="995" y="80" width="160" height="60" rx="8" fill="#ecfdf3" stroke="#16a34a" stroke-width="2"/>
+    <text x="1075" y="105" text-anchor="middle" class="stage">Optimizer</text>
+    <text x="1075" y="128" text-anchor="middle" class="axis">slot 15 后更新</text>
+    <path d="M975 110H987" stroke="#16a34a" stroke-width="3"/>
+    <path d="M987 110l-10-6v12z" fill="#16a34a"/>
+
+    <text x="487.5" y="208" text-anchor="middle" class="legend">每个 stage 执行 12 个 action 时间槽，并暴露 3 个 bubble 时间槽</text>
+  </g>
+
+  <line x1="60" y1="400" x2="1440" y2="400" stroke="#d0d5dd" stroke-width="2"/>
+
+  <text x="60" y="442" class="heading">拆分 dgrad / wgrad：优先传播 dgrad，延后 wgrad</text>
+  <text x="525" y="442" class="note">计算总量不变，但可调度 action 更细</text>
+
+  <g transform="translate(180,458)">
+    <text x="-18" y="22" text-anchor="end" class="axis">时间槽</text>
+    <g class="axis" text-anchor="middle">
+      <text x="32.5" y="22">1</text><text x="97.5" y="22">2</text><text x="162.5" y="22">3</text><text x="227.5" y="22">4</text>
+      <text x="292.5" y="22">5</text><text x="357.5" y="22">6</text><text x="422.5" y="22">7</text><text x="487.5" y="22">8</text>
+      <text x="552.5" y="22">9</text><text x="617.5" y="22">10</text><text x="682.5" y="22">11</text><text x="747.5" y="22">12</text>
+      <text x="812.5" y="22">13</text>
+    </g>
+
+    <g fill="#f1f5f9" stroke="#d0d5dd">
+      <rect x="0" y="45" width="845" height="54"/>
+      <rect x="0" y="119" width="845" height="54"/>
+      <path d="M65 45V173 M130 45V173 M195 45V173 M260 45V173 M325 45V173 M390 45V173 M455 45V173 M520 45V173 M585 45V173 M650 45V173 M715 45V173 M780 45V173"/>
+    </g>
+
+    <g class="stage" text-anchor="end">
+      <text x="-18" y="79">Stage 0</text>
+      <text x="-18" y="153">Stage 1</text>
+    </g>
+
+    <g fill="#2563eb" stroke="#1d4ed8">
+      <rect x="4" y="49" width="57" height="46" rx="5"/>
+      <rect x="134" y="49" width="57" height="46" rx="5"/>
+      <rect x="329" y="49" width="57" height="46" rx="5"/>
+      <rect x="524" y="49" width="57" height="46" rx="5"/>
+      <rect x="69" y="123" width="57" height="46" rx="5"/>
+      <rect x="199" y="123" width="57" height="46" rx="5"/>
+      <rect x="394" y="123" width="57" height="46" rx="5"/>
+      <rect x="589" y="123" width="57" height="46" rx="5"/>
+    </g>
+
+    <g fill="#dc2626" stroke="#b91c1c">
+      <rect x="199" y="49" width="57" height="46" rx="5"/>
+      <rect x="394" y="49" width="57" height="46" rx="5"/>
+      <rect x="589" y="49" width="57" height="46" rx="5"/>
+      <rect x="719" y="49" width="57" height="46" rx="5"/>
+      <rect x="134" y="123" width="57" height="46" rx="5"/>
+      <rect x="264" y="123" width="57" height="46" rx="5"/>
+      <rect x="459" y="123" width="57" height="46" rx="5"/>
+      <rect x="654" y="123" width="57" height="46" rx="5"/>
+    </g>
+
+    <g fill="#d97706" stroke="#b45309">
+      <rect x="264" y="49" width="57" height="46" rx="5"/>
+      <rect x="459" y="49" width="57" height="46" rx="5"/>
+      <rect x="654" y="49" width="57" height="46" rx="5"/>
+      <rect x="784" y="49" width="57" height="46" rx="5"/>
+      <rect x="329" y="123" width="57" height="46" rx="5"/>
+      <rect x="524" y="123" width="57" height="46" rx="5"/>
+      <rect x="719" y="123" width="57" height="46" rx="5"/>
+      <rect x="784" y="123" width="57" height="46" rx="5"/>
+    </g>
+
+    <g class="cell" text-anchor="middle">
+      <text x="32.5" y="78">F0</text><text x="162.5" y="78">F1</text>
+      <text x="227.5" y="78">B0</text><text x="292.5" y="78">W0</text>
+      <text x="357.5" y="78">F2</text><text x="422.5" y="78">B1</text>
+      <text x="487.5" y="78">W1</text><text x="552.5" y="78">F3</text>
+      <text x="617.5" y="78">B2</text><text x="682.5" y="78">W2</text>
+      <text x="747.5" y="78">B3</text><text x="812.5" y="78">W3</text>
+
+      <text x="97.5" y="152">F0</text><text x="162.5" y="152">B0</text>
+      <text x="227.5" y="152">F1</text><text x="292.5" y="152">B1</text>
+      <text x="357.5" y="152">W0</text><text x="422.5" y="152">F2</text>
+      <text x="487.5" y="152">B2</text><text x="552.5" y="152">W1</text>
+      <text x="617.5" y="152">F3</text><text x="682.5" y="152">B3</text>
+      <text x="747.5" y="152">W2</text><text x="812.5" y="152">W3</text>
+    </g>
+
+    <rect x="865" y="80" width="160" height="60" rx="8" fill="#ecfdf3" stroke="#16a34a" stroke-width="2"/>
+    <text x="945" y="105" text-anchor="middle" class="stage">Optimizer</text>
+    <text x="945" y="128" text-anchor="middle" class="axis">slot 13 后更新</text>
+    <path d="M845 110H857" stroke="#16a34a" stroke-width="3"/>
+    <path d="M857 110l-10-6v12z" fill="#16a34a"/>
+
+    <text x="422.5" y="208" text-anchor="middle" class="legend">每个 stage 仍执行 12 个 action 时间槽，但只暴露 1 个 bubble 时间槽</text>
+  </g>
+
+  <g transform="translate(180,790)">
+    <rect x="0" y="0" width="22" height="22" rx="4" fill="#2563eb"/>
+    <text x="34" y="17" class="legend">F：forward</text>
+    <rect x="170" y="0" width="22" height="22" rx="4" fill="#dc2626"/>
+    <text x="204" y="17" class="legend">B：dgrad，必须优先传播</text>
+    <rect x="462" y="0" width="22" height="22" rx="4" fill="#d97706"/>
+    <text x="496" y="17" class="legend">W：wgrad，可以延后计算</text>
+    <rect x="755" y="0" width="22" height="22" rx="4" fill="#f1f5f9" stroke="#d0d5dd"/>
+    <text x="789" y="17" class="legend">空白：bubble</text>
+  </g>
+
+  <text x="180" y="850" class="note">单个孤立训练步仍有首尾空槽；跨训练步消除这些边界空槽还需要满足更新屏障与 post-update validation。</text>
+</svg>

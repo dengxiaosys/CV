@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="590" viewBox="0 0 1500 590">
+  <defs>
+    <style>
+      .title { font: 700 24px Inter, "Noto Sans CJK SC", sans-serif; fill: #172033; }
+      .axis { font: 600 14px Inter, "Noto Sans CJK SC", sans-serif; fill: #475467; }
+      .stage { font: 700 17px Inter, "Noto Sans CJK SC", sans-serif; fill: #172033; }
+      .cell { font: 700 14px Inter, "Noto Sans CJK SC", sans-serif; fill: #ffffff; }
+      .note { font: 500 15px Inter, "Noto Sans CJK SC", sans-serif; fill: #475467; }
+      .legend { font: 600 15px Inter, "Noto Sans CJK SC", sans-serif; fill: #344054; }
+    </style>
+  </defs>
+  <rect width="1500" height="590" fill="#ffffff"/>
+  <text x="60" y="42" class="title">GPipe fill-drain：4 个 stage、5 个 microbatch 的同步时序</text>
+
+  <g transform="translate(160,72)">
+    <text x="-18" y="22" text-anchor="end" class="axis">时间槽</text>
+    <g class="axis" text-anchor="middle">
+      <text x="32.5" y="22">1</text><text x="97.5" y="22">2</text><text x="162.5" y="22">3</text><text x="227.5" y="22">4</text>
+      <text x="292.5" y="22">5</text><text x="357.5" y="22">6</text><text x="422.5" y="22">7</text><text x="487.5" y="22">8</text>
+      <text x="552.5" y="22">9</text><text x="617.5" y="22">10</text><text x="682.5" y="22">11</text><text x="747.5" y="22">12</text>
+      <text x="812.5" y="22">13</text><text x="877.5" y="22">14</text><text x="942.5" y="22">15</text><text x="1007.5" y="22">16</text>
+    </g>
+
+    <g fill="#f1f5f9" stroke="#d0d5dd">
+      <rect x="0" y="45" width="1040" height="54"/>
+      <rect x="0" y="119" width="1040" height="54"/>
+      <rect x="0" y="193" width="1040" height="54"/>
+      <rect x="0" y="267" width="1040" height="54"/>
+      <path d="M65 45V321 M130 45V321 M195 45V321 M260 45V321 M325 45V321 M390 45V321 M455 45V321 M520 45V321 M585 45V321 M650 45V321 M715 45V321 M780 45V321 M845 45V321 M910 45V321 M975 45V321"/>
+    </g>
+
+    <g class="stage" text-anchor="end">
+      <text x="-18" y="79">Stage 0</text>
+      <text x="-18" y="153">Stage 1</text>
+      <text x="-18" y="227">Stage 2</text>
+      <text x="-18" y="301">Stage 3</text>
+    </g>
+
+    <g fill="#2563eb" stroke="#1d4ed8">
+      <rect x="4" y="49" width="57" height="46" rx="5"/><rect x="69" y="49" width="57" height="46" rx="5"/>
+      <rect x="134" y="49" width="57" height="46" rx="5"/><rect x="199" y="49" width="57" height="46" rx="5"/><rect x="264" y="49" width="57" height="46" rx="5"/>
+      <rect x="69" y="123" width="57" height="46" rx="5"/><rect x="134" y="123" width="57" height="46" rx="5"/>
+      <rect x="199" y="123" width="57" height="46" rx="5"/><rect x="264" y="123" width="57" height="46" rx="5"/><rect x="329" y="123" width="57" height="46" rx="5"/>
+      <rect x="134" y="197" width="57" height="46" rx="5"/><rect x="199" y="197" width="57" height="46" rx="5"/>
+      <rect x="264" y="197" width="57" height="46" rx="5"/><rect x="329" y="197" width="57" height="46" rx="5"/><rect x="394" y="197" width="57" height="46" rx="5"/>
+      <rect x="199" y="271" width="57" height="46" rx="5"/><rect x="264" y="271" width="57" height="46" rx="5"/>
+      <rect x="329" y="271" width="57" height="46" rx="5"/><rect x="394" y="271" width="57" height="46" rx="5"/><rect x="459" y="271" width="57" height="46" rx="5"/>
+    </g>
+    <g class="cell" text-anchor="middle">
+      <text x="32.5" y="78">F0</text><text x="97.5" y="78">F1</text><text x="162.5" y="78">F2</text><text x="227.5" y="78">F3</text><text x="292.5" y="78">F4</text>
+      <text x="97.5" y="152">F0</text><text x="162.5" y="152">F1</text><text x="227.5" y="152">F2</text><text x="292.5" y="152">F3</text><text x="357.5" y="152">F4</text>
+      <text x="162.5" y="226">F0</text><text x="227.5" y="226">F1</text><text x="292.5" y="226">F2</text><text x="357.5" y="226">F3</text><text x="422.5" y="226">F4</text>
+      <text x="227.5" y="300">F0</text><text x="292.5" y="300">F1</text><text x="357.5" y="300">F2</text><text x="422.5" y="300">F3</text><text x="487.5" y="300">F4</text>
+    </g>
+
+    <g fill="#dc2626" stroke="#b91c1c">
+      <rect x="719" y="49" width="57" height="46" rx="5"/><rect x="784" y="49" width="57" height="46" rx="5"/>
+      <rect x="849" y="49" width="57" height="46" rx="5"/><rect x="914" y="49" width="57" height="46" rx="5"/><rect x="979" y="49" width="57" height="46" rx="5"/>
+      <rect x="654" y="123" width="57" height="46" rx="5"/><rect x="719" y="123" width="57" height="46" rx="5"/>
+      <rect x="784" y="123" width="57" height="46" rx="5"/><rect x="849" y="123" width="57" height="46" rx="5"/><rect x="914" y="123" width="57" height="46" rx="5"/>
+      <rect x="589" y="197" width="57" height="46" rx="5"/><rect x="654" y="197" width="57" height="46" rx="5"/>
+      <rect x="719" y="197" width="57" height="46" rx="5"/><rect x="784" y="197" width="57" height="46" rx="5"/><rect x="849" y="197" width="57" height="46" rx="5"/>
+      <rect x="524" y="271" width="57" height="46" rx="5"/><rect x="589" y="271" width="57" height="46" rx="5"/>
+      <rect x="654" y="271" width="57" height="46" rx="5"/><rect x="719" y="271" width="57" height="46" rx="5"/><rect x="784" y="271" width="57" height="46" rx="5"/>
+    </g>
+    <g class="cell" text-anchor="middle">
+      <text x="747.5" y="78">B4</text><text x="812.5" y="78">B3</text><text x="877.5" y="78">B2</text><text x="942.5" y="78">B1</text><text x="1007.5" y="78">B0</text>
+      <text x="682.5" y="152">B4</text><text x="747.5" y="152">B3</text><text x="812.5" y="152">B2</text><text x="877.5" y="152">B1</text><text x="942.5" y="152">B0</text>
+      <text x="617.5" y="226">B4</text><text x="682.5" y="226">B3</text><text x="747.5" y="226">B2</text><text x="812.5" y="226">B1</text><text x="877.5" y="226">B0</text>
+      <text x="552.5" y="300">B4</text><text x="617.5" y="300">B3</text><text x="682.5" y="300">B2</text><text x="747.5" y="300">B1</text><text x="812.5" y="300">B0</text>
+    </g>
+
+    <line x1="520" y1="36" x2="520" y2="331" stroke="#98a2b3" stroke-width="2" stroke-dasharray="7 6"/>
+    <text x="260" y="355" text-anchor="middle" class="legend" fill="#1d4ed8">5 个 microbatch 的 forward 全部完成</text>
+    <text x="780" y="355" text-anchor="middle" class="legend" fill="#b91c1c">随后逆序排空 backward</text>
+
+    <rect x="1080" y="118" width="160" height="82" rx="8" fill="#ecfdf3" stroke="#16a34a" stroke-width="2"/>
+    <text x="1160" y="150" text-anchor="middle" class="stage">Optimizer</text>
+    <text x="1160" y="178" text-anchor="middle" class="axis">统一更新一次</text>
+    <path d="M1040 159H1072" stroke="#16a34a" stroke-width="3"/>
+    <path d="M1072 159l-10-6v12z" fill="#16a34a"/>
+  </g>
+
+  <g transform="translate(160,485)">
+    <rect x="0" y="0" width="22" height="22" rx="4" fill="#2563eb"/>
+    <text x="34" y="17" class="legend">F：forward</text>
+    <rect x="175" y="0" width="22" height="22" rx="4" fill="#dc2626"/>
+    <text x="209" y="17" class="legend">B：backward</text>
+    <rect x="382" y="0" width="22" height="22" rx="4" fill="#f1f5f9" stroke="#d0d5dd"/>
+    <text x="416" y="17" class="legend">空白：bubble</text>
+    <text x="680" y="17" class="note">Stage 编号为 0–3；microbatch 编号为 0–4，两种维度彼此独立。</text>
+  </g>
+</svg>

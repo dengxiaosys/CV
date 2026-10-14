@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1450" height="650" viewBox="0 0 1450 650">
+  <defs>
+    <style>
+      .title { font: 700 24px Inter, "Noto Sans CJK SC", sans-serif; fill: #172033; }
+      .heading { font: 700 19px Inter, "Noto Sans CJK SC", sans-serif; fill: #172033; }
+      .body { font: 500 16px Inter, "Noto Sans CJK SC", sans-serif; fill: #344054; }
+      .small { font: 600 14px Inter, "Noto Sans CJK SC", sans-serif; fill: #475467; }
+      .cell { font: 700 14px Inter, "Noto Sans CJK SC", sans-serif; fill: #ffffff; }
+    </style>
+    <marker id="arrow-blue" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrow-purple" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 z" fill="#7c3aed"/>
+    </marker>
+  </defs>
+
+  <rect width="1450" height="650" fill="#ffffff"/>
+  <text x="60" y="44" class="title">并行维度组合：PP 切层，TP 切 stage 内算子，DP/FSDP 复制或分片同位置 stage</text>
+
+  <g class="heading" text-anchor="middle">
+    <text x="272" y="92">PP Stage 0</text>
+    <text x="562" y="92">PP Stage 1</text>
+    <text x="852" y="92">PP Stage 2</text>
+    <text x="1142" y="92">PP Stage 3</text>
+  </g>
+
+  <text x="50" y="192" class="heading">DP replica 0</text>
+  <text x="50" y="402" class="heading">DP replica 1</text>
+
+  <g>
+    <g transform="translate(175,120)">
+      <rect width="194" height="132" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+      <rect x="18" y="48" width="72" height="58" rx="6" fill="#2563eb"/><rect x="104" y="48" width="72" height="58" rx="6" fill="#1d4ed8"/>
+      <text x="54" y="82" text-anchor="middle" class="cell">TP 0</text><text x="140" y="82" text-anchor="middle" class="cell">TP 1</text>
+      <text x="97" y="31" text-anchor="middle" class="small">Embedding + blocks</text>
+    </g>
+    <g transform="translate(465,120)">
+      <rect width="194" height="132" rx="8" fill="#ecfdf3" stroke="#16a34a" stroke-width="2"/>
+      <rect x="18" y="48" width="72" height="58" rx="6" fill="#16a34a"/><rect x="104" y="48" width="72" height="58" rx="6" fill="#15803d"/>
+      <text x="54" y="82" text-anchor="middle" class="cell">TP 0</text><text x="140" y="82" text-anchor="middle" class="cell">TP 1</text>
+      <text x="97" y="31" text-anchor="middle" class="small">Transformer blocks</text>
+    </g>
+    <g transform="translate(755,120)">
+      <rect width="194" height="132" rx="8" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+      <rect x="18" y="48" width="72" height="58" rx="6" fill="#ea580c"/><rect x="104" y="48" width="72" height="58" rx="6" fill="#c2410c"/>
+      <text x="54" y="82" text-anchor="middle" class="cell">TP 0</text><text x="140" y="82" text-anchor="middle" class="cell">TP 1</text>
+      <text x="97" y="31" text-anchor="middle" class="small">Transformer blocks</text>
+    </g>
+    <g transform="translate(1045,120)">
+      <rect width="194" height="132" rx="8" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2"/>
+      <rect x="18" y="48" width="72" height="58" rx="6" fill="#7c3aed"/><rect x="104" y="48" width="72" height="58" rx="6" fill="#6d28d9"/>
+      <text x="54" y="82" text-anchor="middle" class="cell">TP 0</text><text x="140" y="82" text-anchor="middle" class="cell">TP 1</text>
+      <text x="97" y="31" text-anchor="middle" class="small">Blocks + LM Head</text>
+    </g>
+  </g>
+
+  <g>
+    <g transform="translate(175,330)">
+      <rect width="194" height="132" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+      <rect x="18" y="48" width="72" height="58" rx="6" fill="#2563eb"/><rect x="104" y="48" width="72" height="58" rx="6" fill="#1d4ed8"/>
+      <text x="54" y="82" text-anchor="middle" class="cell">TP 0</text><text x="140" y="82" text-anchor="middle" class="cell">TP 1</text>
+      <text x="97" y="31" text-anchor="middle" class="small">Embedding + blocks</text>
+    </g>
+    <g transform="translate(465,330)">
+      <rect width="194" height="132" rx="8" fill="#ecfdf3" stroke="#16a34a" stroke-width="2"/>
+      <rect x="18" y="48" width="72" height="58" rx="6" fill="#16a34a"/><rect x="104" y="48" width="72" height="58" rx="6" fill="#15803d"/>
+      <text x="54" y="82" text-anchor="middle" class="cell">TP 0</text><text x="140" y="82" text-anchor="middle" class="cell">TP 1</text>
+      <text x="97" y="31" text-anchor="middle" class="small">Transformer blocks</text>
+    </g>
+    <g transform="translate(755,330)">
+      <rect width="194" height="132" rx="8" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+      <rect x="18" y="48" width="72" height="58" rx="6" fill="#ea580c"/><rect x="104" y="48" width="72" height="58" rx="6" fill="#c2410c"/>
+      <text x="54" y="82" text-anchor="middle" class="cell">TP 0</text><text x="140" y="82" text-anchor="middle" class="cell">TP 1</text>
+      <text x="97" y="31" text-anchor="middle" class="small">Transformer blocks</text>
+    </g>
+    <g transform="translate(1045,330)">
+      <rect width="194" height="132" rx="8" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2"/>
+      <rect x="18" y="48" width="72" height="58" rx="6" fill="#7c3aed"/><rect x="104" y="48" width="72" height="58" rx="6" fill="#6d28d9"/>
+      <text x="54" y="82" text-anchor="middle" class="cell">TP 0</text><text x="140" y="82" text-anchor="middle" class="cell">TP 1</text>
+      <text x="97" y="31" text-anchor="middle" class="small">Blocks + LM Head</text>
+    </g>
+  </g>
+
+  <g stroke="#2563eb" stroke-width="3" fill="none" marker-end="url(#arrow-blue)">
+    <line x1="369" y1="186" x2="457" y2="186"/><line x1="659" y1="186" x2="747" y2="186"/><line x1="949" y1="186" x2="1037" y2="186"/>
+    <line x1="369" y1="396" x2="457" y2="396"/><line x1="659" y1="396" x2="747" y2="396"/><line x1="949" y1="396" x2="1037" y2="396"/>
+  </g>
+
+  <g stroke="#7c3aed" stroke-width="3" fill="none" marker-end="url(#arrow-purple)">
+    <line x1="272" y1="260" x2="272" y2="322"/><line x1="562" y1="260" x2="562" y2="322"/>
+    <line x1="852" y1="260" x2="852" y2="322"/><line x1="1142" y1="260" x2="1142" y2="322"/>
+  </g>
+
+  <rect x="175" y="510" width="1064" height="84" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+  <circle cx="214" cy="540" r="8" fill="#2563eb"/><text x="234" y="546" class="body">横向：PP 相邻 stage 交换 activation / activation gradient</text>
+  <circle cx="754" cy="540" r="8" fill="#7c3aed"/><text x="774" y="546" class="body">纵向：同位置 stage 构成 DP/FSDP group</text>
+  <circle cx="214" cy="571" r="8" fill="#16a34a"/><text x="234" y="577" class="body">方框内部：TP group 对单层矩阵与 attention 进行分片 collective</text>
+
+  <text x="1330" y="186" class="small">数据 shard 0</text>
+  <text x="1330" y="396" class="small">数据 shard 1</text>
+</svg>

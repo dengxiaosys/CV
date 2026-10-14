@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="520" viewBox="0 0 1400 520">
+  <defs>
+    <style>
+      .title { font: 700 24px Inter, "Noto Sans CJK SC", sans-serif; fill: #172033; }
+      .stage { font: 700 20px Inter, "Noto Sans CJK SC", sans-serif; fill: #172033; }
+      .body { font: 500 16px Inter, "Noto Sans CJK SC", sans-serif; fill: #344054; }
+      .small { font: 500 14px Inter, "Noto Sans CJK SC", sans-serif; fill: #475467; }
+      .arrow-label { font: 600 15px Inter, "Noto Sans CJK SC", sans-serif; }
+    </style>
+    <marker id="arrow-blue" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#dc2626"/>
+    </marker>
+  </defs>
+
+  <rect width="1400" height="520" fill="#ffffff"/>
+  <text x="70" y="45" class="title">参数按 stage 驻留，跨边界移动 activation 与 activation gradient</text>
+
+  <g>
+    <rect x="70" y="82" width="250" height="164" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+    <text x="195" y="118" text-anchor="middle" class="stage">Stage 0</text>
+    <text x="195" y="150" text-anchor="middle" class="body">Embedding</text>
+    <text x="195" y="178" text-anchor="middle" class="body">Transformer blocks 0, ..., a</text>
+    <rect x="101" y="198" width="188" height="30" rx="5" fill="#dbeafe"/>
+    <text x="195" y="219" text-anchor="middle" class="small">参数 θ₀ 长期驻留</text>
+  </g>
+
+  <g>
+    <rect x="405" y="82" width="250" height="164" rx="8" fill="#ecfdf3" stroke="#16a34a" stroke-width="2"/>
+    <text x="530" y="118" text-anchor="middle" class="stage">Stage 1</text>
+    <text x="530" y="158" text-anchor="middle" class="body">Transformer blocks</text>
+    <text x="530" y="184" text-anchor="middle" class="body">a+1, ..., b</text>
+    <rect x="436" y="198" width="188" height="30" rx="5" fill="#dcfce7"/>
+    <text x="530" y="219" text-anchor="middle" class="small">参数 θ₁ 长期驻留</text>
+  </g>
+
+  <g>
+    <rect x="740" y="82" width="250" height="164" rx="8" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+    <text x="865" y="118" text-anchor="middle" class="stage">Stage 2</text>
+    <text x="865" y="158" text-anchor="middle" class="body">Transformer blocks</text>
+    <text x="865" y="184" text-anchor="middle" class="body">b+1, ..., c</text>
+    <rect x="771" y="198" width="188" height="30" rx="5" fill="#ffedd5"/>
+    <text x="865" y="219" text-anchor="middle" class="small">参数 θ₂ 长期驻留</text>
+  </g>
+
+  <g>
+    <rect x="1075" y="82" width="250" height="164" rx="8" fill="#f5f3ff" stroke="#7c3aed" stroke-width="2"/>
+    <text x="1200" y="118" text-anchor="middle" class="stage">Stage 3</text>
+    <text x="1200" y="150" text-anchor="middle" class="body">Blocks c+1, ..., L−1</text>
+    <text x="1200" y="178" text-anchor="middle" class="body">Norm + LM Head + Loss</text>
+    <rect x="1106" y="198" width="188" height="30" rx="5" fill="#ede9fe"/>
+    <text x="1200" y="219" text-anchor="middle" class="small">参数 θ₃ 长期驻留</text>
+  </g>
+
+  <g fill="none" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow-blue)">
+    <line x1="320" y1="284" x2="397" y2="284"/>
+    <line x1="655" y1="284" x2="732" y2="284"/>
+    <line x1="990" y1="284" x2="1067" y2="284"/>
+  </g>
+  <text x="695" y="270" text-anchor="middle" class="arrow-label" fill="#1d4ed8">Forward：发送 microbatch m 的边界 activation hₘ</text>
+
+  <g fill="none" stroke="#dc2626" stroke-width="3" marker-end="url(#arrow-red)">
+    <line x1="405" y1="348" x2="328" y2="348"/>
+    <line x1="740" y1="348" x2="663" y2="348"/>
+    <line x1="1075" y1="348" x2="998" y2="348"/>
+  </g>
+  <text x="695" y="337" text-anchor="middle" class="arrow-label" fill="#b91c1c">Backward：返回同一边界的梯度 ∂L/∂hₘ</text>
+
+  <rect x="70" y="404" width="1255" height="72" rx="8" fill="#f8fafc" stroke="#cbd5e1"/>
+  <circle cx="112" cy="440" r="8" fill="#344054"/>
+  <text x="132" y="446" class="body">纯 PP 不搬运相邻 stage 的参数，也不对 stage 间参数梯度做 collective</text>
+  <circle cx="760" cy="440" r="8" fill="#2563eb"/>
+  <text x="780" y="446" class="body">通信只发生在切分边界；与 DP 组合后，同位置 stage 才组成梯度同步组</text>
+</svg>

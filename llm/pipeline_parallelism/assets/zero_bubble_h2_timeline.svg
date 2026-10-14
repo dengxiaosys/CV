@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="520" viewBox="0 0 1500 520">
+  <defs>
+    <style>
+      .title { font: 700 24px Inter, "Noto Sans CJK SC", sans-serif; fill: #172033; }
+      .stage { font: 700 16px Inter, "Noto Sans CJK SC", sans-serif; fill: #172033; }
+      .note { font: 500 15px Inter, "Noto Sans CJK SC", sans-serif; fill: #475467; }
+      .legend { font: 600 14px Inter, "Noto Sans CJK SC", sans-serif; fill: #344054; }
+      .action text { fill: #ffffff; font: 700 13px Inter, sans-serif; text-anchor: middle; }
+      .f rect { fill: #2563eb; stroke: #1d4ed8; }
+      .b rect { fill: #dc2626; stroke: #b91c1c; }
+      .w rect { fill: #d97706; stroke: #b45309; }
+      .next rect { fill: #60a5fa; stroke: #2563eb; }
+      .update rect { fill: #ecfdf3; stroke: #16a34a; }
+      .update text { fill: #166534; }
+    </style>
+    <g id="af" class="action f"><rect x="3" width="34" height="42" rx="4"/><text x="20" y="26">F</text></g>
+    <g id="ab" class="action b"><rect x="3" width="34" height="42" rx="4"/><text x="20" y="26">B</text></g>
+    <g id="aw" class="action w"><rect x="3" width="34" height="42" rx="4"/><text x="20" y="26">W</text></g>
+    <g id="an" class="action next"><rect x="3" width="34" height="42" rx="4"/><text x="20" y="26">F′</text></g>
+    <g id="au" class="action update"><rect x="3" width="74" height="42" rx="4"/><text x="40" y="26">Update</text></g>
+  </defs>
+
+  <rect width="1500" height="520" fill="#ffffff"/>
+  <text x="60" y="42" class="title">ZB-H2：用更长 warmup 换取无空槽的跨 step 平行四边形</text>
+  <text x="60" y="70" class="note">示意 P=4、M=8、T_F=T_B=T_W；F′ 表示下一训练步的 forward。</text>
+
+  <g transform="translate(150,92)">
+    <g fill="#f1f5f9" stroke="#d0d5dd">
+      <rect x="0" y="45" width="1200" height="42"/>
+      <rect x="0" y="103" width="1200" height="42"/>
+      <rect x="0" y="161" width="1200" height="42"/>
+      <rect x="0" y="219" width="1200" height="42"/>
+      <path d="M40 45V261 M80 45V261 M120 45V261 M160 45V261 M200 45V261 M240 45V261 M280 45V261 M320 45V261 M360 45V261 M400 45V261 M440 45V261 M480 45V261 M520 45V261 M560 45V261 M600 45V261 M640 45V261 M680 45V261 M720 45V261 M760 45V261 M800 45V261 M840 45V261 M880 45V261 M920 45V261 M960 45V261 M1000 45V261 M1040 45V261 M1080 45V261 M1120 45V261 M1160 45V261"/>
+    </g>
+
+    <g class="stage" text-anchor="end">
+      <text x="-18" y="72">Stage 0</text>
+      <text x="-18" y="130">Stage 1</text>
+      <text x="-18" y="188">Stage 2</text>
+      <text x="-18" y="246">Stage 3</text>
+    </g>
+
+    <g>
+      <use href="#af" x="0" y="45"/><use href="#af" x="40" y="45"/><use href="#af" x="80" y="45"/><use href="#af" x="120" y="45"/><use href="#af" x="160" y="45"/><use href="#af" x="200" y="45"/><use href="#af" x="240" y="45"/><use href="#af" x="360" y="45"/>
+      <use href="#ab" x="280" y="45"/><use href="#ab" x="400" y="45"/><use href="#ab" x="480" y="45"/><use href="#ab" x="560" y="45"/><use href="#ab" x="640" y="45"/><use href="#ab" x="720" y="45"/><use href="#ab" x="800" y="45"/><use href="#ab" x="880" y="45"/>
+      <use href="#aw" x="320" y="45"/><use href="#aw" x="440" y="45"/><use href="#aw" x="520" y="45"/><use href="#aw" x="600" y="45"/><use href="#aw" x="680" y="45"/><use href="#aw" x="760" y="45"/><use href="#aw" x="840" y="45"/><use href="#aw" x="920" y="45"/>
+      <use href="#au" x="960" y="45"/><use href="#an" x="1040" y="45"/><use href="#an" x="1080" y="45"/><use href="#an" x="1120" y="45"/><use href="#an" x="1160" y="45"/>
+
+      <use href="#af" x="40" y="103"/><use href="#af" x="80" y="103"/><use href="#af" x="120" y="103"/><use href="#af" x="160" y="103"/><use href="#af" x="200" y="103"/><use href="#af" x="280" y="103"/><use href="#af" x="360" y="103"/><use href="#af" x="480" y="103"/>
+      <use href="#ab" x="240" y="103"/><use href="#ab" x="320" y="103"/><use href="#ab" x="400" y="103"/><use href="#ab" x="520" y="103"/><use href="#ab" x="600" y="103"/><use href="#ab" x="680" y="103"/><use href="#ab" x="760" y="103"/><use href="#ab" x="840" y="103"/>
+      <use href="#aw" x="440" y="103"/><use href="#aw" x="560" y="103"/><use href="#aw" x="640" y="103"/><use href="#aw" x="720" y="103"/><use href="#aw" x="800" y="103"/><use href="#aw" x="880" y="103"/><use href="#aw" x="920" y="103"/><use href="#aw" x="960" y="103"/>
+      <use href="#au" x="1000" y="103"/><use href="#an" x="1080" y="103"/><use href="#an" x="1120" y="103"/><use href="#an" x="1160" y="103"/>
+
+      <use href="#af" x="80" y="161"/><use href="#af" x="120" y="161"/><use href="#af" x="160" y="161"/><use href="#af" x="240" y="161"/><use href="#af" x="320" y="161"/><use href="#af" x="400" y="161"/><use href="#af" x="480" y="161"/><use href="#af" x="600" y="161"/>
+      <use href="#ab" x="200" y="161"/><use href="#ab" x="280" y="161"/><use href="#ab" x="360" y="161"/><use href="#ab" x="440" y="161"/><use href="#ab" x="520" y="161"/><use href="#ab" x="640" y="161"/><use href="#ab" x="720" y="161"/><use href="#ab" x="800" y="161"/>
+      <use href="#aw" x="560" y="161"/><use href="#aw" x="680" y="161"/><use href="#aw" x="760" y="161"/><use href="#aw" x="840" y="161"/><use href="#aw" x="880" y="161"/><use href="#aw" x="920" y="161"/><use href="#aw" x="960" y="161"/><use href="#aw" x="1000" y="161"/>
+      <use href="#au" x="1040" y="161"/><use href="#an" x="1120" y="161"/><use href="#an" x="1160" y="161"/>
+
+      <use href="#af" x="120" y="219"/><use href="#af" x="200" y="219"/><use href="#af" x="280" y="219"/><use href="#af" x="360" y="219"/><use href="#af" x="440" y="219"/><use href="#af" x="520" y="219"/><use href="#af" x="600" y="219"/><use href="#af" x="720" y="219"/>
+      <use href="#ab" x="160" y="219"/><use href="#ab" x="240" y="219"/><use href="#ab" x="320" y="219"/><use href="#ab" x="400" y="219"/><use href="#ab" x="480" y="219"/><use href="#ab" x="560" y="219"/><use href="#ab" x="640" y="219"/><use href="#ab" x="760" y="219"/>
+      <use href="#aw" x="680" y="219"/><use href="#aw" x="800" y="219"/><use href="#aw" x="840" y="219"/><use href="#aw" x="880" y="219"/><use href="#aw" x="920" y="219"/><use href="#aw" x="960" y="219"/><use href="#aw" x="1000" y="219"/><use href="#aw" x="1040" y="219"/>
+      <use href="#au" x="1080" y="219"/><use href="#an" x="1160" y="219"/>
+    </g>
+
+    <text x="600" y="300" text-anchor="middle" class="legend">每个 stage 在进入稳态后连续执行 action；下一训练步紧随各自的 Update 启动</text>
+  </g>
+
+  <g transform="translate(150,430)">
+    <rect x="0" y="0" width="22" height="22" rx="4" fill="#2563eb"/><text x="34" y="17" class="legend">F</text>
+    <rect x="80" y="0" width="22" height="22" rx="4" fill="#dc2626"/><text x="114" y="17" class="legend">B / dgrad</text>
+    <rect x="230" y="0" width="22" height="22" rx="4" fill="#d97706"/><text x="264" y="17" class="legend">W / wgrad</text>
+    <rect x="390" y="0" width="42" height="22" rx="4" fill="#ecfdf3" stroke="#16a34a"/><text x="444" y="17" class="legend">Update</text>
+    <rect x="555" y="0" width="22" height="22" rx="4" fill="#60a5fa" stroke="#2563eb"/><text x="589" y="17" class="legend">F′：下一训练步</text>
+  </g>
+
+  <text x="150" y="486" class="note">峰值 activation：(2P−1) · M_B。零 bubble 依赖跨 step 重叠和 post-update validation；孤立训练步的启动与排空仍有边界。</text>
+</svg>

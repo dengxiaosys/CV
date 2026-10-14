@@ -22,10 +22,12 @@
 
 | 主题 | 内容 |
 |---|---|
+| [LLM 推理引擎](./llm/inference_engine/inference_engine.md) | 请求状态机、prefill/decode 调度、Paged KV Cache、prefix caching、CUDA Graph、张量并行与性能建模 |
 | [Speculative Decoding](./llm/speculative_decoding/speculative_decoding.md) | Draft/target 条件分布、接受率、residual distribution、KV Cache 事务语义与服务化权衡 |
 | [Context Parallelism](./llm/context_parallel/context_parallel.md) | Ring Attention、分布式 KV Cache、百万 token 精确 prefill、负载均衡与通信复杂度 |
 | [Expert Parallelism](./llm/expert_parallelism/expert_parallelism.md) | 稀疏 MoE 路由、dispatch/combine、All-to-All、负载均衡及 prefill/decode 部署差异 |
 | [ZeRO 与 FSDP](./llm/fsdp/fsdp.md) | 参数、梯度和 optimizer state 的分片所有权、通信时序、内存模型与 overlap |
+| [Pipeline Parallelism](./llm/pipeline_parallelism/pipeline_parallelism.md) | GPipe、microbatch、bubble、跨进程 autograd、1F1B 与多维并行组合 |
 | [Megatron-LM](./llm/megatron/megatron.md) | Transformer 层内张量并行、通信边界与多维并行基础 |
 | [Byte-Level BPE](./llm/tokenization/byte_level_bpe.md) | UTF-8 字节、可逆子词词表、训练与编码算法、复杂度及可并行性 |
 

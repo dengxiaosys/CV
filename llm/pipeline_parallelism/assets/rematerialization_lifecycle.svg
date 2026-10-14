@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="600" viewBox="0 0 1400 600">
+  <defs>
+    <style>
+      .title { font: 700 24px Inter, "Noto Sans CJK SC", sans-serif; fill: #172033; }
+      .heading { font: 700 20px Inter, "Noto Sans CJK SC", sans-serif; fill: #172033; }
+      .body { font: 500 16px Inter, "Noto Sans CJK SC", sans-serif; fill: #344054; }
+      .small { font: 500 14px Inter, "Noto Sans CJK SC", sans-serif; fill: #475467; }
+      .node { font: 700 15px Inter, "Noto Sans CJK SC", sans-serif; fill: #ffffff; }
+      .remat { font: 700 12px Inter, "Noto Sans CJK SC", sans-serif; fill: #ffffff; }
+    </style>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 z" fill="#64748b"/>
+    </marker>
+  </defs>
+  <rect width="1400" height="600" fill="#ffffff"/>
+  <text x="60" y="44" class="title">Activation rematerialization：用一次局部 forward 重执行换取更低峰值 HBM</text>
+
+  <rect x="55" y="78" width="625" height="454" rx="8" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+  <text x="367" y="116" text-anchor="middle" class="heading">不使用 rematerialization：保存全部 activation</text>
+  <text x="367" y="145" text-anchor="middle" class="small">每个尚未 backward 的 microbatch 都保留完整局部计算图</text>
+
+  <g>
+    <rect x="100" y="196" width="90" height="58" rx="7" fill="#2563eb"/><text x="145" y="231" text-anchor="middle" class="node">Layer 1</text>
+    <rect x="230" y="196" width="90" height="58" rx="7" fill="#2563eb"/><text x="275" y="231" text-anchor="middle" class="node">Layer 2</text>
+    <rect x="360" y="196" width="90" height="58" rx="7" fill="#2563eb"/><text x="405" y="231" text-anchor="middle" class="node">Layer 3</text>
+    <rect x="490" y="196" width="90" height="58" rx="7" fill="#2563eb"/><text x="535" y="231" text-anchor="middle" class="node">Layer 4</text>
+    <g stroke="#64748b" stroke-width="2.5" fill="none" marker-end="url(#arrow)">
+      <line x1="190" y1="225" x2="222" y2="225"/><line x1="320" y1="225" x2="352" y2="225"/><line x1="450" y1="225" x2="482" y2="225"/>
+    </g>
+  </g>
+  <g fill="#fed7aa" stroke="#fb923c">
+    <rect x="103" y="275" width="84" height="30" rx="4"/><rect x="233" y="275" width="84" height="30" rx="4"/>
+    <rect x="363" y="275" width="84" height="30" rx="4"/><rect x="493" y="275" width="84" height="30" rx="4"/>
+    <rect x="103" y="312" width="84" height="30" rx="4"/><rect x="233" y="312" width="84" height="30" rx="4"/>
+    <rect x="363" y="312" width="84" height="30" rx="4"/><rect x="493" y="312" width="84" height="30" rx="4"/>
+    <rect x="103" y="349" width="84" height="30" rx="4"/><rect x="233" y="349" width="84" height="30" rx="4"/>
+    <rect x="363" y="349" width="84" height="30" rx="4"/><rect x="493" y="349" width="84" height="30" rx="4"/>
+  </g>
+  <g class="small" text-anchor="end">
+    <text x="92" y="296">m0</text><text x="92" y="333">m1</text><text x="92" y="370">m2, ...</text>
+  </g>
+  <text x="340" y="414" text-anchor="middle" class="body">保存量随“局部层数 × 未完成 microbatch activation”增长</text>
+  <rect x="105" y="447" width="500" height="34" rx="5" fill="#ea580c"/>
+  <text x="355" y="470" text-anchor="middle" class="node">高峰值 activation storage</text>
+
+  <rect x="720" y="78" width="625" height="454" rx="8" fill="#ecfdf3" stroke="#16a34a" stroke-width="2"/>
+  <text x="1032" y="116" text-anchor="middle" class="heading">GPipe rematerialization：只长期保存分区边界</text>
+  <text x="1032" y="145" text-anchor="middle" class="small">某个 microbatch backward 到来时，重新执行 stage 内 forward</text>
+
+  <g>
+    <rect x="760" y="196" width="96" height="58" rx="7" fill="#64748b"/><text x="808" y="221" text-anchor="middle" class="node">Boundary</text><text x="808" y="242" text-anchor="middle" class="node">input</text>
+    <rect x="894" y="196" width="90" height="58" rx="7" fill="#16a34a"/><text x="939" y="231" text-anchor="middle" class="remat">Rematerialize</text>
+    <rect x="1022" y="196" width="90" height="58" rx="7" fill="#16a34a"/><text x="1067" y="231" text-anchor="middle" class="remat">Rematerialize</text>
+    <rect x="1150" y="196" width="150" height="58" rx="7" fill="#64748b"/><text x="1225" y="221" text-anchor="middle" class="node">Boundary output</text><text x="1225" y="242" text-anchor="middle" class="node">/ upstream grad</text>
+    <g stroke="#64748b" stroke-width="2.5" fill="none" marker-end="url(#arrow)">
+      <line x1="856" y1="225" x2="886" y2="225"/><line x1="984" y1="225" x2="1014" y2="225"/><line x1="1112" y1="225" x2="1142" y2="225"/>
+    </g>
+  </g>
+
+  <g>
+    <text x="768" y="294" class="small">长期保存的边界 checkpoint</text>
+    <rect x="768" y="309" width="500" height="28" rx="4" fill="#bbf7d0" stroke="#22c55e"/>
+    <rect x="768" y="346" width="500" height="28" rx="4" fill="#bbf7d0" stroke="#22c55e"/>
+    <rect x="768" y="383" width="500" height="28" rx="4" fill="#bbf7d0" stroke="#22c55e"/>
+    <text x="1280" y="329" class="small">m0</text><text x="1280" y="366" class="small">m1</text><text x="1280" y="403" class="small">m2, ...</text>
+  </g>
+  <text x="1032" y="444" text-anchor="middle" class="body">内部 activation 只在当前 backward 窗口临时存在，使用后立即释放</text>
+  <rect x="870" y="465" width="324" height="34" rx="5" fill="#16a34a"/>
+  <text x="1032" y="488" text-anchor="middle" class="node">较低 HBM 峰值 + 额外 forward FLOPs</text>
+
+  <text x="700" y="572" text-anchor="middle" class="body">Rematerialization 改变 activation 保存策略，不改变 GPipe 的同步 gradient 语义；是否值得取决于 HBM 压力与可用算力。</text>
+</svg>
