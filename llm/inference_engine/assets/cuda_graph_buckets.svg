@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="820" viewBox="0 0 1600 820" role="img" aria-labelledby="title desc">
+  <title id="title">Decode 阶段的 CUDA Graph 分桶与重放</title>
+  <desc id="desc">初始化时为一组 batch size 分桶捕获固定图；运行时选择不小于真实 batch 的最小桶，将输入复制到固定地址并用哨兵填充空槽后 replay。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+    </marker>
+    <marker id="purple-arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#7c3aed"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="820" fill="#ffffff"/>
+  <g font-family="'Source Han Sans SC', Arial, sans-serif" fill="#0f172a">
+    <text x="64" y="62" font-size="32" font-weight="700">CUDA Graph：用固定形状分桶承接动态 decode batch</text>
+    <text x="64" y="100" font-size="18" fill="#475569">图捕获把重复 kernel 提交的 CPU 开销前移；代价是固定地址、固定拓扑与 padding 计算。</text>
+
+    <g transform="translate(64 146)">
+      <rect x="0" y="0" width="1472" height="214" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+      <text x="28" y="42" font-size="22" font-weight="700">初始化：预热并捕获一组 batch-size buckets</text>
+      <text x="28" y="70" font-size="14" fill="#64748b">nano-vLLM 使用 1、2、4、8，然后每 16 递增直到 512；每个 bucket 共享 graph memory pool。</text>
+
+      <g transform="translate(32 102)" font-size="16" font-weight="700">
+        <rect x="0" y="0" width="82" height="64" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="41" y="39" text-anchor="middle">1</text>
+        <rect x="96" y="0" width="82" height="64" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="137" y="39" text-anchor="middle">2</text>
+        <rect x="192" y="0" width="82" height="64" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="233" y="39" text-anchor="middle">4</text>
+        <rect x="288" y="0" width="82" height="64" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="329" y="39" text-anchor="middle">8</text>
+        <rect x="384" y="0" width="82" height="64" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="425" y="39" text-anchor="middle">16</text>
+        <rect x="480" y="0" width="82" height="64" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="521" y="39" text-anchor="middle">32</text>
+        <rect x="576" y="0" width="82" height="64" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="617" y="39" text-anchor="middle">48</text>
+        <text x="700" y="39" text-anchor="middle" font-size="22" fill="#64748b">…</text>
+        <rect x="740" y="0" width="82" height="64" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="781" y="39" text-anchor="middle">512</text>
+
+        <rect x="866" y="0" width="540" height="64" rx="6" fill="#ffffff" stroke="#64748b"/>
+        <text x="1136" y="27" text-anchor="middle" font-size="15">固定 buffers：input IDs、positions、slot mapping、</text>
+        <text x="1136" y="49" text-anchor="middle" font-size="15">context lengths、block tables、outputs</text>
+      </g>
+    </g>
+
+    <g transform="translate(64 398)">
+      <rect x="0" y="0" width="1472" height="318" rx="8" fill="#faf5ff" stroke="#c4b5fd" stroke-width="2"/>
+      <text x="28" y="42" font-size="22" font-weight="700" fill="#6b21a8">运行时示例：真实 batch size = 13，选择 bucket = 16</text>
+
+      <g transform="translate(34 84)">
+        <rect x="0" y="0" width="298" height="172" rx="8" fill="#ffffff" stroke="#64748b"/>
+        <text x="149" y="34" text-anchor="middle" font-size="18" font-weight="700">动态调度结果</text>
+        <text x="24" y="70" font-size="15">13 条 running sequences</text>
+        <text x="24" y="100" font-size="15">每条 1 个 input token</text>
+        <text x="24" y="130" font-size="15">block table 宽度随上下文变化</text>
+        <text x="24" y="158" font-size="14" fill="#475569">不能直接改变已捕获图的形状</text>
+      </g>
+
+      <line x1="342" y1="170" x2="416" y2="170" stroke="#7c3aed" stroke-width="3" marker-end="url(#purple-arrow)"/>
+
+      <g transform="translate(426 84)">
+        <rect x="0" y="0" width="486" height="172" rx="8" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="243" y="34" text-anchor="middle" font-size="18" font-weight="700">复制到固定地址并填充</text>
+        <g transform="translate(22 58)">
+          <rect x="0" y="0" width="27" height="42" fill="#7c3aed"/>
+          <rect x="31" y="0" width="27" height="42" fill="#7c3aed"/>
+          <rect x="62" y="0" width="27" height="42" fill="#7c3aed"/>
+          <rect x="93" y="0" width="27" height="42" fill="#7c3aed"/>
+          <rect x="124" y="0" width="27" height="42" fill="#7c3aed"/>
+          <rect x="155" y="0" width="27" height="42" fill="#7c3aed"/>
+          <rect x="186" y="0" width="27" height="42" fill="#7c3aed"/>
+          <rect x="217" y="0" width="27" height="42" fill="#7c3aed"/>
+          <rect x="248" y="0" width="27" height="42" fill="#7c3aed"/>
+          <rect x="279" y="0" width="27" height="42" fill="#7c3aed"/>
+          <rect x="310" y="0" width="27" height="42" fill="#7c3aed"/>
+          <rect x="341" y="0" width="27" height="42" fill="#7c3aed"/>
+          <rect x="372" y="0" width="27" height="42" fill="#7c3aed"/>
+          <rect x="403" y="0" width="27" height="42" fill="#f1f5f9" stroke="#94a3b8"/>
+          <rect x="434" y="0" width="27" height="42" fill="#f1f5f9" stroke="#94a3b8"/>
+          <rect x="465" y="0" width="27" height="42" fill="#f1f5f9" stroke="#94a3b8"/>
+        </g>
+        <text x="219" y="130" text-anchor="middle" font-size="14" fill="#6b21a8">13 个真实槽位</text>
+        <text x="420" y="130" text-anchor="middle" font-size="14" fill="#475569">3 个 padding</text>
+        <text x="243" y="156" text-anchor="middle" font-size="13">空槽 slot_mapping = -1，输出在 replay 后丢弃</text>
+      </g>
+
+      <line x1="922" y1="170" x2="996" y2="170" stroke="#7c3aed" stroke-width="3" marker-end="url(#purple-arrow)"/>
+
+      <g transform="translate(1006 84)">
+        <rect x="0" y="0" width="398" height="172" rx="8" fill="#dcfce7" stroke="#16a34a"/>
+        <text x="199" y="34" text-anchor="middle" font-size="18" font-weight="700">graph.replay()</text>
+        <text x="24" y="70" font-size="15">一次提交整条固定 GPU 工作流</text>
+        <text x="24" y="100" font-size="15">减少逐 kernel 的 host launch 开销</text>
+        <text x="24" y="130" font-size="15">只取 outputs[:13]</text>
+        <text x="24" y="158" font-size="14" fill="#166534">适合短而重复的 decode iteration</text>
+      </g>
+    </g>
+
+    <g transform="translate(64 750)">
+      <rect x="0" y="0" width="464" height="44" rx="6" fill="#f0fdf4" stroke="#86efac"/>
+      <text x="232" y="28" text-anchor="middle" font-size="15" fill="#166534">收益：摊薄 CPU/driver launch overhead</text>
+      <rect x="504" y="0" width="464" height="44" rx="6" fill="#fff7ed" stroke="#fb923c"/>
+      <text x="736" y="28" text-anchor="middle" font-size="15" fill="#9a3412">代价：多 bucket 捕获占用额外 HBM</text>
+      <rect x="1008" y="0" width="464" height="44" rx="6" fill="#fee2e2" stroke="#dc2626"/>
+      <text x="1240" y="28" text-anchor="middle" font-size="15" fill="#b91c1c">边界：动态控制流、地址和形状受约束</text>
+    </g>
+  </g>
+</svg>

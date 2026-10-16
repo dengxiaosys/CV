@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="920" viewBox="0 0 1600 920" role="img" aria-labelledby="title desc">
+  <title id="title">Transformer 层的张量并行切分与通信边界</title>
+  <desc id="desc">QKV 和 Gate Up 投影采用输出维切分，各 rank 独立计算；O 和 Down 投影采用输入维切分并通过 All-Reduce 合并部分和。Embedding 通过掩码和 All-Reduce 合并，LM head 在 rank 0 汇集 logits。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+    </marker>
+    <marker id="green-arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#16a34a"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="920" fill="#ffffff"/>
+  <g font-family="'Source Han Sans SC', Arial, sans-serif" fill="#0f172a">
+    <text x="64" y="62" font-size="32" font-weight="700">张量并行：把宽度维计算分给多个 rank，在归并边界通信</text>
+    <text x="64" y="100" font-size="18" fill="#475569">列向量记法下，先按 W 的输出行切分，再按输入列切分；两个局部算子之间无需立即收集完整中间激活。</text>
+
+    <g transform="translate(64 146)">
+      <rect x="0" y="0" width="1472" height="160" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+      <text x="28" y="40" font-size="21" font-weight="700">基本代数</text>
+
+      <g transform="translate(28 68)">
+        <rect x="0" y="0" width="670" height="64" rx="8" fill="#dbeafe" stroke="#2563eb"/>
+        <text x="335" y="27" text-anchor="middle" font-size="17" font-weight="700">Column Parallel：W = stack_rows(W0, ..., W[P-1])</text>
+        <text x="335" y="52" text-anchor="middle" font-size="15" fill="#1d4ed8">rank r 计算 y_r = W_r x；输出特征天然分片，无 collective</text>
+
+        <rect x="718" y="0" width="698" height="64" rx="8" fill="#dcfce7" stroke="#16a34a"/>
+        <text x="1067" y="27" text-anchor="middle" font-size="17" font-weight="700">Row Parallel：W = concat_cols(W0, ..., W[P-1])，x 同维切分</text>
+        <text x="1067" y="52" text-anchor="middle" font-size="15" fill="#166534">rank r 计算 partial_y_r = W_r x_r；All-Reduce 后得到完整 y</text>
+      </g>
+    </g>
+
+    <g transform="translate(64 342)">
+      <rect x="0" y="0" width="1472" height="424" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+      <text x="28" y="42" font-size="22" font-weight="700">一个 Transformer block 的两条并行子路径</text>
+
+      <g transform="translate(32 82)">
+        <text x="0" y="26" font-size="19" font-weight="700" fill="#6b21a8">Attention</text>
+        <rect x="126" y="0" width="250" height="64" rx="8" fill="#dbeafe" stroke="#2563eb"/>
+        <text x="251" y="27" text-anchor="middle" font-size="17" font-weight="700">QKVParallelLinear</text>
+        <text x="251" y="51" text-anchor="middle" font-size="14" fill="#1d4ed8">按 Q/K/V head 切分</text>
+        <line x1="384" y1="32" x2="464" y2="32" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+        <rect x="472" y="0" width="250" height="64" rx="8" fill="#cffafe" stroke="#0891b2"/>
+        <text x="597" y="27" text-anchor="middle" font-size="17" font-weight="700">Local Attention</text>
+        <text x="597" y="51" text-anchor="middle" font-size="14" fill="#0e7490">本 rank 的 Q heads 与 KV heads</text>
+        <line x1="730" y1="32" x2="810" y2="32" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+        <rect x="818" y="0" width="250" height="64" rx="8" fill="#dcfce7" stroke="#16a34a"/>
+        <text x="943" y="27" text-anchor="middle" font-size="17" font-weight="700">RowParallel O</text>
+        <text x="943" y="51" text-anchor="middle" font-size="14" fill="#166534">局部输出投影</text>
+        <line x1="1076" y1="32" x2="1156" y2="32" stroke="#16a34a" stroke-width="3" marker-end="url(#green-arrow)"/>
+
+        <rect x="1164" y="0" width="240" height="64" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+        <text x="1284" y="27" text-anchor="middle" font-size="17" font-weight="700">All-Reduce</text>
+        <text x="1284" y="51" text-anchor="middle" font-size="14" fill="#166534">恢复完整 hidden state</text>
+      </g>
+
+      <g transform="translate(32 188)">
+        <text x="0" y="26" font-size="19" font-weight="700" fill="#9a3412">MLP</text>
+        <rect x="126" y="0" width="250" height="64" rx="8" fill="#dbeafe" stroke="#2563eb"/>
+        <text x="251" y="27" text-anchor="middle" font-size="17" font-weight="700">MergedColumn Gate+Up</text>
+        <text x="251" y="51" text-anchor="middle" font-size="14" fill="#1d4ed8">中间维输出切分</text>
+        <line x1="384" y1="32" x2="464" y2="32" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+        <rect x="472" y="0" width="250" height="64" rx="8" fill="#fef3c7" stroke="#d97706"/>
+        <text x="597" y="27" text-anchor="middle" font-size="17" font-weight="700">Local SwiGLU</text>
+        <text x="597" y="51" text-anchor="middle" font-size="14" fill="#92400e">逐元素，无通信</text>
+        <line x1="730" y1="32" x2="810" y2="32" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+        <rect x="818" y="0" width="250" height="64" rx="8" fill="#dcfce7" stroke="#16a34a"/>
+        <text x="943" y="27" text-anchor="middle" font-size="17" font-weight="700">RowParallel Down</text>
+        <text x="943" y="51" text-anchor="middle" font-size="14" fill="#166534">局部降维投影</text>
+        <line x1="1076" y1="32" x2="1156" y2="32" stroke="#16a34a" stroke-width="3" marker-end="url(#green-arrow)"/>
+
+        <rect x="1164" y="0" width="240" height="64" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+        <text x="1284" y="27" text-anchor="middle" font-size="17" font-weight="700">All-Reduce</text>
+        <text x="1284" y="51" text-anchor="middle" font-size="14" fill="#166534">恢复完整 hidden state</text>
+      </g>
+
+      <g transform="translate(32 300)">
+        <rect x="0" y="0" width="420" height="78" rx="8" fill="#eff6ff" stroke="#60a5fa"/>
+        <text x="210" y="30" text-anchor="middle" font-size="16" font-weight="700" fill="#1e40af">VocabParallelEmbedding</text>
+        <text x="210" y="57" text-anchor="middle" font-size="14" fill="#1d4ed8">词表按行切分；mask 局部查表后 All-Reduce</text>
+
+        <rect x="488" y="0" width="420" height="78" rx="8" fill="#fff7ed" stroke="#fb923c"/>
+        <text x="698" y="30" text-anchor="middle" font-size="16" font-weight="700" fill="#9a3412">KV Cache Sharding</text>
+        <text x="698" y="57" text-anchor="middle" font-size="14" fill="#92400e">每个 rank 只存本地 KV heads，容量近似缩小为 1/P</text>
+
+        <rect x="944" y="0" width="460" height="78" rx="8" fill="#faf5ff" stroke="#c4b5fd"/>
+        <text x="1174" y="30" text-anchor="middle" font-size="16" font-weight="700" fill="#6b21a8">Parallel LM Head</text>
+        <text x="1174" y="57" text-anchor="middle" font-size="14" fill="#7e22ce">各 rank 产生 vocab shard；gather 到 rank 0 后采样</text>
+      </g>
+    </g>
+
+    <g transform="translate(64 800)">
+      <rect x="0" y="0" width="720" height="76" rx="8" fill="#f1f5f9" stroke="#94a3b8"/>
+      <text x="360" y="30" text-anchor="middle" font-size="16" font-weight="700">PyTorch 实际布局</text>
+      <text x="360" y="56" text-anchor="middle" font-size="14" fill="#475569">特征在最后一维，F.linear 实现为 x @ W^T；与列向量数学记法 y = Wx 等价。</text>
+      <rect x="752" y="0" width="720" height="76" rx="8" fill="#fee2e2" stroke="#dc2626"/>
+      <text x="1112" y="30" text-anchor="middle" font-size="16" font-weight="700" fill="#b91c1c">扩展上限</text>
+      <text x="1112" y="56" text-anchor="middle" font-size="14" fill="#b91c1c">TP 增大后每 rank 计算减少，但每层 collective 延迟、链路竞争与小矩阵效率会限制收益。</text>
+    </g>
+  </g>
+</svg>

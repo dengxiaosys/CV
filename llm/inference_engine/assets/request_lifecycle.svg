@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="850" viewBox="0 0 1600 850" role="img" aria-labelledby="title desc">
+  <title id="title">nano-vLLM 请求状态机与调度时序</title>
+  <desc id="desc">请求从 waiting 状态经 prefill 进入 running，随后每个 decode step 生成一个 token；完成后释放 KV block，HBM 中的空闲 block 不足时则释放全部 block 并回到 waiting 重算。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+    </marker>
+    <marker id="red-arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#dc2626"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="850" fill="#ffffff"/>
+  <g font-family="'Source Han Sans SC', Arial, sans-serif" fill="#0f172a">
+    <text x="64" y="62" font-size="32" font-weight="700">请求状态机：调度决策同时受计算预算与 KV block 预算约束</text>
+    <text x="64" y="100" font-size="18" fill="#475569">nano-vLLM 的一个 step 只执行 prefill 或 decode；抢占采用 recompute，释放整条序列的 KV Cache。</text>
+
+    <g transform="translate(64 150)">
+      <rect x="0" y="0" width="1472" height="330" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+      <text x="28" y="42" font-size="22" font-weight="700">单请求生命周期</text>
+
+      <g transform="translate(48 92)">
+        <rect x="0" y="0" width="230" height="128" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+        <text x="115" y="42" text-anchor="middle" font-size="21" font-weight="700">WAITING</text>
+        <text x="115" y="76" text-anchor="middle" font-size="15">等待 prompt 计算</text>
+        <text x="115" y="104" text-anchor="middle" font-size="14" fill="#1d4ed8">位于 waiting deque</text>
+      </g>
+
+      <line x1="286" y1="156" x2="426" y2="156" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+      <text x="356" y="134" text-anchor="middle" font-size="15" font-weight="700">预算允许</text>
+      <text x="356" y="184" text-anchor="middle" font-size="13" fill="#475569">allocate blocks</text>
+
+      <g transform="translate(434 92)">
+        <rect x="0" y="0" width="230" height="128" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+        <text x="115" y="42" text-anchor="middle" font-size="21" font-weight="700">PREFILL</text>
+        <text x="115" y="76" text-anchor="middle" font-size="15">计算未缓存 prompt</text>
+        <text x="115" y="104" text-anchor="middle" font-size="14" fill="#92400e">同时写入 K/V</text>
+      </g>
+
+      <line x1="672" y1="156" x2="812" y2="156" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+      <text x="742" y="134" text-anchor="middle" font-size="15" font-weight="700">采样首 token</text>
+
+      <g transform="translate(820 92)">
+        <rect x="0" y="0" width="230" height="128" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+        <text x="115" y="42" text-anchor="middle" font-size="21" font-weight="700">RUNNING</text>
+        <text x="115" y="76" text-anchor="middle" font-size="15">每轮 decode 一个 token</text>
+        <text x="115" y="104" text-anchor="middle" font-size="14" fill="#6b21a8">位于 running deque</text>
+      </g>
+
+      <path d="M935 92 C935 34, 1114 34, 1114 92" fill="none" stroke="#7c3aed" stroke-width="3" marker-end="url(#arrow)"/>
+      <text x="1024" y="44" text-anchor="middle" font-size="15" font-weight="700" fill="#6b21a8">append token；未结束则继续</text>
+
+      <line x1="1058" y1="156" x2="1198" y2="156" stroke="#16a34a" stroke-width="3" marker-end="url(#arrow)"/>
+      <text x="1128" y="134" text-anchor="middle" font-size="15" font-weight="700" fill="#166534">EOS / max tokens</text>
+
+      <g transform="translate(1206 92)">
+        <rect x="0" y="0" width="218" height="128" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+        <text x="109" y="42" text-anchor="middle" font-size="21" font-weight="700">FINISHED</text>
+        <text x="109" y="76" text-anchor="middle" font-size="15">返回 completion</text>
+        <text x="109" y="104" text-anchor="middle" font-size="14" fill="#166534">deallocate blocks</text>
+      </g>
+
+      <path d="M935 220 C935 318, 163 318, 163 228" fill="none" stroke="#dc2626" stroke-width="3" marker-end="url(#red-arrow)"/>
+      <rect x="220" y="250" width="656" height="38" rx="6" fill="#f8fafc"/>
+      <text x="548" y="275" text-anchor="middle" font-size="14" font-weight="700" fill="#b91c1c">HBM 无空闲 block：释放全部 KV → 回到 waiting → 重算（TP 路径需补全 token 序列化）</text>
+    </g>
+
+    <g transform="translate(64 520)">
+      <rect x="0" y="0" width="1472" height="264" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+      <text x="28" y="42" font-size="22" font-weight="700">step 级选择：两种批次不混合</text>
+
+      <g transform="translate(34 76)">
+        <rect x="0" y="0" width="410" height="146" rx="8" fill="#eff6ff" stroke="#60a5fa"/>
+        <text x="205" y="34" text-anchor="middle" font-size="19" font-weight="700" fill="#1e40af">阶段 A：先尝试 waiting / prefill</text>
+        <text x="24" y="68" font-size="15">1. 从队头按 FCFS 取请求</text>
+        <text x="24" y="96" font-size="15">2. 检查 sequence 数、token 数、free blocks</text>
+        <text x="24" y="124" font-size="15">3. 只要选中一个 prefill，请求批立即返回</text>
+      </g>
+
+      <line x1="454" y1="149" x2="524" y2="149" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+      <text x="489" y="129" text-anchor="middle" font-size="13" fill="#475569">若一个也未选中</text>
+
+      <g transform="translate(532 76)">
+        <rect x="0" y="0" width="410" height="146" rx="8" fill="#faf5ff" stroke="#c4b5fd"/>
+        <text x="205" y="34" text-anchor="middle" font-size="19" font-weight="700" fill="#6b21a8">阶段 B：再调度 running / decode</text>
+        <text x="24" y="68" font-size="15">1. 每条序列输入最后一个 token</text>
+        <text x="24" y="96" font-size="15">2. 跨 block 边界时申请一个新 block</text>
+        <text x="24" y="124" font-size="15">3. 资源不足则从 running 队尾开始抢占</text>
+      </g>
+
+      <line x1="952" y1="149" x2="1022" y2="149" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
+
+      <g transform="translate(1030 76)">
+        <rect x="0" y="0" width="408" height="146" rx="8" fill="#f0fdf4" stroke="#86efac"/>
+        <text x="204" y="34" text-anchor="middle" font-size="19" font-weight="700" fill="#166534">执行与回填</text>
+        <text x="24" y="68" font-size="15">ModelRunner.run(batch, mode)</text>
+        <text x="24" y="96" font-size="15">采样 next token，更新 Sequence</text>
+        <text x="24" y="124" font-size="15">完成请求释放 block；下一 step 重新调度</text>
+      </g>
+    </g>
+
+    <text x="800" y="824" text-anchor="middle" font-size="16" fill="#475569">该策略结构清楚，但 prefill 优先、头部阻塞、整序列重算与模式不可混合都会成为生产系统的优化方向。</text>
+  </g>
+</svg>

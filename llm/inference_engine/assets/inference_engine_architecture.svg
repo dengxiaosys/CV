@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="920" viewBox="0 0 1600 920" role="img" aria-labelledby="title desc">
+  <title id="title">LLM 推理引擎的控制面与数据面</title>
+  <desc id="desc">请求进入引擎后由调度器和 Block Manager 管理生命周期及 KV Cache，再由 Model Runner 组织输入并驱动模型、注意力内核、采样器和张量并行通信。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+    </marker>
+    <marker id="blue-arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#2563eb"/>
+    </marker>
+    <marker id="green-arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#16a34a"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="920" fill="#ffffff"/>
+  <g font-family="'Source Han Sans SC', Arial, sans-serif" fill="#0f172a">
+    <text x="64" y="62" font-size="32" font-weight="700">LLM 推理引擎：控制面决定“谁运行”，数据面完成“如何运行”</text>
+    <text x="64" y="100" font-size="18" fill="#475569">引擎的核心不是一次模型前向，而是围绕有限 HBM 持续执行调度、地址翻译、批处理、前向与回收。</text>
+
+    <g transform="translate(64 142)">
+      <rect x="0" y="0" width="300" height="664" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2"/>
+      <text x="28" y="42" font-size="23" font-weight="700">请求边界</text>
+      <text x="28" y="70" font-size="15" fill="#64748b">host DRAM 中的用户态对象</text>
+
+      <rect x="28" y="104" width="244" height="96" rx="8" fill="#ffffff" stroke="#64748b"/>
+      <text x="150" y="138" text-anchor="middle" font-size="18" font-weight="700">Prompt / Token IDs</text>
+      <text x="150" y="168" text-anchor="middle" font-size="15" fill="#475569">sampling params</text>
+
+      <line x1="150" y1="200" x2="150" y2="244" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+      <rect x="28" y="252" width="244" height="138" rx="8" fill="#dbeafe" stroke="#2563eb"/>
+      <text x="150" y="286" text-anchor="middle" font-size="18" font-weight="700">Sequence / Request</text>
+      <text x="48" y="320" font-size="15">• token 状态</text>
+      <text x="48" y="348" font-size="15">• 生命周期状态</text>
+      <text x="48" y="376" font-size="15">• 逻辑 block table</text>
+
+      <line x1="150" y1="390" x2="150" y2="434" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+
+      <rect x="28" y="442" width="244" height="96" rx="8" fill="#dcfce7" stroke="#16a34a"/>
+      <text x="150" y="478" text-anchor="middle" font-size="18" font-weight="700">Completion</text>
+      <text x="150" y="508" text-anchor="middle" font-size="15" fill="#166534">token IDs → 文本</text>
+
+      <rect x="28" y="578" width="244" height="56" rx="8" fill="#fff7ed" stroke="#fb923c"/>
+      <text x="150" y="612" text-anchor="middle" font-size="15" font-weight="700" fill="#9a3412">同步离线入口：批量请求一次入队</text>
+    </g>
+
+    <g transform="translate(410 142)">
+      <rect x="0" y="0" width="492" height="664" rx="8" fill="#eff6ff" stroke="#60a5fa" stroke-width="2"/>
+      <text x="28" y="42" font-size="23" font-weight="700" fill="#1e40af">控制面</text>
+      <text x="28" y="70" font-size="15" fill="#1d4ed8">状态、配额、策略与逻辑地址</text>
+
+      <rect x="28" y="104" width="436" height="132" rx="8" fill="#ffffff" stroke="#2563eb"/>
+      <text x="246" y="138" text-anchor="middle" font-size="19" font-weight="700">Scheduler</text>
+      <text x="50" y="174" font-size="15">waiting / running 队列</text>
+      <text x="50" y="202" font-size="15">prefill 或 decode 批选择</text>
+      <text x="270" y="174" font-size="15">token / sequence 预算</text>
+      <text x="270" y="202" font-size="15">抢占与终止处理</text>
+
+      <line x1="246" y1="236" x2="246" y2="278" stroke="#2563eb" stroke-width="2" marker-end="url(#blue-arrow)"/>
+
+      <rect x="28" y="286" width="436" height="178" rx="8" fill="#fef3c7" stroke="#d97706"/>
+      <text x="246" y="322" text-anchor="middle" font-size="19" font-weight="700">Block Manager</text>
+      <text x="50" y="358" font-size="15">逻辑 block → 物理 block ID</text>
+      <text x="50" y="386" font-size="15">free / used block 集合</text>
+      <text x="50" y="414" font-size="15">prefix hash 与精确 token 校验</text>
+      <text x="50" y="442" font-size="15">引用计数、分配与回收</text>
+
+      <line x1="246" y1="464" x2="246" y2="506" stroke="#2563eb" stroke-width="2" marker-end="url(#blue-arrow)"/>
+
+      <rect x="28" y="514" width="436" height="120" rx="8" fill="#ffffff" stroke="#64748b"/>
+      <text x="246" y="548" text-anchor="middle" font-size="19" font-weight="700">一步执行协议</text>
+      <text x="246" y="580" text-anchor="middle" font-size="16">schedule → run → postprocess</text>
+      <text x="246" y="608" text-anchor="middle" font-size="14" fill="#475569">每轮结束后重新观察系统状态</text>
+    </g>
+
+    <g transform="translate(948 142)">
+      <rect x="0" y="0" width="588" height="664" rx="8" fill="#faf5ff" stroke="#c4b5fd" stroke-width="2"/>
+      <text x="28" y="42" font-size="23" font-weight="700" fill="#6b21a8">数据面</text>
+      <text x="28" y="70" font-size="15" fill="#7e22ce">GPU 张量、物理地址与计算内核</text>
+
+      <rect x="28" y="104" width="532" height="126" rx="8" fill="#ffffff" stroke="#7c3aed"/>
+      <text x="294" y="138" text-anchor="middle" font-size="19" font-weight="700">Model Runner</text>
+      <text x="50" y="174" font-size="15">input IDs / positions / cu_seqlens</text>
+      <text x="322" y="174" font-size="15">slot mapping / block tables</text>
+      <text x="50" y="202" font-size="15">pinned host memory → HBM</text>
+      <text x="322" y="202" font-size="15">eager / CUDA Graph</text>
+
+      <line x1="294" y1="230" x2="294" y2="270" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrow)"/>
+
+      <g transform="translate(28 278)">
+        <rect x="0" y="0" width="252" height="144" rx="8" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="126" y="34" text-anchor="middle" font-size="18" font-weight="700">Transformer Shard</text>
+        <text x="22" y="70" font-size="15">QKV / MLP projections</text>
+        <text x="22" y="98" font-size="15">RMSNorm / RoPE</text>
+        <text x="22" y="126" font-size="15">TP collectives</text>
+
+        <rect x="280" y="0" width="252" height="144" rx="8" fill="#cffafe" stroke="#0891b2"/>
+        <text x="406" y="34" text-anchor="middle" font-size="18" font-weight="700">Attention Kernels</text>
+        <text x="302" y="70" font-size="15">写入 paged KV</text>
+        <text x="302" y="98" font-size="15">varlen prefill</text>
+        <text x="302" y="126" font-size="15">KV-cache decode</text>
+      </g>
+
+      <line x1="294" y1="422" x2="294" y2="462" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrow)"/>
+
+      <rect x="28" y="470" width="252" height="104" rx="8" fill="#fef3c7" stroke="#d97706"/>
+      <text x="154" y="506" text-anchor="middle" font-size="18" font-weight="700">KV Cache in HBM</text>
+      <text x="154" y="538" text-anchor="middle" font-size="15">[K/V, layer, block, slot, head]</text>
+
+      <rect x="308" y="470" width="252" height="104" rx="8" fill="#dcfce7" stroke="#16a34a"/>
+      <text x="434" y="506" text-anchor="middle" font-size="18" font-weight="700">Logits / Sampler</text>
+      <text x="434" y="538" text-anchor="middle" font-size="15">temperature + categorical sample</text>
+
+      <line x1="434" y1="574" x2="434" y2="620" stroke="#16a34a" stroke-width="2" marker-end="url(#green-arrow)"/>
+      <text x="434" y="646" text-anchor="middle" font-size="15" font-weight="700" fill="#166534">next token IDs</text>
+    </g>
+
+    <line x1="364" y1="394" x2="410" y2="394" stroke="#2563eb" stroke-width="3" marker-end="url(#blue-arrow)"/>
+    <text x="387" y="380" text-anchor="middle" font-size="13" fill="#1d4ed8">入队</text>
+
+    <line x1="902" y1="574" x2="948" y2="574" stroke="#7c3aed" stroke-width="3" marker-end="url(#arrow)"/>
+    <text x="925" y="558" text-anchor="middle" font-size="13" fill="#475569">batch</text>
+
+    <path d="M1242 806 C1242 864, 620 864, 620 806" fill="none" stroke="#16a34a" stroke-width="3" marker-end="url(#green-arrow)"/>
+    <text x="930" y="890" text-anchor="middle" font-size="16" font-weight="700" fill="#166534">采样结果回填：追加 token、判断终止、释放 block，再进入下一轮</text>
+
+    <g transform="translate(64 836)">
+      <rect x="0" y="0" width="300" height="48" rx="8" fill="#f1f5f9" stroke="#94a3b8"/>
+      <text x="150" y="30" text-anchor="middle" font-size="15" fill="#334155">host DRAM：请求元数据与控制状态</text>
+    </g>
+    <g transform="translate(1236 836)">
+      <rect x="0" y="0" width="300" height="48" rx="8" fill="#fff7ed" stroke="#fb923c"/>
+      <text x="150" y="30" text-anchor="middle" font-size="15" fill="#9a3412">HBM：权重、激活与 KV Cache</text>
+    </g>
+  </g>
+</svg>

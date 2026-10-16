@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1040" viewBox="0 0 1600 1040" role="img" aria-labelledby="title desc">
+  <title id="title">Prefill 与 Decode 的输入组织和 KV Cache 数据流</title>
+  <desc id="desc">Prefill 将不同长度的未缓存 token 压平，用 cu_seqlens 描述边界并写入 KV Cache；Decode 每个序列只输入最后一个 token，通过 context lengths 和 block tables 读取全部历史 KV。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#64748b"/>
+    </marker>
+    <marker id="blue-arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#2563eb"/>
+    </marker>
+    <marker id="purple-arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#7c3aed"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="1040" fill="#ffffff"/>
+  <g font-family="'Source Han Sans SC', Arial, sans-serif" fill="#0f172a">
+    <text x="64" y="62" font-size="32" font-weight="700">Prefill 与 Decode：同一个模型，两种完全不同的数据面</text>
+    <text x="64" y="100" font-size="18" fill="#475569">二者共享权重与 KV Cache，但输入粒度、attention 元数据、算术强度和 CUDA Graph 适用性均不同。</text>
+
+    <g transform="translate(64 146)">
+      <rect x="0" y="0" width="720" height="770" rx="8" fill="#eff6ff" stroke="#60a5fa" stroke-width="2"/>
+      <text x="28" y="42" font-size="24" font-weight="700" fill="#1e40af">Prefill：多个变长 prompt 的批量矩阵计算</text>
+      <text x="28" y="72" font-size="15" fill="#1d4ed8">每条序列输入所有“尚未缓存”的 token；每条序列只输出最后位置的 logits。</text>
+
+      <g transform="translate(28 108)">
+        <text x="0" y="20" font-size="17" font-weight="700">逻辑输入</text>
+        <rect x="0" y="40" width="72" height="42" rx="5" fill="#dbeafe" stroke="#2563eb"/>
+        <rect x="76" y="40" width="72" height="42" rx="5" fill="#dbeafe" stroke="#2563eb"/>
+        <rect x="152" y="40" width="72" height="42" rx="5" fill="#dbeafe" stroke="#2563eb"/>
+        <rect x="228" y="40" width="72" height="42" rx="5" fill="#dbeafe" stroke="#2563eb"/>
+        <text x="334" y="67" font-size="14">Seq A：4 tokens</text>
+
+        <rect x="0" y="94" width="72" height="42" rx="5" fill="#fef3c7" stroke="#d97706"/>
+        <rect x="76" y="94" width="72" height="42" rx="5" fill="#fef3c7" stroke="#d97706"/>
+        <text x="182" y="121" font-size="14">Seq B：2 个新 token，前缀已缓存</text>
+
+        <rect x="0" y="148" width="72" height="42" rx="5" fill="#dcfce7" stroke="#16a34a"/>
+        <rect x="76" y="148" width="72" height="42" rx="5" fill="#dcfce7" stroke="#16a34a"/>
+        <rect x="152" y="148" width="72" height="42" rx="5" fill="#dcfce7" stroke="#16a34a"/>
+        <text x="258" y="175" font-size="14">Seq C：3 tokens</text>
+      </g>
+
+      <line x1="360" y1="314" x2="360" y2="352" stroke="#2563eb" stroke-width="2" marker-end="url(#blue-arrow)"/>
+
+      <g transform="translate(28 360)">
+        <text x="0" y="20" font-size="17" font-weight="700">压平后的 GPU 输入</text>
+        <rect x="0" y="40" width="632" height="56" rx="6" fill="#ffffff" stroke="#2563eb"/>
+        <text x="16" y="74" font-size="15" font-weight="700">input_ids = [A0 A1 A2 A3 | B0 B1 | C0 C1 C2]</text>
+
+        <rect x="0" y="112" width="304" height="76" rx="6" fill="#ffffff" stroke="#64748b"/>
+        <text x="16" y="142" font-size="14" font-weight="700">cu_seqlens_q = [0, 4, 6, 9]</text>
+        <text x="16" y="168" font-size="13" fill="#475569">描述本轮 query 的边界</text>
+
+        <rect x="328" y="112" width="304" height="76" rx="6" fill="#ffffff" stroke="#64748b"/>
+        <text x="344" y="142" font-size="14" font-weight="700">cu_seqlens_k = [0, 4, 10, 13]</text>
+        <text x="344" y="168" font-size="13" fill="#475569">B 的 key 长度含 4 个缓存 token</text>
+
+        <rect x="0" y="204" width="632" height="68" rx="6" fill="#fef3c7" stroke="#d97706"/>
+        <text x="16" y="233" font-size="14" font-weight="700">slot_mapping[new token] → physical KV slot</text>
+        <text x="16" y="258" font-size="13" fill="#92400e">Triton kernel 把每层新 K/V 写到相应 HBM page</text>
+      </g>
+
+      <line x1="360" y1="632" x2="360" y2="670" stroke="#2563eb" stroke-width="2" marker-end="url(#blue-arrow)"/>
+      <rect x="28" y="678" width="632" height="68" rx="8" fill="#dbeafe" stroke="#2563eb"/>
+      <text x="344" y="707" text-anchor="middle" font-size="16" font-weight="700">flash_attn_varlen_func</text>
+      <text x="344" y="732" text-anchor="middle" font-size="14" fill="#1d4ed8">无 padding 的变长 attention；prefix 命中时额外传入 block table</text>
+    </g>
+
+    <g transform="translate(816 146)">
+      <rect x="0" y="0" width="720" height="770" rx="8" fill="#faf5ff" stroke="#c4b5fd" stroke-width="2"/>
+      <text x="28" y="42" font-size="24" font-weight="700" fill="#6b21a8">Decode：每条序列一个 query，读取全部历史 KV</text>
+      <text x="28" y="72" font-size="15" fill="#7e22ce">自回归依赖使时间维串行；batch 维仍可并行，主要压力转向权重与 KV 的 HBM 带宽。</text>
+
+      <g transform="translate(28 108)">
+        <text x="0" y="20" font-size="17" font-weight="700">每轮输入</text>
+        <rect x="0" y="40" width="112" height="54" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="56" y="73" text-anchor="middle" font-size="15" font-weight="700">A last</text>
+        <rect x="124" y="40" width="112" height="54" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="180" y="73" text-anchor="middle" font-size="15" font-weight="700">B last</text>
+        <rect x="248" y="40" width="112" height="54" rx="6" fill="#ede9fe" stroke="#7c3aed"/>
+        <text x="304" y="73" text-anchor="middle" font-size="15" font-weight="700">C last</text>
+        <text x="394" y="73" font-size="14">batch size = 3</text>
+      </g>
+
+      <line x1="360" y1="258" x2="360" y2="296" stroke="#7c3aed" stroke-width="2" marker-end="url(#purple-arrow)"/>
+
+      <g transform="translate(28 304)">
+        <rect x="0" y="0" width="304" height="78" rx="6" fill="#ffffff" stroke="#64748b"/>
+        <text x="16" y="31" font-size="14" font-weight="700">positions = [|A|-1, |B|-1, |C|-1]</text>
+        <text x="16" y="58" font-size="13" fill="#475569">当前 token 的绝对位置</text>
+
+        <rect x="328" y="0" width="304" height="78" rx="6" fill="#ffffff" stroke="#64748b"/>
+        <text x="344" y="31" font-size="14" font-weight="700">context_lens = [|A|, |B|, |C|]</text>
+        <text x="344" y="58" font-size="13" fill="#475569">每条序列可见的 KV 长度</text>
+
+        <rect x="0" y="96" width="304" height="78" rx="6" fill="#fef3c7" stroke="#d97706"/>
+        <text x="16" y="127" font-size="14" font-weight="700">slot_mapping = [slotA, slotB, slotC]</text>
+        <text x="16" y="154" font-size="13" fill="#92400e">新 K/V 的写地址</text>
+
+        <rect x="328" y="96" width="304" height="78" rx="6" fill="#fef3c7" stroke="#d97706"/>
+        <text x="344" y="127" font-size="14" font-weight="700">block_tables[R, max_blocks]</text>
+        <text x="344" y="154" font-size="13" fill="#92400e">历史逻辑页到物理页的映射</text>
+      </g>
+
+      <line x1="360" y1="478" x2="360" y2="516" stroke="#7c3aed" stroke-width="2" marker-end="url(#purple-arrow)"/>
+
+      <rect x="28" y="524" width="632" height="92" rx="8" fill="#cffafe" stroke="#0891b2"/>
+      <text x="344" y="558" text-anchor="middle" font-size="16" font-weight="700">flash_attn_with_kvcache</text>
+      <text x="344" y="586" text-anchor="middle" font-size="14" fill="#0e7490">Q 只有一个时间位置；K/V 从离散 pages 读取，输出一个 hidden state</text>
+
+      <line x1="360" y1="616" x2="360" y2="654" stroke="#7c3aed" stroke-width="2" marker-end="url(#purple-arrow)"/>
+      <rect x="28" y="662" width="632" height="84" rx="8" fill="#ede9fe" stroke="#7c3aed"/>
+      <text x="344" y="695" text-anchor="middle" font-size="16" font-weight="700">LM head → temperature → categorical sample</text>
+      <text x="344" y="722" text-anchor="middle" font-size="14" fill="#6b21a8">每条序列得到一个 next token，随后回到 Scheduler</text>
+    </g>
+
+    <g transform="translate(64 950)">
+      <rect x="0" y="0" width="720" height="42" rx="6" fill="#eff6ff" stroke="#60a5fa"/>
+      <text x="360" y="27" text-anchor="middle" font-size="15" fill="#1e40af">Prefill：较高算术强度、动态 token 数、通常走 eager。</text>
+      <rect x="752" y="0" width="720" height="42" rx="6" fill="#faf5ff" stroke="#c4b5fd"/>
+      <text x="1112" y="27" text-anchor="middle" font-size="15" fill="#6b21a8">Decode：重复拓扑、小 kernel、多次迭代，适合 CUDA Graph replay。</text>
+    </g>
+  </g>
+</svg>
